@@ -1,9 +1,9 @@
+import express from "express";
 import {
   createCustomer,
   getCustomer,
   getCustomers,
 } from "@/controllers/customerController";
-import express from "express";
 const customerRouter = express.Router();
 
 customerRouter.get("/customers", getCustomers);

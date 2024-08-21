@@ -1,17 +1,20 @@
 import express from "express"; // Import the Express framework
 import customerRouter from "./routes/customerRoutes";
+import userRouter from "./routes/userRoutes";
+import shopRouter from "./routes/shopRoutes";
 
 require("dotenv").config(); // Load environment variables from a .env file into process.env
 const cors = require("cors"); // Import the CORS middleware
 const app = express(); // Create an Express application instance
 
-console.log("hello");
 app.use(cors()); // Enable Cross-Origin Resource Sharing (CORS) for all routes
 
 const PORT = process.env.PORT || 8000; // Set the server's port from environment variables or default to 8000
 
 app.use(express.json()); // Parse incoming JSON requests and make the data available in req.body
 app.use("/api/v1", customerRouter); // Routes will be available under /api/v1
+app.use("/api/v1", userRouter);
+app.use("/api/v1", shopRouter);
 
 try {
   app.listen(PORT, () => {
