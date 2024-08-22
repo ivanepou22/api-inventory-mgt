@@ -20,7 +20,10 @@ export const createCustomer = async (req: Request, res: Response) => {
       },
     });
 
-    return res.status(201).json(newCustomer);
+    return res.status(201).json({
+      data: newCustomer,
+      message: "Customer created Successfully.",
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Failed to create customer" });
@@ -36,7 +39,9 @@ export const getCustomers = async (_req: Request, res: Response) => {
       },
     });
 
-    return res.status(200).json(customers);
+    return res.status(200).json({
+      data: customers,
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Failed to retrieve customers" });
@@ -58,7 +63,9 @@ export const getCustomer = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Customer not found" });
     }
 
-    return res.status(200).json(customer);
+    return res.status(200).json({
+      data: customer,
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Failed to retrieve customer" });
@@ -95,7 +102,10 @@ export const updateCustomer = async (req: Request, res: Response) => {
       },
     });
 
-    return res.status(200).json(updatedCustomer);
+    return res.status(200).json({
+      data: updatedCustomer,
+      message: `Customer updated successfully`,
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Failed to update customer" });
@@ -119,7 +129,9 @@ export const deleteCustomer = async (req: Request, res: Response) => {
       where: { id },
     });
 
-    return res.status(204).send(); // No content response for successful deletion
+    return res.status(200).json({
+      message: `Customer deleted successfully`,
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Failed to delete customer" });
