@@ -26,10 +26,9 @@ export const createUser = async (req: Request, res: Response) => {
     });
 
     if (userByEmail) {
-      res
+      return res
         .status(409)
         .json({ error: `Email: ${email} is Already taken`, data: null });
-      return;
     }
 
     const userByUsername = await db.user.findUnique({
@@ -39,10 +38,9 @@ export const createUser = async (req: Request, res: Response) => {
     });
 
     if (userByUsername) {
-      res
+      return res
         .status(409)
         .json({ error: `Username: ${username} is Already taken`, data: null });
-      return;
     }
 
     const userByPhone = await db.user.findUnique({
@@ -51,10 +49,9 @@ export const createUser = async (req: Request, res: Response) => {
       },
     });
     if (userByPhone) {
-      res
+      return res
         .status(409)
         .json({ error: `Phone Number: ${phone} is Already taken`, data: null });
-      return;
     }
     //hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -150,11 +147,63 @@ export const updateUser = async (req: Request, res: Response) => {
     // Find the user first
     const existingUser = await db.user.findUnique({
       where: { id },
-      select: { id: true }, // Fetch only required data
+      select: {
+        id: true,
+        email,
+        username,
+        firstName,
+        lastName,
+        phone,
+        dob,
+        gender,
+        image: image,
+      }, // Fetch only required data
     });
 
     if (!existingUser) {
       return res.status(404).json({ error: "User not found." });
+    }
+
+    //check if the user exists by email, username and phone
+    if (email && email !== existingUser.email) {
+      const userByEmail = await db.user.findUnique({
+        where: {
+          email,
+        },
+      });
+      if (userByEmail) {
+        return res
+          .status(409)
+          .json({ error: `Email: ${email} is Already taken`, data: null });
+      }
+    }
+
+    if (username && username !== existingUser.username) {
+      const userByUsername = await db.user.findUnique({
+        where: {
+          username,
+        },
+      });
+      if (userByUsername) {
+        return res.status(409).json({
+          error: `Username: ${username} is Already taken`,
+          data: null,
+        });
+      }
+    }
+
+    if (phone && phone !== existingUser.phone) {
+      const userByPhone = await db.user.findUnique({
+        where: {
+          phone,
+        },
+      });
+      if (userByPhone) {
+        return res.status(409).json({
+          error: `Phone Number: ${phone} is Already taken`,
+          data: null,
+        });
+      }
     }
 
     // Perform the update
