@@ -3,20 +3,82 @@ import { Request, Response } from "express";
 
 // Create a new customer
 export const createCustomer = async (req: Request, res: Response) => {
-  const { name, email, phone } = req.body;
+  const {
+    customerType,
+    firstName,
+    lastName,
+    phone,
+    gender,
+    image,
+    country,
+    location,
+    maxCreditLimit,
+    maxCreditDays,
+    taxPin,
+    dob,
+    email,
+    NIN,
+  } = req.body;
 
-  if (!name || !email || !phone) {
-    return res
-      .status(400)
-      .json({ error: "Name, email, and phone are required" });
+  const customerByPhone = await db.customer.findUnique({
+    where: {
+      phone,
+    },
+  });
+  if (customerByPhone) {
+    return res.status(409).json({
+      error: `Phone Number: ${phone} is Already in use by another Customer`,
+      data: null,
+    });
+  }
+
+  if (email) {
+    const customerByEmail = await db.customer.findUnique({
+      where: {
+        email,
+      },
+    });
+    if (customerByEmail) {
+      return res.status(409).json({
+        error: `Email: ${email} is Already in use by another Customer`,
+        data: null,
+      });
+    }
+  }
+
+  if (NIN) {
+    const customerByNin = await db.customer.findUnique({
+      where: {
+        NIN,
+      },
+    });
+    if (customerByNin) {
+      return res.status(409).json({
+        error: `NIN: ${NIN} is Already in use by another Customer`,
+        data: null,
+      });
+    }
   }
 
   try {
     const newCustomer = await db.customer.create({
       data: {
-        name,
-        email,
+        customerType,
+        firstName,
+        lastName,
         phone,
+        gender,
+        country,
+        location,
+        maxCreditLimit,
+        maxCreditDays,
+        taxPin,
+        dob,
+        email,
+        NIN,
+        image: image
+          ? image
+          : "https://utfs.io/f/276c9ec4-bff3-40fc-8759-6b4c362c1e59-o0u7dg.png",
       },
     });
 
@@ -75,14 +137,22 @@ export const getCustomer = async (req: Request, res: Response) => {
 // Update a customer by ID
 export const updateCustomer = async (req: Request, res: Response) => {
   const id = req.params.id;
-  const { name, email, phone } = req.body;
-
-  if (!name && !email && !phone) {
-    return res.status(400).json({
-      error:
-        "At least one field (name, email, or phone) is required for update",
-    });
-  }
+  const {
+    customerType,
+    firstName,
+    lastName,
+    phone,
+    gender,
+    image,
+    country,
+    location,
+    maxCreditLimit,
+    maxCreditDays,
+    taxPin,
+    dob,
+    email,
+    NIN,
+  } = req.body;
 
   try {
     const existingCustomer = await db.customer.findUnique({
@@ -93,12 +163,65 @@ export const updateCustomer = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Customer not found" });
     }
 
+    if (phone && phone !== existingCustomer.phone) {
+      const customerByPhone = await db.customer.findUnique({
+        where: {
+          phone,
+        },
+      });
+      if (customerByPhone) {
+        return res.status(409).json({
+          error: `Phone Number: ${phone} is Already in use by another Customer`,
+          data: null,
+        });
+      }
+    }
+
+    if (email && email !== existingCustomer.email) {
+      const customerByEmail = await db.customer.findUnique({
+        where: {
+          email,
+        },
+      });
+      if (customerByEmail) {
+        return res.status(409).json({
+          error: `Email: ${email} is Already in use by another Customer`,
+          data: null,
+        });
+      }
+    }
+
+    if (NIN && NIN !== existingCustomer.NIN) {
+      const customerByNin = await db.customer.findUnique({
+        where: {
+          NIN,
+        },
+      });
+      if (customerByNin) {
+        return res.status(409).json({
+          error: `NIN: ${NIN} is Already in use by another Customer`,
+          data: null,
+        });
+      }
+    }
+
     const updatedCustomer = await db.customer.update({
       where: { id },
       data: {
-        name: name || existingCustomer.name,
-        email: email || existingCustomer.email,
+        customerType: customerType || existingCustomer.customerType,
+        firstName: firstName || existingCustomer.firstName,
+        lastName: lastName || existingCustomer.lastName,
         phone: phone || existingCustomer.phone,
+        gender: gender || existingCustomer.gender,
+        image: image || existingCustomer.image,
+        country: country || existingCustomer.country,
+        location: location || existingCustomer.location,
+        maxCreditLimit: maxCreditLimit || existingCustomer.maxCreditLimit,
+        maxCreditDays: maxCreditDays || existingCustomer.maxCreditDays,
+        taxPin: taxPin || existingCustomer.taxPin,
+        dob: dob || existingCustomer.dob,
+        email: email || existingCustomer.email,
+        NIN: NIN || existingCustomer.NIN,
       },
     });
 

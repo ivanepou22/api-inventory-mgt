@@ -14,12 +14,31 @@ datasource db {
 }
 
 model Customer {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  email     String   @unique
-  phone     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  customerType   CustomerType
+  firstName      String
+  lastName       String
+  phone          String       @unique
+  gender         Gender
+  image          String?
+  country        String
+  location       String
+  maxCreditLimit Float
+  maxCreditDays  Int
+  taxPin         String?
+  dob            DateTime?
+  email          String?      @unique
+  NIN            String?      @unique
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+enum CustomerType {
+  RETAIL
+  WHOLESALE
+  DISTRIBUTOR
+  FOREIGN
+  OTHER
 }
 
 model User {
@@ -60,4 +79,34 @@ model Shop {
   adminId      String   @db.ObjectId
   admin        User     @relation(fields: [adminId], references: [id])
   attendantIds String[] @db.ObjectId
+}
+
+model Supplier {
+  id                String       @id @default(auto()) @map("_id") @db.ObjectId
+  supplierType      SupplierType
+  name              String
+  contactPerson     String
+  phone             String       @unique
+  email             String?      @unique
+  country           String
+  location          String
+  website           String?
+  taxPin            String?
+  regNumber         String?      @unique
+  bankAccountNumber String?
+  bankName          String?
+  paymentTerms      String?
+  logo              String?      @default("https://utfs.io/f/7d3eb071-433f-47e9-b962-7de707bdbeb2-uwz78d.png")
+  rating            Float?
+  note              String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+}
+
+enum SupplierType {
+  MANUFACTURER
+  DISTRIBUTIOR
+  WHOLESALER
+  RETAILER
+  OTHER
 }

@@ -99,6 +99,19 @@ export const updateShop = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Shop not found." });
     }
 
+    if (slug) {
+      const shopExists = await db.shop.findUnique({
+        where: {
+          slug,
+        },
+      });
+      if (shopExists) {
+        return res.status(409).json({
+          error: `Shop with slug: ${slug} already exists`,
+        });
+      }
+    }
+
     // Perform the update
     const updatedShop = await db.shop.update({
       where: { id },
