@@ -5,18 +5,22 @@ import { Request, Response } from "express";
 export const createCustomer = async (req: Request, res: Response) => {
   const {
     customerType,
-    firstName,
-    lastName,
+    name,
     phone,
-    gender,
+    email,
     image,
     country,
-    location,
+    address,
+    address_2,
+    website,
     maxCreditLimit,
     maxCreditDays,
+    contactPerson,
+    contact_phone,
+    contact_email,
     taxPin,
-    dob,
-    email,
+    regNumber,
+    paymentTerms,
     NIN,
   } = req.body;
 
@@ -46,35 +50,25 @@ export const createCustomer = async (req: Request, res: Response) => {
     }
   }
 
-  if (NIN) {
-    const customerByNin = await db.customer.findUnique({
-      where: {
-        NIN,
-      },
-    });
-    if (customerByNin) {
-      return res.status(409).json({
-        error: `NIN: ${NIN} is Already in use by another Customer`,
-        data: null,
-      });
-    }
-  }
-
   try {
     const newCustomer = await db.customer.create({
       data: {
         customerType,
-        firstName,
-        lastName,
+        name,
         phone,
-        gender,
+        email,
         country,
-        location,
+        address,
+        address_2,
+        website,
         maxCreditLimit,
         maxCreditDays,
+        contactPerson,
+        contact_phone,
+        contact_email,
         taxPin,
-        dob,
-        email,
+        regNumber,
+        paymentTerms,
         NIN,
         image: image
           ? image
@@ -139,18 +133,22 @@ export const updateCustomer = async (req: Request, res: Response) => {
   const id = req.params.id;
   const {
     customerType,
-    firstName,
-    lastName,
+    name,
     phone,
-    gender,
+    email,
     image,
     country,
-    location,
+    address,
+    address_2,
+    website,
     maxCreditLimit,
     maxCreditDays,
+    contactPerson,
+    contact_phone,
+    contact_email,
     taxPin,
-    dob,
-    email,
+    regNumber,
+    paymentTerms,
     NIN,
   } = req.body;
 
@@ -191,36 +189,26 @@ export const updateCustomer = async (req: Request, res: Response) => {
       }
     }
 
-    if (NIN && NIN !== existingCustomer.NIN) {
-      const customerByNin = await db.customer.findUnique({
-        where: {
-          NIN,
-        },
-      });
-      if (customerByNin) {
-        return res.status(409).json({
-          error: `NIN: ${NIN} is Already in use by another Customer`,
-          data: null,
-        });
-      }
-    }
-
     const updatedCustomer = await db.customer.update({
       where: { id },
       data: {
         customerType: customerType || existingCustomer.customerType,
-        firstName: firstName || existingCustomer.firstName,
-        lastName: lastName || existingCustomer.lastName,
+        name: name || existingCustomer.name,
         phone: phone || existingCustomer.phone,
-        gender: gender || existingCustomer.gender,
+        email: email || existingCustomer.email,
         image: image || existingCustomer.image,
         country: country || existingCustomer.country,
-        location: location || existingCustomer.location,
+        address: address || existingCustomer.address,
+        address_2: address_2 || existingCustomer.address,
+        website: website || existingCustomer.website,
         maxCreditLimit: maxCreditLimit || existingCustomer.maxCreditLimit,
         maxCreditDays: maxCreditDays || existingCustomer.maxCreditDays,
+        contactPerson: contactPerson || existingCustomer.contactPerson,
+        contact_phone: contact_phone || existingCustomer.contact_phone,
+        contact_email: contact_email || existingCustomer.contact_email,
         taxPin: taxPin || existingCustomer.taxPin,
-        dob: dob || existingCustomer.dob,
-        email: email || existingCustomer.email,
+        regNumber: regNumber || existingCustomer.regNumber,
+        paymentTerms: paymentTerms || existingCustomer.paymentTerms,
         NIN: NIN || existingCustomer.NIN,
       },
     });

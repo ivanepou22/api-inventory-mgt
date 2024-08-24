@@ -16,19 +16,23 @@ datasource db {
 model Customer {
   id             String       @id @default(auto()) @map("_id") @db.ObjectId
   customerType   CustomerType
-  firstName      String
-  lastName       String
+  name           String
   phone          String       @unique
-  gender         Gender
+  email          String?      @unique
   image          String?
   country        String
-  location       String
+  address        String
+  address_2      String?
+  website        String?
   maxCreditLimit Float
   maxCreditDays  Int
+  contactPerson  String?
+  contact_phone  String?
+  contact_email  String?
   taxPin         String?
-  dob            DateTime?
-  email          String?      @unique
-  NIN            String?      @unique
+  regNumber      String?
+  paymentTerms   String?
+  NIN            String?
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 }
