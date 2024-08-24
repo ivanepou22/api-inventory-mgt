@@ -10,8 +10,8 @@ export async function generateAccessToken(
   payload: JwtPayload,
   options: SignOption = DEFAULT_SIGN_OPTION
 ) {
-  const secret = process.env.SECRET_KEY;
-  // Use this command to generate SECRET_KEY: openssl rand -base64 32
+  const secret = process.env.ACCESS_TOKEN_SECRET;
+  // Use this command to generate ACCESS_TOKEN_SECRET: openssl rand -base64 32
   const token = jwt.sign(payload, secret!, options);
   return token;
 }
