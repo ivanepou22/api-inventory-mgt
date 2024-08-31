@@ -1,3 +1,4 @@
+import express from "express";
 import {
   createShop,
   deleteShop,
@@ -6,7 +7,6 @@ import {
   getShops,
   updateShop,
 } from "@/controllers/shopController";
-import express from "express";
 
 const shopRouter = express.Router();
 

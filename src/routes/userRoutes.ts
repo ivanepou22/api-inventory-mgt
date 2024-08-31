@@ -1,3 +1,4 @@
+import express from "express";
 import {
   createUser,
   deleteUser,
@@ -8,7 +9,6 @@ import {
   updateUser,
   updateUserPassword,
 } from "@/controllers/userController";
-import express from "express";
 const userRouter = express.Router();
 
 userRouter.post("/users", createUser);

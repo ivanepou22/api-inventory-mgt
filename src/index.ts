@@ -4,7 +4,12 @@ import userRouter from "./routes/userRoutes";
 import shopRouter from "./routes/shopRoutes";
 import supplierRouter from "./routes/supplierRoutes";
 import loginRouter from "./routes/loginRoutes";
-
+import productTagRouter from "./routes/productTagRoutes";
+import brandRouter from "./routes/brandRoutes";
+import unitRouter from "./routes/unitRoutes";
+import categoryRouter from "./routes/categoryRoutes";
+import productRouter from "./routes/productRoutes";
+console.log("object");
 require("dotenv").config(); // Load environment variables from a .env file into process.env
 const cors = require("cors"); // Import the CORS middleware
 const app = express(); // Create an Express application instance
@@ -19,6 +24,11 @@ app.use("/api/v1", shopRouter);
 app.use("/api/v1", supplierRouter);
 app.use("/api/v1", customerRouter); // Routes will be available under /api/v1
 app.use("/api/v1", loginRouter); // Routes will be available under /api/v1
+app.use("/api/v1", productTagRouter); // Routes will be available under /api/v1
+app.use("/api/v1", brandRouter); // Routes will be available under /api/v1
+app.use("/api/v1", unitRouter); // Routes will be available under /api/v1
+app.use("/api/v1", categoryRouter); // Routes will be available under /api/v1
+app.use("/api/v1", productRouter); // Routes will be available under /api/v1
 
 try {
   app.listen(PORT, () => {

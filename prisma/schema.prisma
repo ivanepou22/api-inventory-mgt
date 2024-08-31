@@ -103,6 +103,7 @@ model Supplier {
   logo              String?      @default("https://utfs.io/f/7d3eb071-433f-47e9-b962-7de707bdbeb2-uwz78d.png")
   rating            Float?
   note              String?
+  products          Product[]
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
 }
@@ -113,4 +114,230 @@ enum SupplierType {
   WHOLESALER
   RETAILER
   OTHER
+}
+
+model Unit {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  abbreviation String
+  slug         String    @unique
+  products     Product[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Brand {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  slug      String    @unique
+  image     String?
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Category {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  slug      String    @unique
+  image     String?
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Product {
+  id               String            @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  description      String?
+  sku              String            @unique
+  productCode      String            @unique
+  slug             String            @unique
+  expiryDate       DateTime?         @default("2024-08-30T20:11:57.173Z")
+  alertQty         Int
+  unitPrice        Float
+  unitCost         Float?
+  batchNo          String?
+  featured         Boolean?
+  productContent   String?
+  taxMethod        String?
+  productTax       Float?
+  stockQty         Float?
+  barCode          String?           @unique
+  status           ProductStatus     @default(ACTIVE)
+  Unit             Unit?             @relation(fields: [unitId], references: [id])
+  unitId           String?           @db.ObjectId
+  Brand            Brand?            @relation(fields: [brandId], references: [id])
+  brandId          String?           @db.ObjectId
+  Category         Category?         @relation(fields: [categoryId], references: [id])
+  categoryId       String?           @db.ObjectId
+  Supplier         Supplier?         @relation(fields: [supplierId], references: [id])
+  supplierId       String?           @db.ObjectId
+  media            Media[]
+  seoMeta          SeoMeta[]
+  productVariants  ProductVariant[]
+  warehouseStocks  WarehouseStock[]
+  stockHistories   StockHistory[]
+  productRelations ProductRelation[]
+  discounts        Discount[]
+  tags             ProductTag[]
+  versions         ProductVersion[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+}
+
+model Media {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  productId String    @db.ObjectId
+  url       String
+  type      MediaType
+  altText   String?
+  position  Int?
+  product   Product   @relation(fields: [productId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  DOCUMENT
+}
+
+model SeoMeta {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId       String   @db.ObjectId
+  metaTitle       String?
+  metaDescription String?
+  metaKeywords    String?
+  product         Product  @relation(fields: [productId], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model ProductVariant {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId   String   @db.ObjectId
+  sku         String   @unique
+  variantName String
+  stockQty    Float?
+  unitPrice   Float
+  unitCost    Float?
+  barCode     String?  @unique
+  product     Product  @relation(fields: [productId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model WarehouseStock {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  warehouseId String   @db.ObjectId
+  productId   String   @db.ObjectId
+  stockQty    Float?
+  alertQty    Int?
+  product     Product  @relation(fields: [productId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model StockHistory {
+  id           String          @id @default(auto()) @map("_id") @db.ObjectId
+  entryType    StockEntryType?
+  postingDate  DateTime
+  documentType DocumentType?
+  documentNo   String?
+  productId    String          @db.ObjectId
+  description  String?
+  locationCode String?
+  quantity     Float
+  invoicedQty  Float?
+  remainingQty Float?
+  salesAmount  Float?
+  costAmount   Float?
+  open         Boolean
+  entryNo      Int // Auto-incrementing entry number
+  product      Product         @relation(fields: [productId], references: [id])
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+}
+
+enum StockEntryType {
+  PURCHASE
+  SALE
+  POSITIVE_ADJUST
+  NEGATIVE_ADJUST
+  TRANSFER
+  CONSUMPTION
+  OUTPUT
+  ASSEMBLY_CONSUMPTION
+  ASSEMBLY_OUTPUT
+  NONE
+}
+
+enum DocumentType {
+  SALES_SHIPMENT
+  SALES_INVOICE
+  SALES_RETURN_RECEIPT
+  SALES_CREDIT_MEMO
+  PURCHASE_RECEIPT
+  PURCHASE_INVOICE
+  PURCHASE_RETURN_SHIPMENT
+  PURCHASE_CREDIT_MEMO
+  TRANSFER_SHIPMENT
+  TRANSFER_RECEIPT
+  SERVICE_SHIPMENT
+  SERVICE_INVOICE
+  SERVICE_CREDIT_MEMO
+  POSTED_ASSEMBLY
+  INVENTORY_RECEIPT
+  INVENTORY_SHIPMENT
+  DIRECT_TRANSFER
+}
+
+model ProductRelation {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId        String   @db.ObjectId
+  relatedProductId String   @db.ObjectId
+  relationType     String // Upsell, Cross-sell, etc.
+  product          Product  @relation(fields: [productId], references: [id])
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Discount {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId          String   @db.ObjectId
+  discountPercentage Float
+  startDate          DateTime
+  endDate            DateTime
+  active             Boolean  @default(true)
+  product            Product  @relation(fields: [productId], references: [id])
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model ProductTag {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId String   @db.ObjectId
+  tagName   String
+  product   Product  @relation(fields: [productId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ProductVersion {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId String   @db.ObjectId
+  version   Int
+  changes   Json
+  product   Product  @relation(fields: [productId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+  OUT_OF_STOCK
+  DISCONTINUED
 }
