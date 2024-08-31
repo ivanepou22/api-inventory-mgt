@@ -13,6 +13,7 @@ export const createProduct = async (req: Request, res: Response) => {
       expiryDate,
       alertQty,
       unitPrice,
+      wholeSalePrice,
       unitCost,
       batchNo,
       featured,
@@ -25,6 +26,7 @@ export const createProduct = async (req: Request, res: Response) => {
       brandId,
       categoryId,
       supplierId,
+      shopId,
       status,
     } = req.body;
 
@@ -86,6 +88,7 @@ export const createProduct = async (req: Request, res: Response) => {
         expiryDate: new Date(expiryDate),
         alertQty,
         unitPrice,
+        wholeSalePrice,
         unitCost,
         batchNo,
         featured,
@@ -99,6 +102,7 @@ export const createProduct = async (req: Request, res: Response) => {
         Brand: brandId ? { connect: { id: brandId } } : undefined,
         Category: categoryId ? { connect: { id: categoryId } } : undefined,
         Supplier: supplierId ? { connect: { id: supplierId } } : undefined,
+        Shop: shopId ? { connect: { id: shopId } } : undefined,
       },
     });
     res.status(201).json({ data: product });
@@ -178,6 +182,7 @@ export const updateProduct = async (req: Request, res: Response) => {
       expiryDate,
       alertQty,
       unitPrice,
+      wholeSalePrice,
       unitCost,
       batchNo,
       featured,
@@ -190,6 +195,7 @@ export const updateProduct = async (req: Request, res: Response) => {
       brandId,
       categoryId,
       supplierId,
+      shopId,
       status,
     } = req.body;
 
@@ -266,6 +272,7 @@ export const updateProduct = async (req: Request, res: Response) => {
         expiryDate,
         alertQty,
         unitPrice,
+        wholeSalePrice,
         unitCost,
         batchNo,
         featured,
@@ -278,6 +285,7 @@ export const updateProduct = async (req: Request, res: Response) => {
         brandId,
         categoryId,
         supplierId,
+        shopId,
         status,
       },
     });

@@ -74,15 +74,16 @@ enum Role {
 }
 
 model Shop {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
   name         String
-  slug         String   @unique
+  slug         String    @unique
   location     String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  adminId      String   @db.ObjectId
-  admin        User     @relation(fields: [adminId], references: [id])
-  attendantIds String[] @db.ObjectId
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  adminId      String    @db.ObjectId
+  admin        User      @relation(fields: [adminId], references: [id])
+  attendantIds String[]  @db.ObjectId
+  Products     Product[]
 }
 
 model Supplier {
@@ -156,6 +157,7 @@ model Product {
   expiryDate       DateTime?         @default("2024-08-30T20:11:57.173Z")
   alertQty         Int
   unitPrice        Float
+  wholeSalePrice   Float?            @default(0)
   unitCost         Float?
   batchNo          String?
   featured         Boolean?
@@ -167,6 +169,8 @@ model Product {
   status           ProductStatus     @default(ACTIVE)
   Unit             Unit?             @relation(fields: [unitId], references: [id])
   unitId           String?           @db.ObjectId
+  Shop             Shop?             @relation(fields: [shopId], references: [id])
+  shopId           String?           @default("66c5ea9361d22bb4f6af4e2b") @db.ObjectId
   Brand            Brand?            @relation(fields: [brandId], references: [id])
   brandId          String?           @db.ObjectId
   Category         Category?         @relation(fields: [categoryId], references: [id])
