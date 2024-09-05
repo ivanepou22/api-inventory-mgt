@@ -20,7 +20,6 @@ export const createProduct = async (req: Request, res: Response) => {
       productContent,
       taxMethod,
       productTax,
-      stockQty,
       barCode,
       unitId,
       brandId,
@@ -95,7 +94,6 @@ export const createProduct = async (req: Request, res: Response) => {
         productContent,
         taxMethod,
         productTax,
-        stockQty,
         barCode,
         status,
         Unit: unitId ? { connect: { id: unitId } } : undefined,
@@ -189,7 +187,6 @@ export const updateProduct = async (req: Request, res: Response) => {
       productContent,
       taxMethod,
       productTax,
-      stockQty,
       barCode,
       unitId,
       brandId,
@@ -279,7 +276,6 @@ export const updateProduct = async (req: Request, res: Response) => {
         productContent,
         taxMethod,
         productTax,
-        stockQty,
         barCode,
         unitId,
         brandId,
@@ -289,6 +285,7 @@ export const updateProduct = async (req: Request, res: Response) => {
         status,
       },
     });
+
     res.status(200).json({ data: updatedProduct });
   } catch (error) {
     console.error("Error updating Unit:", error);
@@ -401,5 +398,53 @@ export const getProductsByCategory = async (req: Request, res: Response) => {
     res.status(500).json({
       error: "An error occurred while fetching products by category",
     });
+  }
+};
+
+//positive adjustment of stock quantity
+export const updateStockQty = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { stockQty } = req.body;
+    const product = await db.product.findUnique({
+      where: { id },
+    });
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+    const updatedProduct = await db.product.update({
+      where: { id },
+      data: { stockQty: product.stockQty + stockQty },
+    });
+    res.status(200).json({ data: updatedProduct });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "An error occurred while updating the stock quantity" });
+  }
+};
+
+//negative adjustment of stock quantity
+export const negativeStockQty = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { stockQty } = req.body;
+    const product = await db.product.findUnique({
+      where: { id },
+    });
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+    const updatedProduct = await db.product.update({
+      where: { id },
+      data: {
+        stockQty: product.stockQty !== null ? product.stockQty - stockQty : 0,
+      },
+    });
+    res.status(200).json({ data: updatedProduct });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "An error occurred while updating the stock quantity" });
   }
 };
