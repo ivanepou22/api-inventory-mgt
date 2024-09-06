@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -43,26 +37,29 @@ enum CustomerType {
   WHOLESALE
   DISTRIBUTOR
   FOREIGN
+  ONLINE
   OTHER
 }
 
 model User {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  email     String    @unique
-  username  String    @unique
-  password  String
-  firstName String
-  lastName  String
-  phone     String    @unique
-  dob       DateTime?
-  gender    Gender
-  image     String?
-  role      Role      @default(ATTENDANT)
-  isVerfied Boolean   @default(false)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  shops     Shop[]
-  Order     Order[]
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  email            String    @unique
+  username         String    @unique
+  password         String
+  firstName        String
+  lastName         String
+  phone            String    @unique
+  dob              DateTime?
+  gender           Gender
+  image            String?
+  role             Role      @default(ATTENDANT)
+  isVerfied        Boolean   @default(false)
+  resetToken       String?
+  resetTokenExpiry DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  shops            Shop[]
+  Order            Order[]
 }
 
 enum Gender {
@@ -73,6 +70,7 @@ enum Gender {
 enum Role {
   ADMIN
   ATTENDANT
+  ONLINE_SALESS
 }
 
 model Shop {
@@ -80,13 +78,13 @@ model Shop {
   name         String
   slug         String    @unique
   location     String
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
   adminId      String    @db.ObjectId
   admin        User      @relation(fields: [adminId], references: [id])
   attendantIds String[]  @db.ObjectId
   Products     Product[]
-  Order        Order[]
+  Sales        Order[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 }
 
 model Supplier {
