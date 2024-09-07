@@ -26,7 +26,7 @@ export type Order = {
 
 export type OrderItem = {
   id: string;
-  orderId: string;
+  salesHeaderId: string;
   productId: string;
   productName: string;
   productCode: string;
@@ -43,7 +43,7 @@ export type OrderItem = {
 
 export type OrderPayment = {
   id: string;
-  orderId: string;
+  salesHeaderId: string;
   amount: number;
   paymentMethod: string;
   paymentDate?: Date | null;
@@ -70,6 +70,7 @@ export type CreateOrderInput = {
 export type CreateOrderItemInput = {
   productId: string;
   quantity: number;
+  price?: number;
   lineDiscount?: number;
   lineTax?: number;
   productImage?: string;
@@ -82,7 +83,7 @@ export type CreateOrderPaymentInput = {
 };
 
 export type OrderPaymentCreateManyInput = {
-  orderId: string;
+  salesHeaderId: string;
   amount: number;
   paymentMethod: string;
   paymentDate: Date;

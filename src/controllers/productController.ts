@@ -1,6 +1,6 @@
 import { db } from "@/db/db";
+import { slugify } from "@/utils/functions";
 import { Request, Response } from "express";
-const slugifyImport = import("slugify");
 
 // Create a new product
 export const createProduct = async (req: Request, res: Response) => {
@@ -321,11 +321,6 @@ export const deleteProduct = async (req: Request, res: Response) => {
       error: "An unexpected error occurred. Please try again later.",
     });
   }
-};
-
-const slugify = async (str: string): Promise<string> => {
-  const slugifyModule = await slugifyImport;
-  return slugifyModule.default(str, { lower: true });
 };
 
 // Get products by brand

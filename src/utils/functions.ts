@@ -1,4 +1,5 @@
 import { db } from "@/db/db";
+const slugifyImport = import("slugify");
 
 // Generate order number
 export const generateOrderNumber = async (): Promise<string> => {
@@ -10,7 +11,7 @@ export const generateOrderNumber = async (): Promise<string> => {
   // Get the count of orders for today
   const todayStart = new Date(date.setHours(0, 0, 0, 0));
   const todayEnd = new Date(date.setHours(23, 59, 59, 999));
-  const orderCount = await db.order.count({
+  const orderCount = await db.salesHeader.count({
     where: {
       createdAt: {
         gte: todayStart,
@@ -23,6 +24,11 @@ export const generateOrderNumber = async (): Promise<string> => {
   const sequence = (orderCount + 1).toString().padStart(4, "0");
 
   return `ORD-${year}${month}${day}-${sequence}`;
+};
+
+export const slugify = async (str: string): Promise<string> => {
+  const slugifyModule = await slugifyImport;
+  return slugifyModule.default(str, { lower: true });
 };
 
 export const generateEmailHTML = ({ token }: any) => `

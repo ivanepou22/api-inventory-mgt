@@ -8,18 +8,21 @@ datasource db {
 }
 
 model Customer {
-  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  id             String        @id @default(auto()) @map("_id") @db.ObjectId
   customerType   CustomerType
   name           String
-  phone          String       @unique
-  email          String?      @unique
+  phone          String        @unique
+  email          String?       @unique
   image          String?
   country        String
   address        String
   address_2      String?
   website        String?
-  maxCreditLimit Float
-  maxCreditDays  Int
+  maxCreditLimit Float?
+  maxCreditDays  Int?
+  salesAmount    Float?        @default(0)
+  paidAmount     Float?        @default(0)
+  balanceAmount  Float?        @default(0)
   contactPerson  String?
   contact_phone  String?
   contact_email  String?
@@ -27,9 +30,24 @@ model Customer {
   regNumber      String?
   paymentTerms   String?
   NIN            String?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  Order          Order[]
+  salesPersonId  String?       @db.ObjectId
+  salesPerson    SalesPerson?  @relation(fields: [salesPersonId], references: [id])
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  salesHeaders   SalesHeader[]
+}
+
+model SalesPerson {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  code        String        @unique
+  name        String
+  phone       String        @unique
+  email       String?       @unique
+  image       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  Customer    Customer[]
+  SalesHeader SalesHeader[]
 }
 
 enum CustomerType {
@@ -42,24 +60,24 @@ enum CustomerType {
 }
 
 model User {
-  id               String    @id @default(auto()) @map("_id") @db.ObjectId
-  email            String    @unique
-  username         String    @unique
+  id               String        @id @default(auto()) @map("_id") @db.ObjectId
+  email            String        @unique
+  username         String        @unique
   password         String
   firstName        String
   lastName         String
-  phone            String    @unique
+  phone            String        @unique
   dob              DateTime?
   gender           Gender
   image            String?
-  role             Role      @default(ATTENDANT)
-  isVerfied        Boolean   @default(false)
+  role             Role          @default(ATTENDANT)
+  isVerfied        Boolean       @default(false)
   resetToken       String?
   resetTokenExpiry DateTime?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
   shops            Shop[]
-  Order            Order[]
+  salesHeaders     SalesHeader[]
 }
 
 enum Gender {
@@ -74,17 +92,18 @@ enum Role {
 }
 
 model Shop {
-  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  id           String        @id @default(auto()) @map("_id") @db.ObjectId
   name         String
-  slug         String    @unique
+  slug         String        @unique
   location     String
-  adminId      String    @db.ObjectId
-  admin        User      @relation(fields: [adminId], references: [id])
-  attendantIds String[]  @db.ObjectId
+  adminId      String        @db.ObjectId
+  admin        User          @relation(fields: [adminId], references: [id])
+  attendantIds String[]      @db.ObjectId
   Products     Product[]
-  Sales        Order[]
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  salesHeaders SalesHeader[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  Expense      Expense[]
 }
 
 model Supplier {
@@ -102,6 +121,9 @@ model Supplier {
   bankAccountNumber String?
   bankName          String?
   paymentTerms      String?
+  totalAmount       Float?       @default(0)
+  paidAmount        Float?       @default(0)
+  balanceAmount     Float?       @default(0)
   logo              String?      @default("https://utfs.io/f/7d3eb071-433f-47e9-b962-7de707bdbeb2-uwz78d.png")
   rating            Float?
   note              String?
@@ -189,7 +211,7 @@ model Product {
   versions         ProductVersion[]
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
-  OrderItem        OrderItem[]
+  salesLines       SalesLine[]
 }
 
 model Media {
@@ -348,7 +370,7 @@ enum ProductStatus {
   DISCONTINUED
 }
 
-model Order {
+model SalesHeader {
   id              String         @id @default(auto()) @map("_id") @db.ObjectId
   customerId      String         @db.ObjectId
   customerName    String?
@@ -356,6 +378,8 @@ model Order {
   customerEmail   String?
   orderNumber     String?
   orderDate       DateTime       @default(now())
+  orderDueDate    DateTime?      @default(now())
+  postingDate     DateTime?      @default(now())
   orderStatus     OrderStatus
   orderType       OrderType
   orderNote       String?
@@ -365,8 +389,11 @@ model Order {
   orderTotal      Float
   orderPaidAmount Float?
   orderDueAmount  Float?
-  orderItems      OrderItem[]
+  paymentMethod   PaymentMethod?
+  salesLines      SalesLine[]
   orderPayments   OrderPayment[]
+  salesPersonId   String?        @db.ObjectId
+  salesPerson     SalesPerson?   @relation(fields: [salesPersonId], references: [id])
   Shop            Shop?          @relation(fields: [shopId], references: [id])
   shopId          String?        @db.ObjectId
   attendantId     String?        @db.ObjectId
@@ -376,23 +403,23 @@ model Order {
   updatedAt       DateTime       @updatedAt
 }
 
-model OrderItem {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  orderId      String   @db.ObjectId
-  productId    String   @db.ObjectId
-  productName  String
-  productCode  String
-  productSku   String
-  productImage String
-  quantity     Int
-  price        Float
-  lineDiscount Float?
-  lineTax      Float?
-  total        Float
-  order        Order    @relation(fields: [orderId], references: [id])
-  product      Product  @relation(fields: [productId], references: [id])
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+model SalesLine {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  salesHeaderId String      @db.ObjectId
+  productId     String      @db.ObjectId
+  productName   String
+  productCode   String
+  productSku    String
+  productImage  String
+  quantity      Int
+  price         Float
+  lineDiscount  Float?
+  lineTax       Float?
+  total         Float
+  salesHeader   SalesHeader @relation(fields: [salesHeaderId], references: [id])
+  product       Product     @relation(fields: [productId], references: [id])
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 }
 
 enum PaymentMethod {
@@ -406,11 +433,11 @@ enum PaymentMethod {
 
 model OrderPayment {
   id            String        @id @default(auto()) @map("_id") @db.ObjectId
-  orderId       String        @db.ObjectId
+  salesHeaderId String        @db.ObjectId
   amount        Float
   paymentMethod PaymentMethod
   paymentDate   DateTime?
-  order         Order         @relation(fields: [orderId], references: [id])
+  salesHeader   SalesHeader   @relation(fields: [salesHeaderId], references: [id])
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 }
@@ -427,4 +454,40 @@ enum OrderType {
   ONLINE
   OFFLINE
   BOTH
+}
+
+model Expense {
+  id                String           @id @default(auto()) @map("_id") @db.ObjectId
+  title             String
+  amount            Float
+  date              DateTime
+  description       String?
+  attachments       String[]
+  shopId            String           @db.ObjectId
+  expenseCategoryId String?          @db.ObjectId
+  payeeId           String?          @db.ObjectId
+  shop              Shop             @relation(fields: [shopId], references: [id])
+  ExpenseCategory   ExpenseCategory? @relation(fields: [expenseCategoryId], references: [id])
+  Payee             Payee?           @relation(fields: [payeeId], references: [id])
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+}
+
+model ExpenseCategory {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  slug      String    @unique
+  expenses  Expense[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Payee {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  phone     String    @unique
+  email     String?
+  expenses  Expense[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
