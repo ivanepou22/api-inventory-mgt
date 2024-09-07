@@ -40,16 +40,16 @@ export const createExpenseCategory = async (req: Request, res: Response) => {
   }
 };
 
-export const getCategories = async (_req: Request, res: Response) => {
+export const getExpenseCategories = async (_req: Request, res: Response) => {
   try {
-    const categories = await db.expenseCategory.findMany({
+    const expenseCategories = await db.expenseCategory.findMany({
       orderBy: {
         createdAt: "desc",
       },
     });
 
     return res.status(200).json({
-      data: categories,
+      data: expenseCategories,
     });
   } catch (err: any) {
     console.log(err);
@@ -70,7 +70,7 @@ export const getExpenseCategory = async (req: Request, res: Response) => {
     if (!expenseCategory) {
       return res.status(404).json({
         data: null,
-        error: `expenseCategory not found.`,
+        error: `ExpenseCategory not found.`,
       });
     }
     return res.status(200).json({
@@ -95,7 +95,7 @@ export const updateExpenseCategory = async (req: Request, res: Response) => {
     });
 
     if (!expenseCategoryExists) {
-      return res.status(404).json({ error: "expenseCategory not found." });
+      return res.status(404).json({ error: "ExpenseCategory not found." });
     }
 
     if (slug && slug !== expenseCategoryExists.slug) {
@@ -106,7 +106,7 @@ export const updateExpenseCategory = async (req: Request, res: Response) => {
       });
       if (expenseCategoryBySlug) {
         return res.status(409).json({
-          error: `expenseCategory with slug: ${slug} already exists`,
+          error: `ExpenseCategory with slug: ${slug} already exists`,
         });
       }
     }
@@ -121,7 +121,7 @@ export const updateExpenseCategory = async (req: Request, res: Response) => {
       message: "ExpenseCategory updated successfully",
     });
   } catch (error: any) {
-    console.error("Error updating expenseCategory:", error);
+    console.error("Error updating ExpenseCategory:", error);
 
     return res.status(500).json({
       error: "An unexpected error occurred. Please try again later.",
@@ -139,7 +139,7 @@ export const deleteExpenseCategory = async (req: Request, res: Response) => {
       select: { id: true },
     });
     if (!expenseCategory) {
-      return res.status(404).json({ error: "expenseCategory not found." });
+      return res.status(404).json({ error: "ExpenseCategory not found." });
     }
     // Delete the expenseCategory
     const deletedExpenseCategory = await db.expenseCategory.delete({
@@ -150,7 +150,7 @@ export const deleteExpenseCategory = async (req: Request, res: Response) => {
       message: `ExpenseCategory deleted successfully`,
     });
   } catch (error: any) {
-    console.error("Error deleting expenseCategory:", error);
+    console.error("Error deleting ExpenseCategory:", error);
     return res.status(500).json({
       error: "An unexpected error occurred. Please try again later.",
     });

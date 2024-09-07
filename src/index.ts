@@ -11,6 +11,9 @@ import unitRouter from "./routes/unitRoutes";
 import categoryRouter from "./routes/categoryRoutes";
 import productRouter from "./routes/productRoutes";
 import orderRouter from "./routes/orderRoutes";
+import payeeRouter from "./routes/payeeRoutes";
+import expenseCategoryRouter from "./routes/expenseCategoryRoutes";
+import expenseRouter from "./routes/expenseRoutes";
 
 require("dotenv").config(); // Load environment variables from a .env file into process.env
 const app = express(); // Create an Express application instance
@@ -31,6 +34,9 @@ app.use("/api/v1", unitRouter); // Routes will be available under /api/v1
 app.use("/api/v1", categoryRouter); // Routes will be available under /api/v1
 app.use("/api/v1", productRouter); // Routes will be available under /api/v1
 app.use("/api/v1", orderRouter); // Routes will be available under /api/v1
+app.use("/api/v1", payeeRouter); // Routes will be available under /api/v1
+app.use("/api/v1", expenseCategoryRouter); // Routes will be available under /api/v1
+app.use("/api/v1", expenseRouter); // Routes will be available under /api/v1
 
 try {
   app.listen(PORT, () => {

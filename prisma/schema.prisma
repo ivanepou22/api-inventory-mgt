@@ -460,7 +460,7 @@ model Expense {
   id                String           @id @default(auto()) @map("_id") @db.ObjectId
   title             String
   amount            Float
-  date              DateTime
+  date              DateTime         @default(now())
   description       String?
   attachments       String[]
   shopId            String           @db.ObjectId
