@@ -16,26 +16,38 @@ import orderRouter from "./routes/orderRoutes";
 import payeeRouter from "./routes/payeeRoutes";
 import expenseCategoryRouter from "./routes/expenseCategoryRoutes";
 import expenseRouter from "./routes/expenseRoutes";
+import notificationRouter from "./routes/notificationRoutes";
 
 require("dotenv").config();
 const app = express();
 
-app.use(cors()); // Enable Cross-Origin Resource Sharing (CORS) for all routes
+// CORS configuration
+const corsOptions = {
+  origin: process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(",")
+    : "*",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+  maxAge: 600, // 10 minutes
+};
+
+app.use(cors(corsOptions));
 app.use(helmet());
 
 const appRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  standardHeaders: true,
+  legacyHeaders: false,
   handler: (_req, res) => {
     res.status(429).json({
-      error: "Too many requests from this IP, please try again later!",
+      error: "Too many requests from this IP, please try again in an hour!",
     });
   },
-}); // Use helmet middleware to secure the app by setting various HTTP headers
+});
 
-app.use(appRateLimiter); // Use rate limiting middleware to prevent abuse
+app.use(appRateLimiter);
 
 const routeLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -44,29 +56,42 @@ const routeLimiter = rateLimit({
   legacyHeaders: false,
   handler: (_req, res) => {
     res.status(429).json({
-      error: "Too many requests from this IP, please try again later!",
+      error: "Too many requests from this IP, please try again in an hour!",
     });
   },
 });
 
 const PORT = process.env.PORT || 8000;
 
-app.use(express.json()); // Parse incoming JSON requests and make the data available in req.body
-app.use(express.urlencoded({ extended: true })); // Parse URL-encoded request
-app.use("/api/v1", routeLimiter, userRouter);
-app.use("/api/v1", shopRouter);
-app.use("/api/v1", supplierRouter);
-app.use("/api/v1", customerRouter);
-app.use("/api/v1", routeLimiter, loginRouter);
-app.use("/api/v1", productTagRouter);
-app.use("/api/v1", brandRouter);
-app.use("/api/v1", unitRouter);
-app.use("/api/v1", categoryRouter);
-app.use("/api/v1", productRouter);
-app.use("/api/v1", routeLimiter, orderRouter);
-app.use("/api/v1", payeeRouter);
-app.use("/api/v1", expenseCategoryRouter);
-app.use("/api/v1", routeLimiter, expenseRouter);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// API routes
+const apiRoutes = [
+  { path: "/users", router: userRouter },
+  { path: "/shops", router: shopRouter },
+  { path: "/suppliers", router: supplierRouter },
+  { path: "/customers", router: customerRouter },
+  { path: "/login", router: loginRouter, useRouteLimiter: true },
+  { path: "/product-tags", router: productTagRouter },
+  { path: "/brands", router: brandRouter },
+  { path: "/units", router: unitRouter },
+  { path: "/categories", router: categoryRouter },
+  { path: "/products", router: productRouter },
+  { path: "/orders", router: orderRouter, useRouteLimiter: true },
+  { path: "/payees", router: payeeRouter },
+  { path: "/expense-categories", router: expenseCategoryRouter },
+  { path: "/expenses", router: expenseRouter, useRouteLimiter: true },
+  { path: "/notifications", router: notificationRouter },
+];
+
+apiRoutes.forEach(({ path, router, useRouteLimiter }) => {
+  const middlewares = [];
+  if (useRouteLimiter) {
+    middlewares.push(routeLimiter);
+  }
+  app.use(`/api/v1${path}`, ...middlewares, router);
+});
 
 try {
   app.listen(PORT, () => {
