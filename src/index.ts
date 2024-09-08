@@ -1,5 +1,7 @@
-import express from "express"; // Import the Express framework
-import cors from "cors"; // Import the CORS middleware
+import express from "express";
+import cors from "cors";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import customerRouter from "./routes/customerRoutes";
 import userRouter from "./routes/userRoutes";
 import shopRouter from "./routes/shopRoutes";
@@ -15,33 +17,60 @@ import payeeRouter from "./routes/payeeRoutes";
 import expenseCategoryRouter from "./routes/expenseCategoryRoutes";
 import expenseRouter from "./routes/expenseRoutes";
 
-require("dotenv").config(); // Load environment variables from a .env file into process.env
-const app = express(); // Create an Express application instance
+require("dotenv").config();
+const app = express();
 
 app.use(cors()); // Enable Cross-Origin Resource Sharing (CORS) for all routes
+app.use(helmet());
 
-const PORT = process.env.PORT || 8000; // Set the server's port from environment variables or default to 8000
+const appRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  handler: (_req, res) => {
+    res.status(429).json({
+      error: "Too many requests from this IP, please try again later!",
+    });
+  },
+}); // Use helmet middleware to secure the app by setting various HTTP headers
+
+app.use(appRateLimiter); // Use rate limiting middleware to prevent abuse
+
+const routeLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 50,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (_req, res) => {
+    res.status(429).json({
+      error: "Too many requests from this IP, please try again later!",
+    });
+  },
+});
+
+const PORT = process.env.PORT || 8000;
 
 app.use(express.json()); // Parse incoming JSON requests and make the data available in req.body
-app.use("/api/v1", userRouter);
+app.use(express.urlencoded({ extended: true })); // Parse URL-encoded request
+app.use("/api/v1", routeLimiter, userRouter);
 app.use("/api/v1", shopRouter);
 app.use("/api/v1", supplierRouter);
-app.use("/api/v1", customerRouter); // Routes will be available under /api/v1
-app.use("/api/v1", loginRouter); // Routes will be available under /api/v1
-app.use("/api/v1", productTagRouter); // Routes will be available under /api/v1
-app.use("/api/v1", brandRouter); // Routes will be available under /api/v1
-app.use("/api/v1", unitRouter); // Routes will be available under /api/v1
-app.use("/api/v1", categoryRouter); // Routes will be available under /api/v1
-app.use("/api/v1", productRouter); // Routes will be available under /api/v1
-app.use("/api/v1", orderRouter); // Routes will be available under /api/v1
-app.use("/api/v1", payeeRouter); // Routes will be available under /api/v1
-app.use("/api/v1", expenseCategoryRouter); // Routes will be available under /api/v1
-app.use("/api/v1", expenseRouter); // Routes will be available under /api/v1
+app.use("/api/v1", customerRouter);
+app.use("/api/v1", routeLimiter, loginRouter);
+app.use("/api/v1", productTagRouter);
+app.use("/api/v1", brandRouter);
+app.use("/api/v1", unitRouter);
+app.use("/api/v1", categoryRouter);
+app.use("/api/v1", productRouter);
+app.use("/api/v1", routeLimiter, orderRouter);
+app.use("/api/v1", payeeRouter);
+app.use("/api/v1", expenseCategoryRouter);
+app.use("/api/v1", routeLimiter, expenseRouter);
 
 try {
   app.listen(PORT, () => {
-    // Start the server and listen on the specified port
-    console.log(`Server is running on http://localhost:${PORT}`); // Log a message indicating the server is running
+    console.log(`Server is running on http://localhost:${PORT}`);
   });
 } catch (error) {
   console.error("Error starting the server: ", error);
