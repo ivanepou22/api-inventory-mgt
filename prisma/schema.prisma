@@ -105,32 +105,35 @@ model Shop {
   updatedAt      DateTime         @updatedAt
   Expense        Expense[]
   AdjustmentLine AdjustmentLine[]
+  PurchaseHeader PurchaseHeader[]
+  PurchaseLine   PurchaseLine[]
 }
 
 model Supplier {
-  id                String       @id @default(auto()) @map("_id") @db.ObjectId
+  id                String           @id @default(auto()) @map("_id") @db.ObjectId
   supplierType      SupplierType
   name              String
   contactPerson     String
-  phone             String       @unique
-  email             String?      @unique
+  phone             String           @unique
+  email             String?          @unique
   country           String
   location          String
   website           String?
   taxPin            String?
-  regNumber         String?      @unique
+  regNumber         String?          @unique
   bankAccountNumber String?
   bankName          String?
   paymentTerms      String?
-  totalAmount       Float?       @default(0)
-  paidAmount        Float?       @default(0)
-  balanceAmount     Float?       @default(0)
-  logo              String?      @default("https://utfs.io/f/7d3eb071-433f-47e9-b962-7de707bdbeb2-uwz78d.png")
+  totalAmount       Float?           @default(0)
+  paidAmount        Float?           @default(0)
+  balanceAmount     Float?           @default(0)
+  logo              String?          @default("https://utfs.io/f/7d3eb071-433f-47e9-b962-7de707bdbeb2-uwz78d.png")
   rating            Float?
   note              String?
   products          Product[]
-  createdAt         DateTime     @default(now())
-  updatedAt         DateTime     @updatedAt
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  PurchaseHeader    PurchaseHeader[]
 }
 
 enum SupplierType {
@@ -151,6 +154,7 @@ model Unit {
   updatedAt      DateTime         @updatedAt
   AdjustmentLine AdjustmentLine[]
   StockHistory   StockHistory[]
+  PurchaseLine   PurchaseLine[]
 }
 
 model Brand {
@@ -591,4 +595,101 @@ enum AdjustmentActivity {
   INVENTORY_OUTPUT
   INVENTORY_ASSEMBLY_CONSUMPTION
   INVENTORY_ASSEMBLY_OUTPUT
+}
+
+model PurchaseHeader {
+  id            String                @id @default(auto()) @map("_id") @db.ObjectId
+  supplierId    String                @db.ObjectId
+  supplierName  String?
+  supplierPhone String?
+  supplierEmail String?
+  documentNo    String?
+  documentType  PurchaseDocumentType
+  documentDate  DateTime              @default(now())
+  dueDate       DateTime?             @default(now())
+  postingDate   DateTime?             @default(now())
+  status        PurchaseStatus
+  paymentStatus PurchasePaymentStatus
+  note          String?
+  amount        Float
+  discount      Float?
+  tax           Float?
+  totalAmount   Float
+  paidAmount    Float?
+  dueAmount     Float?
+  paymentMethod PaymentMethod?
+  purchaseLines PurchaseLine[]
+  locationCode  String?               @db.ObjectId
+  Shop          Shop?                 @relation(fields: [locationCode], references: [id])
+  supplier      Supplier?             @relation(fields: [supplierId], references: [id])
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+}
+
+model PurchaseLine {
+  id                  String               @id @default(auto()) @map("_id") @db.ObjectId
+  purchaseHeaderId    String               @db.ObjectId
+  documentType        PurchaseDocumentType
+  documentNo          String?
+  type                PurchaseLineType
+  no_                 String               @db.ObjectId
+  description         String
+  code                String
+  quantity            Int
+  price               Float
+  unitId              String?              @db.ObjectId
+  unitName            String?
+  unitAbbreviation    String?
+  lineAmount          Float
+  lineDiscountPercent Float?
+  lineDiscountAmount  Float?
+  lineTaxPercent      Float?
+  lineTaxAmount       Float?
+  Amount              Float
+  lineNo              Int                  @unique @default(0)
+  locationCode        String?              @db.ObjectId
+  Shop                Shop?                @relation(fields: [locationCode], references: [id])
+  unit                Unit?                @relation(fields: [unitId], references: [id])
+  purchaseHeader      PurchaseHeader       @relation(fields: [purchaseHeaderId], references: [id])
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+}
+
+enum PurchaseProcessStatus {
+  PENDING
+  PROCESSING
+  RECEIVED
+  CANCELLED
+  PENDING_PAYMENT
+}
+
+enum PurchaseStatus {
+  OPEN
+  RELEASED
+  PENDING_APPROVAL
+  PENDING_PREPAYMENT
+}
+
+enum PurchasePaymentStatus {
+  PENDING
+  PAID
+  PARTIAL
+  CANCELLED
+}
+
+enum PurchaseDocumentType {
+  QUOTE
+  ORDER
+  INVOICE
+  CREDIT_MEMO
+  BLANKET_ORDER
+  RETURN_ORDER
+}
+
+enum PurchaseLineType {
+  GL_ACCOUNT
+  ITEM
+  RESOURCE
+  FIXED_ASSET
+  ITEM_CHARGE
 }
