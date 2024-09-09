@@ -17,6 +17,7 @@ import payeeRouter from "./routes/payeeRoutes";
 import expenseCategoryRouter from "./routes/expenseCategoryRoutes";
 import expenseRouter from "./routes/expenseRoutes";
 import notificationRouter from "./routes/notificationRoutes";
+import adjustmentRouter from "./routes/adjustmentRoutes";
 
 require("dotenv").config();
 const app = express();
@@ -83,6 +84,7 @@ const apiRoutes = [
   { path: "/expense-categories", router: expenseCategoryRouter },
   { path: "/expenses", router: expenseRouter, useRouteLimiter: true },
   { path: "/notifications", router: notificationRouter },
+  { path: "/adjustments", router: adjustmentRouter },
 ];
 
 apiRoutes.forEach(({ path, router, useRouteLimiter }) => {

@@ -92,18 +92,19 @@ enum Role {
 }
 
 model Shop {
-  id           String        @id @default(auto()) @map("_id") @db.ObjectId
-  name         String
-  slug         String        @unique
-  location     String
-  adminId      String        @db.ObjectId
-  admin        User          @relation(fields: [adminId], references: [id])
-  attendantIds String[]      @db.ObjectId
-  Products     Product[]
-  salesHeaders SalesHeader[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  Expense      Expense[]
+  id             String           @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  slug           String           @unique
+  location       String
+  adminId        String           @db.ObjectId
+  admin          User             @relation(fields: [adminId], references: [id])
+  attendantIds   String[]         @db.ObjectId
+  Products       Product[]
+  salesHeaders   SalesHeader[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  Expense        Expense[]
+  AdjustmentLine AdjustmentLine[]
 }
 
 model Supplier {
@@ -141,13 +142,15 @@ enum SupplierType {
 }
 
 model Unit {
-  id           String    @id @default(auto()) @map("_id") @db.ObjectId
-  name         String
-  abbreviation String
-  slug         String    @unique
-  products     Product[]
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id             String           @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  abbreviation   String
+  slug           String           @unique
+  products       Product[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  AdjustmentLine AdjustmentLine[]
+  StockHistory   StockHistory[]
 }
 
 model Brand {
@@ -212,6 +215,7 @@ model Product {
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   salesLines       SalesLine[]
+  AdjustmentLine   AdjustmentLine[]
 }
 
 model Media {
@@ -269,24 +273,35 @@ model WarehouseStock {
 }
 
 model StockHistory {
-  id           String          @id @default(auto()) @map("_id") @db.ObjectId
-  entryType    StockEntryType?
-  postingDate  DateTime
-  documentType DocumentType?
-  documentNo   String?
-  productId    String          @db.ObjectId
-  description  String?
-  locationCode String?
-  quantity     Float
-  invoicedQty  Float?
-  remainingQty Float?
-  salesAmount  Float?
-  costAmount   Float?
-  open         Boolean
-  entryNo      Int // Auto-incrementing entry number
-  product      Product         @relation(fields: [productId], references: [id])
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
+  id               String          @id @default(auto()) @map("_id") @db.ObjectId
+  entryType        StockEntryType?
+  postingDate      DateTime
+  documentType     DocumentType?
+  documentNo       String?
+  productId        String          @db.ObjectId
+  productName      String
+  productCode      String
+  productSku       String
+  description      String?
+  locationCode     String?
+  quantity         Float
+  invoicedQty      Float?          @default(0)
+  remainingQty     Float?          @default(0)
+  unitId           String?         @db.ObjectId
+  unitName         String?
+  unitAbbreviation String?
+  unitCost         Float?          @default(0)
+  totalCost        Float?          @default(0)
+  unitAmount       Float?          @default(0)
+  totalAmount      Float?          @default(0)
+  salesAmount      Float?          @default(0)
+  costAmount       Float?          @default(0)
+  open             Boolean         @default(true)
+  entryNo          Int             @default(0)
+  product          Product         @relation(fields: [productId], references: [id])
+  unit             Unit?           @relation(fields: [unitId], references: [id])
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
 }
 
 enum StockEntryType {
@@ -511,4 +526,67 @@ model Notification {
   status    NotificationStatus @default(UNREAD)
   createdAt DateTime           @default(now())
   updatedAt DateTime           @updatedAt
+}
+
+model Adjustment {
+  id              String             @id @default(auto()) @map("_id") @db.ObjectId
+  referenceNo     String             @unique
+  date            DateTime           @default(now())
+  description     String?
+  activity        AdjustmentActivity
+  adjustmentLines AdjustmentLine[]
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+}
+
+model AdjustmentLine {
+  id           String                  @id @default(auto()) @map("_id") @db.ObjectId
+  postingDate  DateTime                @default(now())
+  entryType    AdjustmentItemEntryType
+  documentNo   String
+  adjustmentId String                  @db.ObjectId
+  productId    String                  @db.ObjectId
+  productName  String
+  productCode  String
+  productSku   String
+  shopId       String                  @db.ObjectId
+  quantity     Int
+  unitId       String                  @db.ObjectId
+  reason       AdjustmentItemReason
+  unitAmount   Float?
+  totalAmount  Float?
+  unitCost     Float?
+  totalCost    Float?
+  entryNo      Int                     @default(0)
+  adjustment   Adjustment              @relation(fields: [adjustmentId], references: [id])
+  product      Product                 @relation(fields: [productId], references: [id])
+  shop         Shop?                   @relation(fields: [shopId], references: [id])
+  unit         Unit                    @relation(fields: [unitId], references: [id])
+  createdAt    DateTime                @default(now())
+  updatedAt    DateTime                @updatedAt
+}
+
+enum AdjustmentItemEntryType {
+  PURCHASE
+  SALE
+  POSITIVE_ADJUST
+  NEGATIVE_ADJUST
+}
+
+enum AdjustmentItemReason {
+  EXPIRED_ITEM
+  STOLEN_ITEM
+  RETURNED_ITEM
+  DAMAGED_ITEM
+  OTHER
+}
+
+enum AdjustmentActivity {
+  INVENTORY_COUNT
+  INVENTORY_ADJUSTMENT
+  INVENTORY_TRANSFER
+  INVENTORY_CONSUMPTION
+  INVENTORY_OUTPUT
+  INVENTORY_ASSEMBLY_CONSUMPTION
+  INVENTORY_ASSEMBLY_OUTPUT
 }

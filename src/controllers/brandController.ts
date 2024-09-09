@@ -1,5 +1,5 @@
-import { db } from "@/db/db";
 import { Request, Response } from "express";
+import { db } from "@/db/db";
 
 export const createBrand = async (req: Request, res: Response) => {
   const { name, slug, image } = req.body;

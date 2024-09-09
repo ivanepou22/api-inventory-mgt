@@ -1,4 +1,11 @@
-import { OrderStatus, OrderType } from "@prisma/client";
+import {
+  AdjustmentActivity,
+  AdjustmentItemEntryType,
+  AdjustmentItemReason,
+  OrderStatus,
+  OrderType,
+  Prisma,
+} from "@prisma/client";
 
 export type Order = {
   id: string;
@@ -87,6 +94,47 @@ export type OrderPaymentCreateManyInput = {
   amount: number;
   paymentMethod: string;
   paymentDate: Date;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type Adjustment = {
+  id: string;
+  referenceNo: string;
+  date: Date;
+  description: string;
+  activity: string;
+  createdAt: Date;
+  updatedAt: Date;
+  AdjustmentLine: AdjustmentLine[];
+};
+
+export type AdjustmentInput = {
+  date: Date;
+  description: string;
+  activity: AdjustmentActivity;
+  AdjustmentLines: AdjustmentLine[];
+};
+
+export type AdjustmentLine = {
+  id: string;
+  postingDate: Date;
+  entryType: AdjustmentItemEntryType;
+  documentNo: string;
+  adjustmentId: string;
+  productId: string;
+  productName: string;
+  productCode: string;
+  productSku: string;
+  shopId: string;
+  quantity: number;
+  unitId: string;
+  reason: AdjustmentItemReason;
+  unitAmount?: number;
+  totalAmount?: number;
+  unitCost?: number;
+  totalCost?: number;
+  entryNo: number;
   createdAt: Date;
   updatedAt: Date;
 };

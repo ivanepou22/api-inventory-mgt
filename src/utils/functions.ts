@@ -26,6 +26,23 @@ export const generateOrderNumber = async (): Promise<string> => {
   return `ORD-${year}${month}${day}-${sequence}`;
 };
 
+export const generateAdjustmentNumber = async (): Promise<string> => {
+  const date = new Date();
+  const year = date.getFullYear().toString().slice(-2);
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+
+  const adjustmentCount = await db.adjustment.count();
+  const sequence = (adjustmentCount + 1).toString().padStart(4, "0");
+
+  return `ADJ-${year}${month}${day}-${sequence}`;
+};
+
+export const generateAdjustmentEntryNo = async (): Promise<number> => {
+  const entryNo = await db.adjustmentLine.count();
+  return entryNo + 1;
+};
+
 export const slugify = async (str: string): Promise<string> => {
   const slugifyModule = await slugifyImport;
   return slugifyModule.default(str, { lower: true });
