@@ -3,6 +3,7 @@ import { db } from "@/db/db";
 import {
   generateAdjustmentNumber,
   generateAdjustmentEntryNo,
+  generateStockHistoryEntryNo,
 } from "@/utils/functions";
 import { AdjustmentInput, AdjustmentLine } from "@/utils/types";
 import {
@@ -10,6 +11,8 @@ import {
   AdjustmentItemEntryType,
   NotificationType,
   Prisma,
+  StockEntryType,
+  StockHistoryDocumentType,
 } from "@prisma/client";
 
 export const createAdjustment = async (req: Request, res: Response) => {
@@ -88,10 +91,10 @@ export const createAdjustment = async (req: Request, res: Response) => {
               quantity: line.quantity,
               unitId: line.unitId,
               reason: line.reason,
-              unitAmount: line.unitAmount ?? 0,
-              totalAmount: (line.unitAmount ?? 0) * line.quantity,
-              unitCost: line.unitCost ?? 0,
-              totalCost: (line.unitCost ?? 0) * line.quantity,
+              unitAmount: product.unitPrice ?? 0,
+              totalAmount: (product.unitPrice ?? 0) * line.quantity,
+              unitCost: product.unitCost ?? 0,
+              totalCost: (product.unitCost ?? 0) * line.quantity,
               entryNo: await generateAdjustmentEntryNo(),
             } as AdjustmentLine,
           });
@@ -111,6 +114,37 @@ export const createAdjustment = async (req: Request, res: Response) => {
                 `Failed to update product with id ${line.productId}`
               );
             }
+
+            //create a stock history
+            await prisma.stockHistory.create({
+              data: {
+                entryType: StockEntryType.POSITIVE_ADJUST,
+                postingDate: line.postingDate || new Date(),
+                documentType: StockHistoryDocumentType.ADJUSTMENT,
+                documentNo: line.documentNo,
+                productId: line.productId,
+                productName: product.name,
+                productCode: product.productCode,
+                productSku: product.sku,
+                description: `${product.name} ${line.reason}`,
+                locationCode: shop.slug,
+                quantity: line.quantity,
+                invoicedQty: line.quantity,
+                remainingQty: updatedProduct.stockQty,
+                unitId: line.unitId,
+                unitName: unit.name,
+                unitAbbreviation: unit.abbreviation,
+                referenceNo,
+                unitAmount: product.unitPrice ?? 0,
+                totalAmount: (product.unitPrice ?? 0) * line.quantity,
+                unitCost: product.unitCost ?? 0,
+                totalCost: (product.unitCost ?? 0) * line.quantity,
+                costAmount: (product.unitCost ?? 0) * -line.quantity,
+                entryNo: await generateStockHistoryEntryNo(),
+                open: false,
+                salesAmount: 0,
+              },
+            });
           } else if (
             line.entryType === AdjustmentItemEntryType.NEGATIVE_ADJUST
           ) {
@@ -127,6 +161,37 @@ export const createAdjustment = async (req: Request, res: Response) => {
                 `Failed to update product with id ${line.productId}`
               );
             }
+
+            //create a stock history
+            await prisma.stockHistory.create({
+              data: {
+                entryType: StockEntryType.NEGATIVE_ADJUST,
+                postingDate: line.postingDate || new Date(),
+                documentType: StockHistoryDocumentType.ADJUSTMENT,
+                documentNo: line.documentNo,
+                productId: line.productId,
+                productName: product.name,
+                productCode: product.productCode,
+                productSku: product.sku,
+                description: `${product.name} ${line.reason}`,
+                locationCode: shop.slug,
+                quantity: -line.quantity,
+                invoicedQty: -line.quantity,
+                remainingQty: updatedProduct.stockQty,
+                unitId: line.unitId,
+                unitName: unit.name,
+                unitAbbreviation: unit.abbreviation,
+                referenceNo,
+                unitAmount: product.unitPrice ?? 0,
+                totalAmount: (product.unitPrice ?? 0) * -line.quantity,
+                unitCost: product.unitCost ?? 0,
+                totalCost: (product.unitCost ?? 0) * -line.quantity,
+                costAmount: (product.unitCost ?? 0) * -line.quantity,
+                entryNo: await generateStockHistoryEntryNo(),
+                open: false,
+                salesAmount: 0,
+              },
+            });
 
             //check if the product stock is less than the alertQty level and if it is, send a notification
             if (

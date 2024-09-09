@@ -43,6 +43,11 @@ export const generateAdjustmentEntryNo = async (): Promise<number> => {
   return entryNo + 1;
 };
 
+export const generateStockHistoryEntryNo = async (): Promise<number> => {
+  const entryNo = await db.stockHistory.count();
+  return entryNo + 1;
+};
+
 export const slugify = async (str: string): Promise<string> => {
   const slugifyModule = await slugifyImport;
   return slugifyModule.default(str, { lower: true });
