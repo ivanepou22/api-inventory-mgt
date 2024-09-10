@@ -48,6 +48,22 @@ export const generateStockHistoryEntryNo = async (): Promise<number> => {
   return entryNo + 1;
 };
 
+export const generatePurchaseNumber = async (): Promise<string> => {
+  const date = new Date();
+  const year = date.getFullYear().toString().slice(-2);
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+
+  const purchaseCount = await db.purchaseHeader.count();
+  const sequence = (purchaseCount + 1).toString().padStart(4, "0");
+  return `PUR-${year}${month}${day}-${sequence}`;
+};
+
+export const generatePurchaseLineNo = async (): Promise<number> => {
+  const lineNo = await db.purchaseLine.count();
+  return lineNo + 1;
+};
+
 export const slugify = async (str: string): Promise<string> => {
   const slugifyModule = await slugifyImport;
   return slugifyModule.default(str, { lower: true });

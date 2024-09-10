@@ -221,19 +221,14 @@ export const createAdjustment = async (req: Request, res: Response) => {
             }
           }
         }
-        //update the adjustment with the created adjustment lines
-        const updatedAdjustment = await prisma.adjustment.update({
+
+        const updatedAdjustment = await prisma.adjustment.findUnique({
           where: { id: createdAdjustment.id },
-          data: {
-            adjustmentLines: {
-              connect: AdjustmentLines.map((line) => ({ id: line.id })),
-            },
-          },
           include: { adjustmentLines: true },
         });
         if (!updatedAdjustment) {
           throw new Error(
-            `Failed to update adjustment with id ${createdAdjustment.id}`
+            `Failed to find adjustment with id ${createdAdjustment.id}`
           );
         }
 
@@ -331,11 +326,30 @@ export const updateAdjustment = async (req: Request, res: Response) => {
 export const deleteAdjustment = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const adjustment = await db.adjustment.delete({
+
+    const adjustment = await db.adjustment.findUnique({
+      where: { id },
+      include: { adjustmentLines: true },
+    });
+    if (!adjustment) {
+      return res.status(404).json({ error: "Adjustment not found." });
+    }
+
+    //delete the adjustment lines
+    try {
+      await db.adjustmentLine.deleteMany({
+        where: { adjustmentId: id },
+      });
+    } catch (error: any) {
+      console.error("Error deleting adjustment lines:", error);
+      throw new Error(`Failed to delete adjustment lines: ${error.message}`);
+    }
+
+    const adjustmentDeleted = await db.adjustment.delete({
       where: { id },
     });
     return res.status(200).json({
-      data: adjustment,
+      data: adjustmentDeleted,
       message: "Adjustment deleted successfully",
     });
   } catch (error: any) {
