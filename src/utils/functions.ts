@@ -61,7 +61,7 @@ export const generatePurchaseNumber = async (): Promise<string> => {
 
 export const generatePurchaseLineNo = async (): Promise<number> => {
   const lineNo = await db.purchaseLine.count();
-  return lineNo + 1;
+  return lineNo;
 };
 
 export const slugify = async (str: string): Promise<string> => {

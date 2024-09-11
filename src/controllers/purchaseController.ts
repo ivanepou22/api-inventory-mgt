@@ -24,8 +24,8 @@ export const createPurchase = async (req: Request, res: Response) => {
     discountPercent,
     discountAmount,
     taxPercent,
-    purchaseLines,
     locationCode,
+    purchaseLines,
   } = req.body;
 
   //get the supplier details
@@ -40,6 +40,8 @@ export const createPurchase = async (req: Request, res: Response) => {
   }
 
   const documentNo = await generatePurchaseNumber();
+  let purchaseLineNo = await generatePurchaseLineNo();
+  let stockHistoryEntryNumber = await generateStockHistoryEntryNo();
   try {
     const purchase = await db.$transaction(
       async (prisma: Prisma.TransactionClient): Promise<PurchaseHeader> => {
@@ -68,6 +70,8 @@ export const createPurchase = async (req: Request, res: Response) => {
 
         // Check if products, units, and shops exist
         for (const line of purchaseLines) {
+          purchaseLineNo++;
+          stockHistoryEntryNumber++;
           const product = await prisma.product.findUnique({
             where: { id: line.productId },
           });
@@ -156,7 +160,7 @@ export const createPurchase = async (req: Request, res: Response) => {
               quantityReceived: 0,
               quantityToInvoice: line.quantity,
               quantityInvoiced: 0,
-              lineNo: await generatePurchaseLineNo(),
+              lineNo: purchaseLineNo,
               locationCode: shop.slug,
               supplierId: createdPurchase.supplierId,
               supplierName: supplier.name,
@@ -203,8 +207,8 @@ export const createPurchase = async (req: Request, res: Response) => {
               totalAmount: (product.unitPrice ?? 0) * line.quantity,
               unitCost: product.unitCost ?? 0,
               totalCost: (product.unitCost ?? 0) * line.quantity,
-              costAmount: (product.unitCost ?? 0) * -line.quantity,
-              entryNo: await generateStockHistoryEntryNo(),
+              costAmount: (product.unitCost ?? 0) * line.quantity,
+              entryNo: stockHistoryEntryNumber,
               open: false,
               salesAmount: 0,
             },
