@@ -73,10 +73,10 @@ export const createPurchase = async (req: Request, res: Response) => {
           purchaseLineNo++;
           stockHistoryEntryNumber++;
           const product = await prisma.product.findUnique({
-            where: { id: line.productId },
+            where: { id: line.no_ },
           });
           if (!product) {
-            throw new Error(`Product with id ${line.productId} not found`);
+            throw new Error(`Product with id ${line.no_} not found`);
           }
 
           const unit = await prisma.unit.findUnique({
@@ -87,10 +87,10 @@ export const createPurchase = async (req: Request, res: Response) => {
           }
 
           const shop = await prisma.shop.findUnique({
-            where: { id: line.shopId },
+            where: { id: line.locationId },
           });
           if (!shop) {
-            throw new Error(`Shop with id ${line.shopId} not found`);
+            throw new Error(`Shop with id ${line.locationId} not found`);
           }
 
           // check if the product has a valid unit
@@ -119,7 +119,7 @@ export const createPurchase = async (req: Request, res: Response) => {
           let lineDiscountAmount = 0;
           if (line.lineDiscountPercent) {
             lineDiscountAmount =
-              line.price * line.quantity * (line.lineDiscountPercent / 100);
+              line.unitCost * line.quantity * (line.lineDiscountPercent / 100);
           } else if (line.lineDiscountAmount !== 0) {
             lineDiscountAmount = line.lineDiscountAmount;
           } else {
@@ -129,11 +129,11 @@ export const createPurchase = async (req: Request, res: Response) => {
           //calculate the line tax amount
           if (line.lineTaxPercent) {
             lineTaxAmount =
-              line.price * line.quantity * (line.lineTaxPercent / 100);
+              (line.unitCost * line.quantity - lineDiscountAmount) *
+              (line.lineTaxPercent / 100);
           }
           //calculate the line amount
-          const lineAmount =
-            line.price * line.quantity - lineDiscountAmount + lineTaxAmount;
+          const lineAmount = line.unitCost * line.quantity - lineDiscountAmount;
 
           //createdPurchaseLine
           await prisma.purchaseLine.create({
@@ -156,12 +156,16 @@ export const createPurchase = async (req: Request, res: Response) => {
               lineTaxPercent: line.lineTaxPercent,
               lineTaxAmount,
               Amount: lineAmount,
+              AmountInclTax: lineAmount + lineTaxAmount,
+              AmountExclTax: lineAmount,
               quantityToReceive: line.quantity,
               quantityReceived: 0,
               quantityToInvoice: line.quantity,
               quantityInvoiced: 0,
               lineNo: purchaseLineNo,
-              locationCode: shop.slug,
+              locationId: line.locationId,
+              locationName: shop.name,
+              locationSlug: shop.slug,
               supplierId: createdPurchase.supplierId,
               supplierName: supplier.name,
               supplierPhone: supplier.phone,
@@ -170,7 +174,7 @@ export const createPurchase = async (req: Request, res: Response) => {
           });
 
           const updatedProduct = await prisma.product.update({
-            where: { id: line.productId },
+            where: { id: line.no_ },
             data: {
               stockQty: {
                 increment: line.quantity,
@@ -178,9 +182,7 @@ export const createPurchase = async (req: Request, res: Response) => {
             },
           });
           if (!updatedProduct) {
-            throw new Error(
-              `Failed to update product with id ${line.productId}`
-            );
+            throw new Error(`Failed to update product with id ${line.no_}`);
           }
 
           //create a stock history
@@ -190,12 +192,12 @@ export const createPurchase = async (req: Request, res: Response) => {
               postingDate: createdPurchase.postingDate || new Date(),
               documentType: StockHistoryDocumentType.PURCHASE_RECEIPT,
               documentNo: createdPurchase.documentNo,
-              productId: line.productId,
+              productId: line.no_,
               productName: product.name,
               productCode: product.productCode,
               productSku: product.sku,
               description: `${line.description}`,
-              locationCode: shop.slug,
+              locationCode: shop.id,
               quantity: line.quantity,
               invoicedQty: line.quantity,
               remainingQty: updatedProduct.stockQty,
@@ -222,13 +224,13 @@ export const createPurchase = async (req: Request, res: Response) => {
             line: {
               lineDiscountPercent: number;
               lineDiscountAmount: number;
-              price: number;
+              unitCost: number;
               quantity: number;
             }
           ) =>
             total +
             (line.lineDiscountPercent
-              ? line.price * line.quantity * (line.lineDiscountPercent / 100)
+              ? line.unitCost * line.quantity * (line.lineDiscountPercent / 100)
               : line.lineDiscountAmount),
           0
         );
@@ -240,21 +242,29 @@ export const createPurchase = async (req: Request, res: Response) => {
             line: {
               lineTaxPercent: number;
               lineTaxAmount: number;
-              price: number;
+              unitCost: number;
               quantity: number;
+              lineDiscountPercent: number;
+              lineDiscountAmount: number;
             }
           ) =>
             total +
             (line.lineTaxPercent
-              ? line.price * line.quantity * (line.lineTaxPercent / 100)
+              ? (line.unitCost * line.quantity -
+                  (line.lineDiscountPercent
+                    ? line.unitCost *
+                      line.quantity *
+                      (line.lineDiscountPercent / 100)
+                    : line.lineDiscountAmount)) *
+                (line.lineTaxPercent / 100)
               : line.lineTaxAmount),
           0
         );
 
         //calculate the total line amount
         const totalLineAmount = purchaseLines.reduce(
-          (total: number, line: { price: number; quantity: number }) =>
-            total + line.price * line.quantity,
+          (total: number, line: { unitCost: number; quantity: number }) =>
+            total + line.unitCost * line.quantity,
           0
         );
 
@@ -282,11 +292,17 @@ export const createPurchase = async (req: Request, res: Response) => {
             taxAmount: totalLineTaxAmount,
             dueAmount: purchaseHeaderAmount,
             amount: purchaseHeaderAmount,
+            totalAmountInclTax: purchaseHeaderAmount,
+            totalAmountExclTax: purchaseHeaderAmount - totalLineTaxAmount,
           },
           include: { purchaseLines: true },
         });
 
         return updatedPurchase;
+      },
+      {
+        timeout: 100000, // Increase timeout to 10 seconds
+        maxWait: 105000,
       }
     );
 
@@ -305,7 +321,9 @@ export const createPurchase = async (req: Request, res: Response) => {
 //get all purchases
 export const getPurchases = async (_req: Request, res: Response) => {
   try {
-    const purchases = await db.purchaseHeader.findMany();
+    const purchases = await db.purchaseHeader.findMany({
+      include: { purchaseLines: true },
+    });
     return res.status(200).json({
       data: purchases,
       message: "Purchases fetched successfully",
