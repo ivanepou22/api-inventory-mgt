@@ -142,7 +142,7 @@ export const createPurchase = async (req: Request, res: Response) => {
               description: line.description,
               code: line.code || product.productCode,
               quantity: line.quantity,
-              price: line.price,
+              unitCost: line.unitCost,
               unitId: line.unitId,
               unitName: unit.name,
               unitAbbreviation: unit.abbreviation,
@@ -158,6 +158,10 @@ export const createPurchase = async (req: Request, res: Response) => {
               quantityInvoiced: 0,
               lineNo: await generatePurchaseLineNo(),
               locationCode: shop.slug,
+              supplierId: createdPurchase.supplierId,
+              supplierName: supplier.name,
+              supplierPhone: supplier.phone,
+              supplierEmail: supplier.email,
             },
           });
 

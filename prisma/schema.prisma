@@ -134,6 +134,7 @@ model Supplier {
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
   PurchaseHeader    PurchaseHeader[]
+  PurchaseLine      PurchaseLine[]
 }
 
 enum SupplierType {
@@ -639,7 +640,7 @@ model PurchaseLine {
   description         String
   code                String
   quantity            Int
-  price               Float
+  unitCost            Float
   unitId              String?              @db.ObjectId
   unitName            String?
   unitAbbreviation    String?
@@ -655,7 +656,12 @@ model PurchaseLine {
   quantityInvoiced    Int?                 @default(0)
   lineNo              Int                  @unique @default(0)
   locationCode        String?              @db.ObjectId
+  supplierId          String?              @db.ObjectId
+  supplierName        String?
+  supplierPhone       String?
+  supplierEmail       String?
   Shop                Shop?                @relation(fields: [locationCode], references: [id])
+  supplier            Supplier?            @relation(fields: [supplierId], references: [id])
   unit                Unit?                @relation(fields: [unitId], references: [id])
   purchaseHeader      PurchaseHeader       @relation(fields: [purchaseHeaderId], references: [id])
   createdAt           DateTime             @default(now())
