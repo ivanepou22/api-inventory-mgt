@@ -40,12 +40,12 @@ export const generateAdjustmentNumber = async (): Promise<string> => {
 
 export const generateAdjustmentEntryNo = async (): Promise<number> => {
   const entryNo = await db.adjustmentLine.count();
-  return entryNo + 1;
+  return entryNo;
 };
 
 export const generateStockHistoryEntryNo = async (): Promise<number> => {
   const entryNo = await db.stockHistory.count();
-  return entryNo + 1;
+  return entryNo;
 };
 
 export const generatePurchaseNumber = async (): Promise<string> => {

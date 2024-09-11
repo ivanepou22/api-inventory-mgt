@@ -20,6 +20,8 @@ export const createAdjustment = async (req: Request, res: Response) => {
     req.body;
 
   const referenceNo = await generateAdjustmentNumber();
+  let adjustmentEntryNumber = await generateAdjustmentEntryNo();
+  let stockHistoryEntryNumber = await generateStockHistoryEntryNo();
   try {
     const adjustment = await db.$transaction(
       async (prisma: Prisma.TransactionClient): Promise<Adjustment> => {
@@ -34,6 +36,8 @@ export const createAdjustment = async (req: Request, res: Response) => {
 
         // Check if products, units, and shops exist
         for (const line of AdjustmentLines) {
+          adjustmentEntryNumber++;
+          stockHistoryEntryNumber++;
           const product = await prisma.product.findUnique({
             where: { id: line.productId },
           });
@@ -55,13 +59,6 @@ export const createAdjustment = async (req: Request, res: Response) => {
             throw new Error(`Shop with id ${line.shopId} not found`);
           }
 
-          // check if the product has a valid unit
-          if (!product.unitId) {
-            throw new Error(
-              `Product with id ${line.productId} has no valid unit`
-            );
-          }
-
           // check if the line does not have zero quantity
           if (line.quantity === 0) {
             throw new Error(
@@ -70,10 +67,15 @@ export const createAdjustment = async (req: Request, res: Response) => {
           }
 
           // check if the product has enough stock
-          if (product.stockQty && product.stockQty < line.quantity) {
-            throw new Error(
-              `Product with id ${line.productId} has insufficient stock`
-            );
+          if (
+            line.entryType === AdjustmentItemEntryType.NEGATIVE_ADJUST ||
+            line.entryType === AdjustmentItemEntryType.SALE
+          ) {
+            if (product.stockQty && product.stockQty < line.quantity) {
+              throw new Error(
+                `Product with id ${line.productId} has insufficient stock`
+              );
+            }
           }
 
           //createdAdjustmentLine
@@ -84,7 +86,7 @@ export const createAdjustment = async (req: Request, res: Response) => {
               documentNo: line.documentNo,
               adjustmentId: createdAdjustment.id,
               productId: line.productId,
-              productName: line.productName,
+              productName: product.name,
               productCode: product.productCode,
               productSku: product.sku,
               shopId: line.shopId,
@@ -95,7 +97,7 @@ export const createAdjustment = async (req: Request, res: Response) => {
               totalAmount: (product.unitPrice ?? 0) * line.quantity,
               unitCost: product.unitCost ?? 0,
               totalCost: (product.unitCost ?? 0) * line.quantity,
-              entryNo: await generateAdjustmentEntryNo(),
+              entryNo: adjustmentEntryNumber,
             } as AdjustmentLine,
           });
 
@@ -140,7 +142,7 @@ export const createAdjustment = async (req: Request, res: Response) => {
                 unitCost: product.unitCost ?? 0,
                 totalCost: (product.unitCost ?? 0) * line.quantity,
                 costAmount: (product.unitCost ?? 0) * -line.quantity,
-                entryNo: await generateStockHistoryEntryNo(),
+                entryNo: stockHistoryEntryNumber,
                 open: false,
                 salesAmount: 0,
               },
@@ -187,7 +189,7 @@ export const createAdjustment = async (req: Request, res: Response) => {
                 unitCost: product.unitCost ?? 0,
                 totalCost: (product.unitCost ?? 0) * -line.quantity,
                 costAmount: (product.unitCost ?? 0) * -line.quantity,
-                entryNo: await generateStockHistoryEntryNo(),
+                entryNo: stockHistoryEntryNumber,
                 open: false,
                 salesAmount: 0,
               },
@@ -233,6 +235,10 @@ export const createAdjustment = async (req: Request, res: Response) => {
         }
 
         return updatedAdjustment;
+      },
+      {
+        timeout: 100000, // Increase timeout to 10 seconds
+        maxWait: 105000,
       }
     );
 

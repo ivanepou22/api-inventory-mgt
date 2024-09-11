@@ -19,6 +19,7 @@ import expenseRouter from "./routes/expenseRoutes";
 import notificationRouter from "./routes/notificationRoutes";
 import adjustmentRouter from "./routes/adjustmentRoutes";
 import purchaseRouter from "./routes/purchaseRoutes";
+import stockHistoryRouter from "./routes/stockHistoryRoutes";
 
 require("dotenv").config();
 const app = express();
@@ -70,31 +71,32 @@ app.use(express.urlencoded({ extended: true }));
 
 // API routes
 const apiRoutes = [
-  { path: "/users", router: userRouter },
-  { path: "/shops", router: shopRouter },
-  { path: "/suppliers", router: supplierRouter },
-  { path: "/customers", router: customerRouter },
-  { path: "/login", router: loginRouter, useRouteLimiter: true },
-  { path: "/product-tags", router: productTagRouter },
-  { path: "/brands", router: brandRouter },
-  { path: "/units", router: unitRouter },
-  { path: "/categories", router: categoryRouter },
-  { path: "/products", router: productRouter },
-  { path: "/orders", router: orderRouter, useRouteLimiter: true },
-  { path: "/payees", router: payeeRouter },
-  { path: "/expense-categories", router: expenseCategoryRouter },
-  { path: "/expenses", router: expenseRouter, useRouteLimiter: true },
-  { path: "/notifications", router: notificationRouter },
-  { path: "/adjustments", router: adjustmentRouter },
-  { path: "/purchases", router: purchaseRouter },
+  { router: userRouter },
+  { router: shopRouter },
+  { router: supplierRouter },
+  { router: customerRouter },
+  { router: loginRouter, useRouteLimiter: true },
+  { router: productTagRouter },
+  { router: brandRouter },
+  { router: unitRouter },
+  { router: categoryRouter },
+  { router: productRouter },
+  { router: orderRouter, useRouteLimiter: true },
+  { router: payeeRouter },
+  { router: expenseCategoryRouter },
+  { router: expenseRouter, useRouteLimiter: true },
+  { router: notificationRouter },
+  { router: adjustmentRouter },
+  { router: purchaseRouter },
+  { router: stockHistoryRouter },
 ];
 
-apiRoutes.forEach(({ path, router, useRouteLimiter }) => {
+apiRoutes.forEach(({ router, useRouteLimiter }) => {
   const middlewares = [];
   if (useRouteLimiter) {
     middlewares.push(routeLimiter);
   }
-  app.use(`/api/v1${path}`, ...middlewares, router);
+  app.use("/api/v1", ...middlewares, router);
 });
 
 try {
