@@ -1,8 +1,16 @@
 import { Request, Response } from "express";
 import { db } from "@/db/db";
+import { generateCode } from "@/utils/functions";
 
 export const createVendorPostingGroup = async (req: Request, res: Response) => {
-  const { code, name, payableAccount } = req.body;
+  const { name, payableAccount } = req.body;
+
+  // Generate a unique code for the vendor posting group
+  const vendorPostingGroupCount = await db.vendorPostingGroup.count();
+  const code = await generateCode({
+    format: "VPG",
+    valueCount: vendorPostingGroupCount,
+  });
   const vendorPostingGroupExists = await db.vendorPostingGroup.findUnique({
     where: {
       code,

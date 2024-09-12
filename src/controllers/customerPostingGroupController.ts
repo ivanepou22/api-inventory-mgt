@@ -1,11 +1,20 @@
 import { Request, Response } from "express";
 import { db } from "@/db/db";
+import { generateCode } from "@/utils/functions";
 
 export const createCustomerPostingGroup = async (
   req: Request,
   res: Response
 ) => {
-  const { code, name, receivableAccount } = req.body;
+  const { name, receivableAccount } = req.body;
+
+  // Generate a unique code for the customer posting group
+  const customerPostingGroupCount = await db.customerPostingGroup.count();
+  const code = await generateCode({
+    format: "CPG",
+    valueCount: customerPostingGroupCount,
+  });
+
   const customerPostingGroupExists = await db.customerPostingGroup.findUnique({
     where: {
       code,

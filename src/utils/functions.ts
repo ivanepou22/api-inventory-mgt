@@ -69,6 +69,23 @@ export const slugify = async (str: string): Promise<string> => {
   return slugifyModule.default(str, { lower: true });
 };
 
+//create a dynamics function to generate codes
+
+export const generateCode = async ({
+  format,
+  valueCount,
+}: {
+  format: string;
+  valueCount: number;
+}) => {
+  const date = new Date();
+  const year = date.getFullYear().toString().slice(-2);
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+
+  const sequence = (valueCount + 1).toString().padStart(4, "0");
+  return `${format}-${year}${month}-${sequence}`;
+};
+
 export const generateEmailHTML = ({ token }: any) => `
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html dir="ltr" lang="en">
