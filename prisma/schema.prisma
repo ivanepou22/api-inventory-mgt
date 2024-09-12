@@ -110,31 +110,32 @@ model Shop {
 }
 
 model Supplier {
-  id                String           @id @default(auto()) @map("_id") @db.ObjectId
-  supplierType      SupplierType
-  name              String
-  contactPerson     String
-  phone             String           @unique
-  email             String?          @unique
-  country           String
-  location          String
-  website           String?
-  taxPin            String?
-  regNumber         String?          @unique
-  bankAccountNumber String?
-  bankName          String?
-  paymentTerms      String?
-  totalAmount       Float?           @default(0)
-  paidAmount        Float?           @default(0)
-  balanceAmount     Float?           @default(0)
-  logo              String?          @default("https://utfs.io/f/7d3eb071-433f-47e9-b962-7de707bdbeb2-uwz78d.png")
-  rating            Float?
-  note              String?
-  products          Product[]
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
-  PurchaseHeader    PurchaseHeader[]
-  PurchaseLine      PurchaseLine[]
+  id                  String                @id @default(auto()) @map("_id") @db.ObjectId
+  supplierType        SupplierType
+  name                String
+  contactPerson       String
+  phone               String                @unique
+  email               String?               @unique
+  country             String
+  location            String
+  website             String?
+  taxPin              String?
+  regNumber           String?               @unique
+  bankAccountNumber   String?
+  bankName            String?
+  paymentTerms        String?
+  totalAmount         Float?                @default(0)
+  paidAmount          Float?                @default(0)
+  balanceAmount       Float?                @default(0)
+  logo                String?               @default("https://utfs.io/f/7d3eb071-433f-47e9-b962-7de707bdbeb2-uwz78d.png")
+  rating              Float?
+  note                String?
+  products            Product[]
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  PurchaseHeader      PurchaseHeader[]
+  PurchaseLine        PurchaseLine[]
+  SupplierLedgerEntry SupplierLedgerEntry[]
 }
 
 enum SupplierType {
@@ -599,37 +600,38 @@ enum AdjustmentActivity {
 }
 
 model PurchaseHeader {
-  id                 String                 @id @default(auto()) @map("_id") @db.ObjectId
-  supplierId         String                 @db.ObjectId
-  supplierName       String?
-  supplierPhone      String?
-  supplierEmail      String?
-  documentNo         String?
-  documentType       PurchaseDocumentType
-  documentDate       DateTime               @default(now())
-  dueDate            DateTime?              @default(now())
-  postingDate        DateTime?              @default(now())
-  status             PurchaseStatus?        @default(OPEN)
-  paymentStatus      PurchasePaymentStatus? @default(PENDING)
-  note               String?
-  amount             Float                  @default(0)
-  discountPercent    Float?                 @default(0)
-  discountAmount     Float?                 @default(0)
-  totalDiscount      Float?                 @default(0)
-  taxPercent         Float?                 @default(0)
-  taxAmount          Float?                 @default(0)
-  totalAmount        Float                  @default(0)
-  paidAmount         Float?                 @default(0)
-  dueAmount          Float?                 @default(0)
-  totalAmountInclTax Float?                 @default(0)
-  totalAmountExclTax Float?                 @default(0)
-  paymentMethod      PaymentMethod?
-  purchaseLines      PurchaseLine[]
-  locationCode       String?                @db.ObjectId
-  Shop               Shop?                  @relation(fields: [locationCode], references: [id])
-  supplier           Supplier?              @relation(fields: [supplierId], references: [id])
-  createdAt          DateTime               @default(now())
-  updatedAt          DateTime               @updatedAt
+  id                  String                 @id @default(auto()) @map("_id") @db.ObjectId
+  supplierId          String                 @db.ObjectId
+  supplierName        String?
+  supplierPhone       String?
+  supplierEmail       String?
+  documentNo          String?
+  documentType        PurchaseDocumentType
+  documentDate        DateTime               @default(now())
+  dueDate             DateTime?              @default(now())
+  postingDate         DateTime?              @default(now())
+  status              PurchaseStatus?        @default(OPEN)
+  paymentStatus       PurchasePaymentStatus? @default(PENDING)
+  note                String?
+  amount              Float                  @default(0)
+  discountPercent     Float?                 @default(0)
+  discountAmount      Float?                 @default(0)
+  totalDiscount       Float?                 @default(0)
+  taxPercent          Float?                 @default(0)
+  taxAmount           Float?                 @default(0)
+  totalAmount         Float                  @default(0)
+  paidAmount          Float?                 @default(0)
+  dueAmount           Float?                 @default(0)
+  totalAmountInclTax  Float?                 @default(0)
+  totalAmountExclTax  Float?                 @default(0)
+  paymentMethod       PaymentMethod?
+  purchaseLines       PurchaseLine[]
+  locationCode        String?                @db.ObjectId
+  Shop                Shop?                  @relation(fields: [locationCode], references: [id])
+  supplier            Supplier?              @relation(fields: [supplierId], references: [id])
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
+  SupplierLedgerEntry SupplierLedgerEntry[]
 }
 
 model PurchaseLine {
@@ -711,4 +713,161 @@ enum PurchaseLineType {
   RESOURCE
   FIXED_ASSET
   ITEM_CHARGE
+}
+
+model SupplierLedgerEntry {
+  id                        String                   @id @default(auto()) @map("_id") @db.ObjectId
+  entryNo                   Int                      @unique @default(0)
+  supplierId                String                   @db.ObjectId
+  postingDate               DateTime
+  documentType              LedgerEntryDocumentType
+  documentNo                String                   @unique
+  description               String
+  supplierName              String
+  supplierPhone             String
+  supplierEmail             String
+  currencyRate              Float?
+  currencyCode              String?
+  documentDate              DateTime
+  amount                    Float
+  amountLocal               Float?
+  remainingAmount           Float?
+  remainingAmountLocal      Float?
+  externalDocumentNo        String?
+  originalAmount            Float
+  originalAmountLocal       Float?
+  paidAmount                Float?
+  paidAmountLocal           Float?
+  invoiceDiscount           Float?
+  invoiceDiscountLocal      Float?
+  lineDiscount              Float?
+  lineDiscountLocal         Float?
+  totalInvoiceDiscount      Float?
+  totalInvoiceDiscountLocal Float?
+  vendorPostingGroupId      String?                  @db.ObjectId
+  vendorPostingGroupCode    String?
+  vendorPostingGroupName    String?
+  dimension1                String?
+  dimension2                String?
+  purchaseCode              String?
+  dimension3                String?
+  dimension4                String?
+  dimension5                String?
+  dimension6                String?
+  dimension7                String?
+  dimension8                String?
+  dimension9                String?
+  dimension10               String?
+  paymentMethod             PaymentMethod?
+  dueDate                   DateTime?
+  open                      Boolean                  @default(true)
+  purchaseHeaderId          String?                  @db.ObjectId
+  sourceCode                String?
+  debitAmount               Float?
+  debitAmountLocal          Float?
+  creditAmount              Float?
+  creditAmountLocal         Float?
+  reversed                  Boolean                  @default(false)
+  reversedEntryNo           Int?
+  reversedByEntryNo         Int?
+  adjustedCurrencyFactor    Float?
+  originalCurrencyFactor    Float?
+  closedByCurrencyCode      String?
+  closedByAmount            Float?
+  closedByAmountLocal       Float?
+  closedByEntryNo           Int?
+  closedByDate              DateTime?
+  appliesToDocType          LedgerEntryDocumentType?
+  appliesToDocNo            String?
+  appliesToID               String?
+  appliesToEntryNo          Int?
+  appliesToDate             DateTime?
+  transactionNo             String?
+  journalBatchId            String?                  @db.ObjectId
+  journalBatchName          String?
+  journalBatchCode          String?
+  Reason                    String?
+  balAccountType            AccountType?
+  balAccountNo              String?
+  balAccountName            String?
+  positive                  Boolean
+  purchaseHeader            PurchaseHeader?          @relation(fields: [purchaseHeaderId], references: [id])
+  supplier                  Supplier                 @relation(fields: [supplierId], references: [id])
+  vendorPostingGroup        VendorPostingGroup?      @relation(fields: [vendorPostingGroupId], references: [id])
+  journalBatch              JournalBatch?            @relation(fields: [journalBatchId], references: [id])
+  createdAt                 DateTime                 @default(now())
+  updatedAt                 DateTime                 @updatedAt
+}
+
+model VendorPostingGroup {
+  id                    String                @id @default(auto()) @map("_id") @db.ObjectId
+  code                  String                @unique
+  name                  String
+  supplierLedgerEntries SupplierLedgerEntry[]
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+}
+
+model JournalBatch {
+  id                        String                @id @default(auto()) @map("_id") @db.ObjectId
+  code                      String                @unique
+  name                      String
+  description               String?
+  journalTemplateId         String                @db.ObjectId
+  journalTemplateCode       String?
+  journalTemplateName       String?
+  journalTemplateSourceCode String?
+  journalTemplateReasonCode String?
+  journalTemplateType       journalTemplateType?
+  supplierLedgerEntries     SupplierLedgerEntry[]
+  journalTemplate           JournalTemplate       @relation(fields: [journalTemplateId], references: [id])
+  createdAt                 DateTime              @default(now())
+  updatedAt                 DateTime              @updatedAt
+}
+
+model JournalTemplate {
+  id           String              @id @default(auto()) @map("_id") @db.ObjectId
+  code         String              @unique
+  name         String              @unique
+  description  String?
+  type         journalTemplateType
+  recurring    Boolean             @default(false)
+  sourceCode   String?
+  reasonCode   String?
+  JournalBatch JournalBatch[]
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+}
+
+enum LedgerEntryDocumentType {
+  BLANK
+  PAYMENT
+  INVOICE
+  CREDIT_MEMO
+  REFUND
+  REMINDER
+  FINANCE_CHARGE_MEMO
+}
+
+enum AccountType {
+  GL_ACCOUNT
+  CUSTOMER
+  VENDOR
+  BANK_ACCOUNT
+  FIXED_ASSET
+  EMPLOYEE
+  ALLOCATION_ACCOUNT
+  IC_PATNER
+}
+
+enum journalTemplateType {
+  ASSETS
+  BANK_DEPOSIT
+  CASH_RECEIPT
+  GENERAL
+  INTER_COMPANY
+  JOBS
+  PAYMENTs
+  PURCHASEs
+  SALES
 }
