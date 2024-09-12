@@ -107,8 +107,9 @@ model Shop {
   AdjustmentLine        AdjustmentLine[]
   PurchaseHeader        PurchaseHeader[]
   PurchaseLine          PurchaseLine[]
-  PurchaseRecieptHeader PurchaseRecieptHeader[]
+  PurchaseReceiptHeader PurchaseReceiptHeader[]
   PurchaseRecieptLine   PurchaseRecieptLine[]
+  InventoryPostingSetup InventoryPostingSetup[]
 }
 
 model Supplier {
@@ -137,7 +138,7 @@ model Supplier {
   updatedAt             DateTime                @updatedAt
   PurchaseHeader        PurchaseHeader[]
   SupplierLedgerEntry   SupplierLedgerEntry[]
-  PurchaseRecieptHeader PurchaseRecieptHeader[]
+  PurchaseReceiptHeader PurchaseReceiptHeader[]
   PurchaseLine          PurchaseLine[]
   PurchaseRecieptLine   PurchaseRecieptLine[]
 }
@@ -818,10 +819,20 @@ model VendorPostingGroup {
   id                    String                  @id @default(auto()) @map("_id") @db.ObjectId
   code                  String                  @unique
   name                  String
+  payableAccount        String?
   supplierLedgerEntries SupplierLedgerEntry[]
+  PurchaseReceiptHeader PurchaseReceiptHeader[]
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
-  PurchaseRecieptHeader PurchaseRecieptHeader[]
+}
+
+model CustomerPostingGroup {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  code              String   @unique
+  name              String
+  receivableAccount String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 
 model JournalBatch {
@@ -888,7 +899,7 @@ enum journalTemplateType {
   SALES
 }
 
-model PurchaseRecieptHeader {
+model PurchaseReceiptHeader {
   id                     String                @id @default(auto()) @map("_id") @db.ObjectId
   supplierId             String                @db.ObjectId
   supplierName           String?
@@ -935,7 +946,7 @@ model PurchaseRecieptHeader {
 
 model PurchaseRecieptLine {
   id                         String                 @id @default(auto()) @map("_id") @db.ObjectId
-  purchaseRecieptHeaderId    String?                @db.ObjectId
+  purchaseReceiptHeaderId    String?                @db.ObjectId
   documentNo                 String?
   lineNo                     Int                    @unique @default(0)
   type                       PurchaseLineType
@@ -1013,37 +1024,112 @@ model PurchaseRecieptLine {
   unit                       Unit?                  @relation(fields: [unitId], references: [id])
   createdAt                  DateTime               @default(now())
   updatedAt                  DateTime               @updatedAt
-  PurchaseRecieptHeader      PurchaseRecieptHeader? @relation(fields: [purchaseRecieptHeaderId], references: [id])
+  PurchaseReceiptHeader      PurchaseReceiptHeader? @relation(fields: [purchaseReceiptHeaderId], references: [id])
 }
 
 model VatBusPostingGroup {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  code      String   @unique
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id              String            @id @default(auto()) @map("_id") @db.ObjectId
+  code            String            @unique
+  name            String
+  vatPostingSetup VatPostingSetup[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
 }
 
 model VatProductPostingGroup {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  code      String   @unique
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id              String            @id @default(auto()) @map("_id") @db.ObjectId
+  code            String            @unique
+  name            String
+  vatPostingSetup VatPostingSetup[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
 }
 
 model GeneralProductPostingGroup {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  code      String   @unique
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                          String            @id @default(auto()) @map("_id") @db.ObjectId
+  code                        String            @unique
+  name                        String
+  defVatProductPostingGroupId String?           @db.ObjectId
+  VatProductPostingGroupCode  String?
+  VatProductPostingGroupName  String?
+  autoInsertDefault           Boolean?
+  createdAt                   DateTime          @default(now())
+  updatedAt                   DateTime          @updatedAt
+  genPostingSetup             genPostingSetup[]
 }
 
 model GenBusPostingGroup {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  code      String   @unique
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                      String            @id @default(auto()) @map("_id") @db.ObjectId
+  code                    String            @unique
+  name                    String
+  defGenBusPostingGroupId String?           @db.ObjectId
+  GenBusPostingGroupCode  String?
+  GenBusPostingGroupName  String?
+  autoInsertDefault       Boolean?
+  createdAt               DateTime          @default(now())
+  updatedAt               DateTime          @updatedAt
+  genPostingSetup         genPostingSetup[]
+}
+
+model VatPostingSetup {
+  id                       String                  @id @default(auto()) @map("_id") @db.ObjectId
+  description              String?
+  vatBusPostingGroupId     String?                 @db.ObjectId
+  vatProductPostingGroupId String?                 @db.ObjectId
+  taxPercent               Float?
+  vatIdentifier            String?
+  salesVatAccount          String?
+  purchaseVatAccount       String?
+  blocked                  Boolean?
+  vatProductPostingGroup   VatProductPostingGroup? @relation(fields: [vatProductPostingGroupId], references: [id])
+  vatBusPostingGroup       VatBusPostingGroup?     @relation(fields: [vatBusPostingGroupId], references: [id])
+  createdAt                DateTime                @default(now())
+  updatedAt                DateTime                @updatedAt
+}
+
+model genPostingSetup {
+  id                         String                      @id @default(auto()) @map("_id") @db.ObjectId
+  genBusPostingGroupId       String?                     @db.ObjectId
+  genProductPostingGroupId   String?                     @db.ObjectId
+  description                String?
+  blocked                    Boolean?
+  salesAccount               String?
+  purchaseAccount            String?
+  salesCreditMemoAccount     String?
+  purchaseCreditMemoAccount  String?
+  salesDiscountAccount       String?
+  purchaseDiscountAccount    String?
+  costOfGoodsSoldAccount     String?
+  inventoryAdjustmentAccount String?
+  genProductPostingGroup     GeneralProductPostingGroup? @relation(fields: [genProductPostingGroupId], references: [id])
+  genBusPostingGroup         GenBusPostingGroup?         @relation(fields: [genBusPostingGroupId], references: [id])
+  createdAt                  DateTime                    @default(now())
+  updatedAt                  DateTime                    @updatedAt
+}
+
+model InventoryPostingGroup {
+  id                    String                  @id @default(auto()) @map("_id") @db.ObjectId
+  code                  String                  @unique
+  name                  String
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  InventoryPostingSetup InventoryPostingSetup[]
+}
+
+model InventoryPostingSetup {
+  id                        String                 @id @default(auto()) @map("_id") @db.ObjectId
+  description               String?
+  inventoryPostingGroupId   String?                @db.ObjectId
+  inventoryPostingGroupCode String?
+  inventoryPostingGroupName String?
+  blocked                   Boolean?
+  shopId                    String?                @db.ObjectId
+  shopName                  String?
+  shopCode                  String?
+  shopSlug                  String?
+  inventoryAccount          String?
+  shop                      Shop?                  @relation(fields: [shopId], references: [id])
+  inventoryPostingGroup     InventoryPostingGroup? @relation(fields: [inventoryPostingGroupId], references: [id])
+  createdAt                 DateTime               @default(now())
+  updatedAt                 DateTime               @updatedAt
 }
