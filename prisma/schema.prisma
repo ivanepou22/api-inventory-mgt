@@ -809,8 +809,7 @@ model SupplierLedgerEntry {
   positive                  Boolean
   purchaseHeader            PurchaseHeader?          @relation(fields: [purchaseHeaderId], references: [id])
   supplier                  Supplier                 @relation(fields: [supplierId], references: [id])
-  vendorPostingGroup        VendorPostingGroup?      @relation(fields: [vendorPostingGroupId], references: [id])
-  journalBatch              JournalBatch?            @relation(fields: [journalBatchId], references: [id])
+  vendorPostingGroup        VendorPostingGroup?      @relation(fields: [journalBatchId], references: [id])
   createdAt                 DateTime                 @default(now())
   updatedAt                 DateTime                 @updatedAt
 }
@@ -836,20 +835,19 @@ model CustomerPostingGroup {
 }
 
 model JournalBatch {
-  id                        String                @id @default(auto()) @map("_id") @db.ObjectId
-  code                      String                @unique
+  id                        String               @id @default(auto()) @map("_id") @db.ObjectId
+  code                      String               @unique
   name                      String
   description               String?
-  journalTemplateId         String                @db.ObjectId
+  journalTemplateId         String               @db.ObjectId
   journalTemplateCode       String?
   journalTemplateName       String?
   journalTemplateSourceCode String?
   journalTemplateReasonCode String?
   journalTemplateType       journalTemplateType?
-  supplierLedgerEntries     SupplierLedgerEntry[]
-  journalTemplate           JournalTemplate       @relation(fields: [journalTemplateId], references: [id])
-  createdAt                 DateTime              @default(now())
-  updatedAt                 DateTime              @updatedAt
+  journalTemplate           JournalTemplate      @relation(fields: [journalTemplateId], references: [id])
+  createdAt                 DateTime             @default(now())
+  updatedAt                 DateTime             @updatedAt
 }
 
 model JournalTemplate {

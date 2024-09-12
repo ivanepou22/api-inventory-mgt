@@ -23,6 +23,8 @@ import stockHistoryRouter from "./routes/stockHistoryRoutes";
 import purchaseLineRouter from "./routes/purchaseLineRoutes";
 import vendorPostingGroupRouter from "./routes/vendorPostingGroupRoutes";
 import customerPostingGroupRouter from "./routes/customerPostingGroupRoutes";
+import journalTemplateRouter from "./routes/journalTemplateRoutes";
+import journalBatchRouter from "./routes/journalBatchRoutes copy";
 
 require("dotenv").config();
 const app = express();
@@ -95,6 +97,8 @@ const apiRoutes = [
   { router: purchaseLineRouter },
   { router: vendorPostingGroupRouter },
   { router: customerPostingGroupRouter },
+  { router: journalTemplateRouter },
+  { router: journalBatchRouter },
 ];
 
 apiRoutes.forEach(({ router, useRouteLimiter }) => {
