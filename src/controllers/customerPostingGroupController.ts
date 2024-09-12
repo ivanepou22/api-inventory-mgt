@@ -8,6 +8,8 @@ export const createCustomerPostingGroup = async (
 ) => {
   const { name, receivableAccount } = req.body;
 
+  //make name uppercase
+  const nameUppercase = name.toUpperCase();
   // Generate a unique code for the customer posting group
   const customerPostingGroupCount = await db.customerPostingGroup.count();
   const code = await generateCode({
@@ -29,7 +31,7 @@ export const createCustomerPostingGroup = async (
     const newCustomerPostingGroup = await db.customerPostingGroup.create({
       data: {
         code,
-        name,
+        name: nameUppercase,
         receivableAccount,
       },
     });
@@ -97,6 +99,8 @@ export const updateCustomerPostingGroup = async (
 ) => {
   const id = req.params.id;
   const { name, receivableAccount } = req.body;
+  //make name uppercase
+  const nameUppercase = name.toUpperCase();
   try {
     const customerPostingGroupExists = await db.customerPostingGroup.findUnique(
       {
@@ -112,7 +116,7 @@ export const updateCustomerPostingGroup = async (
     // Perform the update
     const updatedCustomerPostingGroup = await db.customerPostingGroup.update({
       where: { id },
-      data: { name, receivableAccount },
+      data: { name: nameUppercase, receivableAccount },
     });
     return res.status(200).json({
       data: updatedCustomerPostingGroup,

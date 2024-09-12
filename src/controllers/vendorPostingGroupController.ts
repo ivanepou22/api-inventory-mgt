@@ -5,6 +5,9 @@ import { generateCode } from "@/utils/functions";
 export const createVendorPostingGroup = async (req: Request, res: Response) => {
   const { name, payableAccount } = req.body;
 
+  //make name uppercase
+  const nameUppercase = name.toUpperCase();
+
   // Generate a unique code for the vendor posting group
   const vendorPostingGroupCount = await db.vendorPostingGroup.count();
   const code = await generateCode({
@@ -25,7 +28,7 @@ export const createVendorPostingGroup = async (req: Request, res: Response) => {
     const newVendorPostingGroup = await db.vendorPostingGroup.create({
       data: {
         code,
-        name,
+        name: nameUppercase,
         payableAccount,
       },
       include: {
@@ -98,6 +101,9 @@ export const getVendorPostingGroup = async (req: Request, res: Response) => {
 export const updateVendorPostingGroup = async (req: Request, res: Response) => {
   const id = req.params.id;
   const { name, payableAccount } = req.body;
+  //make name uppercase
+  const nameUppercase = name.toUpperCase();
+
   try {
     const vendorPostingGroupExists = await db.vendorPostingGroup.findUnique({
       where: { id },
@@ -109,7 +115,7 @@ export const updateVendorPostingGroup = async (req: Request, res: Response) => {
     // Perform the update
     const updatedVendorPostingGroup = await db.vendorPostingGroup.update({
       where: { id },
-      data: { name, payableAccount },
+      data: { name: nameUppercase, payableAccount },
     });
     return res.status(200).json({
       data: updatedVendorPostingGroup,
