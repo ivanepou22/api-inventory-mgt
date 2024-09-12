@@ -22,6 +22,7 @@ import purchaseRouter from "./routes/purchaseRoutes";
 import stockHistoryRouter from "./routes/stockHistoryRoutes";
 import purchaseLineRouter from "./routes/purchaseLineRoutes";
 import vendorPostingGroupRouter from "./routes/vendorPostingGroupRoutes";
+import customerPostingGroupRouter from "./routes/customerPostingGroupRoutes";
 
 require("dotenv").config();
 const app = express();
@@ -93,6 +94,7 @@ const apiRoutes = [
   { router: stockHistoryRouter },
   { router: purchaseLineRouter },
   { router: vendorPostingGroupRouter },
+  { router: customerPostingGroupRouter },
 ];
 
 apiRoutes.forEach(({ router, useRouteLimiter }) => {
