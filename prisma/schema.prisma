@@ -930,8 +930,8 @@ enum journalTemplateType {
   GENERAL
   INTER_COMPANY
   JOBS
-  PAYMENTs
-  PURCHASEs
+  PAYMENTS
+  PURCHASES
   SALES
 }
 

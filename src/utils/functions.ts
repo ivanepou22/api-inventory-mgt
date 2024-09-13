@@ -69,8 +69,6 @@ export const slugify = async (str: string): Promise<string> => {
   return slugifyModule.default(str, { lower: true });
 };
 
-//create a dynamics function to generate codes
-
 export const generateCode = async ({
   format,
   valueCount,
@@ -84,6 +82,27 @@ export const generateCode = async ({
 
   const sequence = (valueCount + 1).toString().padStart(4, "0");
   return `${format}-${year}${month}-${sequence}`;
+};
+
+export const incrementCode = async (code: string): Promise<string> => {
+  // Define a regular expression to capture the parts of the serial number
+  const regex = /^([A-Z]{2})-(\d{4})-(\d{4})$/;
+
+  const match = code.match(regex);
+  if (!match) {
+    throw new Error("Invalid serial number format");
+  }
+
+  // Extract the prefix and numeric parts
+  const prefix = match[1];
+  const middle = match[2];
+  const lastPart = match[3];
+
+  // Convert the numeric part to a number, increment it, and pad it with leading zeros
+  const incremented = (parseInt(lastPart, 10) + 1).toString().padStart(4, "0");
+
+  // Return the incremented serial number in the original format
+  return `${prefix}-${middle}-${incremented}`;
 };
 
 export const generateEmailHTML = ({ token }: any) => `

@@ -1,0 +1,8 @@
+14-09-2024
+- Implement number series management.
+- implement number series management for journal templates.
+- implement number series management for adjustment numbers.
+- implement number series management for purchase numbers.
+- implement number series management for purchase receipt numbers.
+- implement number series management for customer numbers.
+- implement number series management for vendor numbers.

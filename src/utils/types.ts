@@ -2,6 +2,7 @@ import {
   AdjustmentActivity,
   AdjustmentItemEntryType,
   AdjustmentItemReason,
+  journalTemplateType,
   OrderStatus,
   OrderType,
   Prisma,
@@ -137,4 +138,13 @@ export type AdjustmentLine = {
   entryNo: number;
   createdAt: Date;
   updatedAt: Date;
+};
+
+export type JournalTemplateInput = {
+  name: string;
+  description: string;
+  type: journalTemplateType;
+  recurring: boolean;
+  sourceCode: string;
+  reasonCode: string;
 };
