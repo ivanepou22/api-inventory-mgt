@@ -31,6 +31,8 @@ import vatProductPostingGroupRouter from "./routes/vatProdGroupRoutes";
 import genBusPostingGroupRouter from "./routes/genBusPostingGroupRoutes";
 import genProductPostingGroupRouter from "./routes/genProductPostingGroupRoutes";
 import genPostingSetupRouter from "./routes/genPostingSetupRoutes";
+import inventoryPostingSetupRouter from "./routes/inventoryPostingSetupRoutes";
+import inventoryPostingGroupRouter from "./routes/inventoryPostingGroupRoutes";
 
 require("dotenv").config();
 const app = express();
@@ -111,6 +113,8 @@ const apiRoutes = [
   { router: genBusPostingGroupRouter },
   { router: genProductPostingGroupRouter },
   { router: genPostingSetupRouter },
+  { router: inventoryPostingGroupRouter },
+  { router: inventoryPostingSetupRouter },
 ];
 
 apiRoutes.forEach(({ router, useRouteLimiter }) => {
