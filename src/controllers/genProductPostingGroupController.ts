@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { db } from "@/db/db";
 import { generateCode } from "@/utils/functions";
 
-export const createGeneralProductPostingGroup = async (
+export const createGenProductPostingGroup = async (
   req: Request,
   res: Response
 ) => {
