@@ -24,7 +24,10 @@ import purchaseLineRouter from "./routes/purchaseLineRoutes";
 import vendorPostingGroupRouter from "./routes/vendorPostingGroupRoutes";
 import customerPostingGroupRouter from "./routes/customerPostingGroupRoutes";
 import journalTemplateRouter from "./routes/journalTemplateRoutes";
-import journalBatchRouter from "./routes/journalBatchRoutes copy";
+import journalBatchRouter from "./routes/journalBatchRoutes";
+import vatPostingSetupRouter from "./routes/vatPostingSetupRoutes";
+import vatBusPostingGroupRouter from "./routes/vatBusPostingGroupRoutes";
+import vatProductPostingGroupRouter from "./routes/vatProdGroupRoutes";
 
 require("dotenv").config();
 const app = express();
@@ -99,6 +102,9 @@ const apiRoutes = [
   { router: customerPostingGroupRouter },
   { router: journalTemplateRouter },
   { router: journalBatchRouter },
+  { router: vatPostingSetupRouter },
+  { router: vatBusPostingGroupRouter },
+  { router: vatProductPostingGroupRouter },
 ];
 
 apiRoutes.forEach(({ router, useRouteLimiter }) => {

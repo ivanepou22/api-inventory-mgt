@@ -1067,21 +1067,41 @@ model VatBusPostingGroup {
   id              String            @id @default(auto()) @map("_id") @db.ObjectId
   code            String            @unique
   name            String
-  vatPostingSetup VatPostingSetup[]
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
   Supplier        Supplier[]
   Customer        Customer[]
+  VatPostingSetup VatPostingSetup[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
 }
 
 model VatProductPostingGroup {
   id              String            @id @default(auto()) @map("_id") @db.ObjectId
   code            String            @unique
   name            String
-  vatPostingSetup VatPostingSetup[]
+  Product         Product[]
+  VatPostingSetup VatPostingSetup[]
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
-  Product         Product[]
+}
+
+model VatPostingSetup {
+  id                         String                  @id @default(auto()) @map("_id") @db.ObjectId
+  description                String?
+  vatBusPostingGroupId       String?                 @db.ObjectId
+  vatBusPostingGroupCode     String?
+  vatBusPostingGroupName     String?
+  vatProductPostingGroupId   String?                 @db.ObjectId
+  vatProductPostingGroupCode String?
+  vatProductPostingGroupName String?
+  taxPercent                 Float?
+  vatIdentifier              String?
+  salesVatAccount            String?
+  purchaseVatAccount         String?
+  blocked                    Boolean?
+  vatProductPostingGroup     VatProductPostingGroup? @relation(fields: [vatProductPostingGroupId], references: [id])
+  vatBusPostingGroup         VatBusPostingGroup?     @relation(fields: [vatBusPostingGroupId], references: [id])
+  createdAt                  DateTime                @default(now())
+  updatedAt                  DateTime                @updatedAt
 }
 
 model GeneralProductPostingGroup {
@@ -1092,10 +1112,10 @@ model GeneralProductPostingGroup {
   VatProductPostingGroupCode  String?
   VatProductPostingGroupName  String?
   autoInsertDefault           Boolean?
-  createdAt                   DateTime          @default(now())
-  updatedAt                   DateTime          @updatedAt
   genPostingSetup             genPostingSetup[]
   Product                     Product[]
+  createdAt                   DateTime          @default(now())
+  updatedAt                   DateTime          @updatedAt
 }
 
 model GenBusPostingGroup {
@@ -1111,22 +1131,6 @@ model GenBusPostingGroup {
   genPostingSetup         genPostingSetup[]
   Supplier                Supplier[]
   Customer                Customer[]
-}
-
-model VatPostingSetup {
-  id                       String                  @id @default(auto()) @map("_id") @db.ObjectId
-  description              String?
-  vatBusPostingGroupId     String?                 @db.ObjectId
-  vatProductPostingGroupId String?                 @db.ObjectId
-  taxPercent               Float?
-  vatIdentifier            String?
-  salesVatAccount          String?
-  purchaseVatAccount       String?
-  blocked                  Boolean?
-  vatProductPostingGroup   VatProductPostingGroup? @relation(fields: [vatProductPostingGroupId], references: [id])
-  vatBusPostingGroup       VatBusPostingGroup?     @relation(fields: [vatBusPostingGroupId], references: [id])
-  createdAt                DateTime                @default(now())
-  updatedAt                DateTime                @updatedAt
 }
 
 model genPostingSetup {
