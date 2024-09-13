@@ -1109,10 +1109,10 @@ model GeneralProductPostingGroup {
   code                        String            @unique
   name                        String
   defVatProductPostingGroupId String?           @db.ObjectId
-  VatProductPostingGroupCode  String?
-  VatProductPostingGroupName  String?
+  vatProductPostingGroupCode  String?
+  vatProductPostingGroupName  String?
   autoInsertDefault           Boolean?
-  genPostingSetup             genPostingSetup[]
+  genPostingSetup             GenPostingSetup[]
   Product                     Product[]
   createdAt                   DateTime          @default(now())
   updatedAt                   DateTime          @updatedAt
@@ -1122,22 +1122,26 @@ model GenBusPostingGroup {
   id                      String            @id @default(auto()) @map("_id") @db.ObjectId
   code                    String            @unique
   name                    String
-  defGenBusPostingGroupId String?           @db.ObjectId
-  GenBusPostingGroupCode  String?
-  GenBusPostingGroupName  String?
+  defVatBusPostingGroupId String?           @db.ObjectId
+  vatBusPostingGroupCode  String?
+  vatBusPostingGroupName  String?
   autoInsertDefault       Boolean?
   createdAt               DateTime          @default(now())
   updatedAt               DateTime          @updatedAt
-  genPostingSetup         genPostingSetup[]
+  genPostingSetup         GenPostingSetup[]
   Supplier                Supplier[]
   Customer                Customer[]
 }
 
-model genPostingSetup {
+model GenPostingSetup {
   id                         String                      @id @default(auto()) @map("_id") @db.ObjectId
-  genBusPostingGroupId       String?                     @db.ObjectId
-  genProductPostingGroupId   String?                     @db.ObjectId
   description                String?
+  genBusPostingGroupId       String?                     @db.ObjectId
+  genBusPostingGroupCode     String?
+  genBusPostingGroupName     String?
+  genProductPostingGroupId   String?                     @db.ObjectId
+  genProductPostingGroupCode String?
+  genProductPostingGroupName String?
   blocked                    Boolean?
   salesAccount               String?
   purchaseAccount            String?
