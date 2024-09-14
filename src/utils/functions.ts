@@ -66,7 +66,7 @@ export const generatePurchaseLineNo = async (): Promise<number> => {
 
 export const slugify = async (str: string): Promise<string> => {
   const slugifyModule = await slugifyImport;
-  return slugifyModule.default(str, { lower: true });
+  return slugifyModule.default(str.toUpperCase());
 };
 
 export const generateCode = async ({
