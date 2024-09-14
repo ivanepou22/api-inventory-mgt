@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { db } from "@/db/db";
-import { generateCode } from "@/utils/functions";
 
 export const createJournalBatch = async (req: Request, res: Response) => {
   const { name, description, journalTemplateId, journalTemplateType } =
@@ -8,21 +7,15 @@ export const createJournalBatch = async (req: Request, res: Response) => {
 
   //make name uppercase
   const nameUppercase = name.toUpperCase();
-  // Generate a unique code for the journal batch
-  const journalBatchCount = await db.journalBatch.count();
-  const code = await generateCode({
-    format: "JB",
-    valueCount: journalBatchCount,
-  });
 
   const journalBatchExists = await db.journalBatch.findUnique({
     where: {
-      code,
+      name: nameUppercase,
     },
   });
   if (journalBatchExists) {
     return res.status(409).json({
-      error: `Journal Batch with code: ${code} already exists`,
+      error: `Journal Batch with code: ${nameUppercase} already exists`,
     });
   }
 
@@ -47,11 +40,10 @@ export const createJournalBatch = async (req: Request, res: Response) => {
   try {
     const newJournalBatch = await db.journalBatch.create({
       data: {
-        code,
         name: nameUppercase,
         description,
         journalTemplateId,
-        journalTemplateCode: journalTemplate.code,
+        journalTemplateCode: journalTemplate.name,
         journalTemplateName: journalTemplate.name,
         journalTemplateSourceCode: journalTemplate.sourceCode,
         journalTemplateReasonCode: journalTemplate.reasonCode,
@@ -115,14 +107,12 @@ export const getJournalBatch = async (req: Request, res: Response) => {
 export const updateJournalBatch = async (req: Request, res: Response) => {
   const id = req.params.id;
   const { name, description, journalTemplateId } = req.body;
-  //make name uppercase
-  const nameUppercase = name.toUpperCase();
+
   try {
     const journalBatchExists = await db.journalBatch.findUnique({
       where: { id },
       select: {
         id: true,
-        code: true,
         name: true,
         description: true,
         journalTemplateId: true,
@@ -159,11 +149,27 @@ export const updateJournalBatch = async (req: Request, res: Response) => {
           error: "Journal Template not found.",
         });
       }
-      journalTemplateCode = journalTemplate.code;
+      journalTemplateCode = journalTemplate.name;
       journalTemplateName = journalTemplate.name;
       journalTemplateSourceCode = journalTemplate.sourceCode;
       journalTemplateReasonCode = journalTemplate.reasonCode;
       journalTemplateType = journalTemplate.type;
+    }
+
+    //make name uppercase
+    const nameUppercase = name.toUpperCase();
+    //check if the name already exists
+    if (nameUppercase && nameUppercase !== journalBatchExists.name) {
+      const journalBatchNameExists = await db.journalBatch.findUnique({
+        where: {
+          name: nameUppercase,
+        },
+      });
+      if (journalBatchNameExists) {
+        return res.status(409).json({
+          error: `Journal Batch with code: ${journalBatchNameExists} already exists`,
+        });
+      }
     }
     // Perform the update
     const updatedJournalBatch = await db.journalBatch.update({

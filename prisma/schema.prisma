@@ -874,8 +874,7 @@ model CustomerPostingGroup {
 
 model JournalBatch {
   id                        String               @id @default(auto()) @map("_id") @db.ObjectId
-  code                      String               @unique
-  name                      String
+  name                      String               @unique
   description               String?
   journalTemplateId         String               @db.ObjectId
   journalTemplateCode       String?
@@ -890,7 +889,6 @@ model JournalBatch {
 
 model JournalTemplate {
   id           String              @id @default(auto()) @map("_id") @db.ObjectId
-  code         String              @unique
   name         String              @unique
   description  String?
   type         journalTemplateType
@@ -1183,4 +1181,40 @@ model InventoryPostingSetup {
   inventoryPostingGroup     InventoryPostingGroup? @relation(fields: [inventoryPostingGroupId], references: [id])
   createdAt                 DateTime               @default(now())
   updatedAt                 DateTime               @updatedAt
+}
+
+model NoSeries {
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  code          String         @unique
+  description   String
+  defaultSeries Boolean        @default(true)
+  manualSeries  Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  NoSeriesLine  NoSeriesLine[]
+}
+
+model NoSeriesLine {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  noSeriesId    String    @db.ObjectId
+  noSeriesCode  String
+  startingDate  DateTime?
+  endingDate    DateTime?
+  startingNo    String
+  endingNo      String?
+  lastDateUsed  DateTime?
+  lastNoUsed    String?
+  lastDigitUsed Int?
+  increment     Int?      @default(1)
+  NoSeries      NoSeries  @relation(fields: [noSeriesId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model NoSeriesSetup {
+  id                          String   @id @default(auto()) @map("_id") @db.ObjectId
+  journalTemplateNoSeriesId   String?  @db.ObjectId
+  journalTemplateNoSeriesCode String?
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
 }
