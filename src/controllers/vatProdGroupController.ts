@@ -1,28 +1,35 @@
 import { Request, Response } from "express";
 import { db } from "@/db/db";
-import { generateCode } from "@/utils/functions";
+import { generateCode, slugify } from "@/utils/functions";
 
 export const createVatProductPostingGroup = async (
   req: Request,
   res: Response
 ) => {
-  const { name } = req.body;
+  const { code, name } = req.body;
 
   //name should be uppercase
   const nameUppercase = name.toUpperCase();
+  const codeUppercase = await slugify(code);
 
-  // Generate a unique code for the vatProductPostingGroup
-  const vatProductPostingGroupCount = await db.vatProductPostingGroup.count();
-  const code = await generateCode({
-    format: "VPG",
-    valueCount: vatProductPostingGroupCount,
-  });
+  // Check if the code already exists
+  const vatProductPostingGroupCodeExists =
+    await db.vatProductPostingGroup.findUnique({
+      where: {
+        code: codeUppercase,
+      },
+    });
+  if (vatProductPostingGroupCodeExists) {
+    return res.status(409).json({
+      error: `Vat Product Posting Group with code: ${codeUppercase} already exists`,
+    });
+  }
 
   try {
     const vatProductPostingGroup = await db.vatProductPostingGroup.create({
       data: {
         name: nameUppercase,
-        code,
+        code: codeUppercase,
       },
     });
 
@@ -39,7 +46,7 @@ export const createVatProductPostingGroup = async (
 };
 
 export const getVatProductPostingGroups = async (
-  req: Request,
+  _req: Request,
   res: Response
 ) => {
   try {
@@ -85,20 +92,83 @@ export const getVatProductPostingGroup = async (
   }
 };
 
+//getVatProductPostingGroupByCode
+export const getVatProductPostingGroupByCode = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { code } = req.params;
+    const vatProductPostingGroup = await db.vatProductPostingGroup.findUnique({
+      where: {
+        code,
+      },
+    });
+
+    if (!vatProductPostingGroup) {
+      return res.status(404).json({
+        error: "Vat Product Posting Group not found",
+      });
+    }
+
+    return res.status(200).json({
+      data: vatProductPostingGroup,
+      message: "Vat Product Posting Group fetched successfully",
+    });
+  } catch (error: any) {
+    console.error("Error fetching Vat Product Posting Group:", error);
+    return res.status(500).json({
+      error: `An unexpected error occurred while fetching the Vat Product Posting Group.`,
+    });
+  }
+};
+
 export const updateVatProductPostingGroup = async (
   req: Request,
   res: Response
 ) => {
   try {
     const { id } = req.params;
-    const { name }: any = req.body;
+    const { code, name }: any = req.body;
+
+    //check if the vatProductPostingGroup exists
+    const vatProductPostingGroupExists =
+      await db.vatProductPostingGroup.findUnique({
+        where: { id },
+      });
+    if (!vatProductPostingGroupExists) {
+      return res
+        .status(404)
+        .json({ error: "Vat Product Posting Group not found." });
+    }
 
     //name should be uppercase
-    const nameUppercase = name.toUpperCase();
+    const nameUppercase = name
+      ? name.toUpperCase()
+      : vatProductPostingGroupExists.name;
+    const codeUppercase = code
+      ? await slugify(code)
+      : vatProductPostingGroupExists.code;
+
+    // Check if the code already exists
+    if (codeUppercase && codeUppercase !== vatProductPostingGroupExists.code) {
+      const vatProdPostingGroupCodeExists =
+        await db.vatProductPostingGroup.findUnique({
+          where: {
+            code: codeUppercase,
+          },
+        });
+      if (vatProdPostingGroupCodeExists) {
+        return res.status(409).json({
+          error: `Vat Product Posting Group with code: ${codeUppercase} already exists`,
+        });
+      }
+    }
+
     // Perform the update
     const vatProductPostingGroup = await db.vatProductPostingGroup.update({
       where: { id },
-      data: { name: nameUppercase },
+      data: { name: nameUppercase, code: codeUppercase },
     });
     return res.status(200).json({
       data: vatProductPostingGroup,
