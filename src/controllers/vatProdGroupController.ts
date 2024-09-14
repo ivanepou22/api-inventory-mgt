@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { db } from "@/db/db";
-import { generateCode, slugify } from "@/utils/functions";
+import { slugify } from "@/utils/functions";
 
 export const createVatProductPostingGroup = async (
   req: Request,

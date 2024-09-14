@@ -1100,11 +1100,15 @@ model VatPostingSetup {
   vatIdentifier              String?
   salesVatAccount            String?
   purchaseVatAccount         String?
-  blocked                    Boolean?
+  blocked                    Boolean?                @default(false)
   vatProductPostingGroup     VatProductPostingGroup? @relation(fields: [vatProductPostingGroupId], references: [id])
   vatBusPostingGroup         VatBusPostingGroup?     @relation(fields: [vatBusPostingGroupId], references: [id])
   createdAt                  DateTime                @default(now())
   updatedAt                  DateTime                @updatedAt
+
+  @@unique([vatBusPostingGroupId, vatProductPostingGroupId])
+  @@index([vatBusPostingGroupId])
+  @@index([vatProductPostingGroupId])
 }
 
 model GeneralProductPostingGroup {
