@@ -1,27 +1,26 @@
 import { Request, Response } from "express";
 import { db } from "@/db/db";
+import { slugify } from "@/utils/functions";
 
 export const createJournalBatch = async (req: Request, res: Response) => {
-  const { name, description, journalTemplateId, journalTemplateType } =
-    req.body;
+  const { name, description, journalTemplateId, noSeriesId } = req.body;
 
   //make name uppercase
-  const nameUppercase = name.toUpperCase();
+  let nameUppercase = await slugify(name);
+  nameUppercase = nameUppercase.toUpperCase();
 
   const journalBatchExists = await db.journalBatch.findUnique({
     where: {
-      name: nameUppercase,
+      name_journalTemplateId: {
+        name: nameUppercase,
+        journalTemplateId: journalTemplateId,
+      },
     },
   });
+
   if (journalBatchExists) {
     return res.status(409).json({
-      error: `Journal Batch with code: ${nameUppercase} already exists`,
-    });
-  }
-
-  if (!journalTemplateId) {
-    return res.status(400).json({
-      error: "Journal Template ID is required.",
+      error: `Journal Batch with name: ${nameUppercase} and template ID: ${journalBatchExists.journalTemplateName} already exists`,
     });
   }
 
@@ -36,6 +35,22 @@ export const createJournalBatch = async (req: Request, res: Response) => {
       error: "Journal Template not found.",
     });
   }
+  //check if the noSeries exists
+  let noSeriesCode = null;
+  if (noSeriesId) {
+    const noSeries = await db.noSeries.findUnique({
+      where: {
+        id: noSeriesId,
+      },
+    });
+
+    if (!noSeries) {
+      return res.status(404).json({
+        error: "No Series not found.",
+      });
+    }
+    noSeriesCode = noSeries.code;
+  }
 
   try {
     const newJournalBatch = await db.journalBatch.create({
@@ -47,7 +62,9 @@ export const createJournalBatch = async (req: Request, res: Response) => {
         journalTemplateName: journalTemplate.name,
         journalTemplateSourceCode: journalTemplate.sourceCode,
         journalTemplateReasonCode: journalTemplate.reasonCode,
-        journalTemplateType,
+        journalTemplateType: journalTemplate.type,
+        noSeriesId,
+        noSeriesCode,
       },
     });
     return res.status(201).json({
@@ -157,12 +174,17 @@ export const updateJournalBatch = async (req: Request, res: Response) => {
     }
 
     //make name uppercase
-    const nameUppercase = name.toUpperCase();
+    let nameUppercase = await slugify(name);
+    nameUppercase = name.toUpperCase();
     //check if the name already exists
     if (nameUppercase && nameUppercase !== journalBatchExists.name) {
       const journalBatchNameExists = await db.journalBatch.findUnique({
         where: {
-          name: nameUppercase,
+          name_journalTemplateId: {
+            name: nameUppercase,
+            journalTemplateId:
+              journalTemplateId || journalBatchExists.journalTemplateId,
+          },
         },
       });
       if (journalBatchNameExists) {

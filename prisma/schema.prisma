@@ -874,7 +874,7 @@ model CustomerPostingGroup {
 
 model JournalBatch {
   id                        String               @id @default(auto()) @map("_id") @db.ObjectId
-  name                      String               @unique
+  name                      String
   description               String?
   journalTemplateId         String               @db.ObjectId
   journalTemplateCode       String?
@@ -882,9 +882,14 @@ model JournalBatch {
   journalTemplateSourceCode String?
   journalTemplateReasonCode String?
   journalTemplateType       journalTemplateType?
+  noSeriesId                String?              @db.ObjectId
+  noSeriesCode              String?
   journalTemplate           JournalTemplate      @relation(fields: [journalTemplateId], references: [id])
   createdAt                 DateTime             @default(now())
   updatedAt                 DateTime             @updatedAt
+  NoSeries                  NoSeries?            @relation(fields: [noSeriesId], references: [id])
+
+  @@unique([name, journalTemplateId])
 }
 
 model JournalTemplate {
@@ -1192,6 +1197,7 @@ model NoSeries {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   NoSeriesLine  NoSeriesLine[]
+  JournalBatch  JournalBatch[]
 }
 
 model NoSeriesLine {
