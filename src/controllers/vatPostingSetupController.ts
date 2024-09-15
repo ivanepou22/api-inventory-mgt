@@ -64,6 +64,40 @@ export const createVatPostingSetup = async (req: Request, res: Response) => {
         });
       }
     }
+    if (vatBusPostingGroupId && !vatProductPostingGroupId) {
+      //check if the vat posting setup exists with the same vatBusPostingGroupId and a null vatProductPostingGroupId
+      const vatPostingSetupExists = await db.vatPostingSetup.findUnique({
+        where: {
+          vatBusPostingGroupId_vatProductPostingGroupId: {
+            vatBusPostingGroupId: vatBusPostingGroupId,
+            vatProductPostingGroupId: "",
+          },
+        },
+      });
+      if (vatPostingSetupExists) {
+        return res.status(409).json({
+          error: `Vat Posting Setup with vat Bus. Posting Group Code: ${vatPostingSetupExists.vatBusPostingGroupCode} and vat Product Posting Group Code: ${vatPostingSetupExists.vatProductPostingGroupCode} already exists`,
+        });
+      }
+    }
+
+    if (!vatBusPostingGroupId && vatProductPostingGroupId) {
+      //check if the vat posting setup exists with the same vatBusPostingGroupId and a null vatProductPostingGroupId
+      const vatPostingSetupExists = await db.vatPostingSetup.findUnique({
+        where: {
+          vatBusPostingGroupId_vatProductPostingGroupId: {
+            vatBusPostingGroupId: "",
+            vatProductPostingGroupId,
+          },
+        },
+      });
+      if (vatPostingSetupExists) {
+        return res.status(409).json({
+          error: `Vat Posting Setup with vat Bus. Posting Group Code: ${vatPostingSetupExists.vatBusPostingGroupCode} and vat Product Posting Group Code: ${vatPostingSetupExists.vatProductPostingGroupCode} already exists`,
+        });
+      }
+    }
+
     const vatPostingSetup = await db.vatPostingSetup.create({
       data: {
         description,
@@ -177,6 +211,22 @@ export const updateVatPostingSetup = async (req: Request, res: Response) => {
       }
       vatBusPostingGroupCode = vatBusPostingGroup.code;
       vatBusPostingGroupName = vatBusPostingGroup.name;
+
+      if (vatBusPostingGroupId && !vatProductPostingGroupId) {
+        const vatPostingSetupExists = await db.vatPostingSetup.findUnique({
+          where: {
+            vatBusPostingGroupId_vatProductPostingGroupId: {
+              vatBusPostingGroupId: vatBusPostingGroupId,
+              vatProductPostingGroupId: "",
+            },
+          },
+        });
+        if (vatPostingSetupExists) {
+          return res.status(409).json({
+            error: `Vat Posting Setup with vat Bus. Posting Group Code: ${vatPostingSetupExists.vatBusPostingGroupCode} and vat Product Posting Group Code: ${vatPostingSetupExists.vatProductPostingGroupCode} already exists`,
+          });
+        }
+      }
     }
 
     //check if the  vatProductPostingGroup exists only if the vatProductPostingGroupId is not null and not the same as the current vatProductPostingGroupId
@@ -197,6 +247,49 @@ export const updateVatPostingSetup = async (req: Request, res: Response) => {
       }
       vatProductPostingGroupCode = vatProductPostingGroup.code;
       vatProductPostingGroupName = vatProductPostingGroup.name;
+
+      if (!vatBusPostingGroupId && vatProductPostingGroupId) {
+        //check if the vat posting setup exists with the same vatBusPostingGroupId and a null vatProductPostingGroupId
+        const vatPostingSetupExists = await db.vatPostingSetup.findUnique({
+          where: {
+            vatBusPostingGroupId_vatProductPostingGroupId: {
+              vatBusPostingGroupId: "",
+              vatProductPostingGroupId,
+            },
+          },
+        });
+        if (vatPostingSetupExists) {
+          return res.status(409).json({
+            error: `Vat Posting Setup with vat Bus. Posting Group Code: ${vatPostingSetupExists.vatBusPostingGroupCode} and vat Product Posting Group Code: ${vatPostingSetupExists.vatProductPostingGroupCode} already exists`,
+          });
+        }
+      }
+    }
+
+    if (
+      (vatBusPostingGroupId &&
+        vatBusPostingGroupCode !==
+          vatPostingSetupExists.vatBusPostingGroupCode) ||
+      (vatProductPostingGroupId &&
+        vatProductPostingGroupCode !==
+          vatPostingSetupExists.vatProductPostingGroupCode)
+    ) {
+      //check if the vatBusPostingGroup and vatProductPostingGroup are unique
+      if (vatBusPostingGroupId && vatProductPostingGroupId) {
+        const vatPostingSetupExists = await db.vatPostingSetup.findUnique({
+          where: {
+            vatBusPostingGroupId_vatProductPostingGroupId: {
+              vatBusPostingGroupId: vatBusPostingGroupId,
+              vatProductPostingGroupId: vatProductPostingGroupId,
+            },
+          },
+        });
+        if (vatPostingSetupExists) {
+          return res.status(409).json({
+            error: `Vat Posting Setup with vat Bus. Posting Group Code: ${vatPostingSetupExists.vatBusPostingGroupCode} and vat Product Posting Group Code: ${vatPostingSetupExists.vatProductPostingGroupCode} already exists`,
+          });
+        }
+      }
     }
 
     const vatPostingSetup = await db.vatPostingSetup.update({

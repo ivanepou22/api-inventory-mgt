@@ -1107,8 +1107,6 @@ model VatPostingSetup {
   updatedAt                  DateTime                @updatedAt
 
   @@unique([vatBusPostingGroupId, vatProductPostingGroupId])
-  @@index([vatBusPostingGroupId])
-  @@index([vatProductPostingGroupId])
 }
 
 model GeneralProductPostingGroup {
