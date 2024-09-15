@@ -119,10 +119,11 @@ export const updateJournalTemplate = async (req: Request, res: Response) => {
       return res.status(410).json({ error: "Journal Template not found." });
     }
     //make name uppercase
-    let nameUppercase = await slugify(name);
-    nameUppercase = nameUppercase.toUpperCase();
+    const nameUppercase = name
+      ? await slugify(name)
+      : journalTemplateExists.name;
     //check if the name already exists
-    if (nameUppercase && nameUppercase !== journalTemplateExists.name) {
+    if (name && nameUppercase !== journalTemplateExists.name) {
       const journalTemplateNameExists = await db.journalTemplate.findUnique({
         where: {
           name: nameUppercase,
@@ -133,15 +134,13 @@ export const updateJournalTemplate = async (req: Request, res: Response) => {
           error: `Journal Template with name: ${nameUppercase} already exists`,
         });
       }
-
-      nameUppercase = name.toUpperCase();
     }
 
     // Perform the update
     const updatedJournalTemplate = await db.journalTemplate.update({
       where: { id },
       data: {
-        name: name,
+        name: nameUppercase,
         description,
         type,
         recurring,

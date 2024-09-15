@@ -1196,10 +1196,10 @@ model NoSeries {
   description   String
   defaultSeries Boolean        @default(true)
   manualSeries  Boolean        @default(false)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
   NoSeriesLine  NoSeriesLine[]
   JournalBatch  JournalBatch[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 }
 
 model NoSeriesLine {
