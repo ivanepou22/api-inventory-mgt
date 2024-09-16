@@ -1237,7 +1237,7 @@ model Tenant {
 
 model Company {
   id                 String               @id @default(auto()) @map("_id") @db.ObjectId
-  code               String               @unique
+  code               String
   name               String
   tenantId           String               @db.ObjectId
   tenantName         String?
