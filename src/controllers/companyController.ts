@@ -15,6 +15,20 @@ export const createCompany = async (req: Request, res: Response) => {
       });
     }
 
+    const companyCodeExists = await db.company.findUnique({
+      where: {
+        tenantId_code: {
+          code,
+          tenantId,
+        },
+      },
+    });
+    if (companyCodeExists) {
+      return res.status(400).json({
+        error: "Company code already exists",
+      });
+    }
+
     const company = await db.company.create({
       data: {
         code,
@@ -92,7 +106,12 @@ export const updateCompany = async (req: Request, res: Response) => {
 
     if (code && code !== companyExists.code) {
       const companyCodeExists = await db.company.findUnique({
-        where: { code },
+        where: {
+          tenantId_code: {
+            code,
+            tenantId: companyExists.tenantId,
+          },
+        },
       });
       if (companyCodeExists) {
         return res.status(400).json({
