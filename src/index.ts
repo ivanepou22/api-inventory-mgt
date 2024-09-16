@@ -35,6 +35,8 @@ import inventoryPostingSetupRouter from "./routes/inventoryPostingSetupRoutes";
 import inventoryPostingGroupRouter from "./routes/inventoryPostingGroupRoutes";
 import noSeriesRouter from "./routes/noSeriesRoutes";
 import noSeriesLineRouter from "./routes/noSeriesLineRoutes";
+import tenantRouter from "./routes/tenantRoutes";
+import companyRouter from "./routes/companyRoutes";
 
 require("dotenv").config();
 const app = express();
@@ -119,6 +121,8 @@ const apiRoutes = [
   { router: inventoryPostingSetupRouter },
   { router: noSeriesRouter },
   { router: noSeriesLineRouter },
+  { router: tenantRouter },
+  { router: companyRouter },
 ];
 
 apiRoutes.forEach(({ router, useRouteLimiter }) => {
