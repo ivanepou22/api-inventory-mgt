@@ -1227,19 +1227,24 @@ model NoSeriesSetup {
   updatedAt                   DateTime @updatedAt
 }
 
-model tenant {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+model Tenant {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
   name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  Company   Company[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
-model company {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  code      String   @unique
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Company {
+  id                 String               @id @default(auto()) @map("_id") @db.ObjectId
+  code               String               @unique
+  name               String
+  tenantId           String               @db.ObjectId
+  tenantName         String?
+  companyInformation companyInformation[]
+  tenant             Tenant               @relation(fields: [tenantId], references: [id])
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
 }
 
 model companyInformation {
@@ -1264,6 +1269,11 @@ model companyInformation {
   bankAccountNumber String?
   bankAccountName   String?
   swiftCode         String?
+  companyId         String   @db.ObjectId
+  companyName       String?
+  tenantId          String   @db.ObjectId
+  tenantName        String?
+  company           Company  @relation(fields: [companyId], references: [id])
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 }
