@@ -44,7 +44,14 @@ export const createVatBusPostingGroup = async (req: Request, res: Response) => {
 
 export const getVatBusPostingGroups = async (_req: Request, res: Response) => {
   try {
-    const vatBusPostingGroups = await db.vatBusPostingGroup.findMany();
+    const vatBusPostingGroups = await db.vatBusPostingGroup.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        GenBusPostingGroup: true,
+      },
+    });
     return res.status(200).json({
       data: vatBusPostingGroups,
       message: "Vat Bus Posting Groups fetched successfully",

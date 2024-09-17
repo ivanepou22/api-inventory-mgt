@@ -1067,14 +1067,15 @@ model PurchaseRecieptLine {
 }
 
 model VatBusPostingGroup {
-  id              String            @id @default(auto()) @map("_id") @db.ObjectId
-  code            String            @unique
-  name            String
-  Supplier        Supplier[]
-  Customer        Customer[]
-  VatPostingSetup VatPostingSetup[]
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  id                 String               @id @default(auto()) @map("_id") @db.ObjectId
+  code               String               @unique
+  name               String
+  Supplier           Supplier[]
+  Customer           Customer[]
+  VatPostingSetup    VatPostingSetup[]
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  GenBusPostingGroup GenBusPostingGroup[]
 }
 
 model VatProductPostingGroup {
@@ -1116,7 +1117,7 @@ model GeneralProductPostingGroup {
   defVatProductPostingGroupId String?           @db.ObjectId
   vatProductPostingGroupCode  String?
   vatProductPostingGroupName  String?
-  autoInsertDefault           Boolean?
+  autoInsertDefault           Boolean?          @default(true)
   genPostingSetup             GenPostingSetup[]
   Product                     Product[]
   createdAt                   DateTime          @default(now())
@@ -1124,18 +1125,19 @@ model GeneralProductPostingGroup {
 }
 
 model GenBusPostingGroup {
-  id                      String            @id @default(auto()) @map("_id") @db.ObjectId
-  code                    String            @unique
+  id                      String              @id @default(auto()) @map("_id") @db.ObjectId
+  code                    String              @unique
   name                    String
-  defVatBusPostingGroupId String?           @db.ObjectId
+  defVatBusPostingGroupId String?             @db.ObjectId
   vatBusPostingGroupCode  String?
   vatBusPostingGroupName  String?
   autoInsertDefault       Boolean?
-  createdAt               DateTime          @default(now())
-  updatedAt               DateTime          @updatedAt
   genPostingSetup         GenPostingSetup[]
   Supplier                Supplier[]
   Customer                Customer[]
+  vatBusPostingGroup      VatBusPostingGroup? @relation(fields: [defVatBusPostingGroupId], references: [id])
+  createdAt               DateTime            @default(now())
+  updatedAt               DateTime            @updatedAt
 }
 
 model GenPostingSetup {

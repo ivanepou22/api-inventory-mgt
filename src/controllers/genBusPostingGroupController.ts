@@ -1,43 +1,56 @@
 import { Request, Response } from "express";
 import { db } from "@/db/db";
-import { generateCode } from "@/utils/functions";
+import { slugify } from "@/utils/functions";
 
 export const createGenBusPostingGroup = async (req: Request, res: Response) => {
   try {
-    const { name, defVatBusPostingGroupId, autoInsertDefault } = req.body;
+    const { code, name, defVatBusPostingGroupId, autoInsertDefault } = req.body;
 
     //name should be uppercase
     const nameUppercase = name.toUpperCase();
-
-    // Generate a unique code for the genBusPostingGroup
-    const genBusPostingGroupCount = await db.genBusPostingGroup.count();
-    const code = await generateCode({
-      format: "GBP",
-      valueCount: genBusPostingGroupCount,
-    });
+    const codeUppercase = await slugify(code);
 
     //get the vatBusPostingGroup
-    const vatBusPostingGroup = await db.vatBusPostingGroup.findUnique({
-      where: { id: defVatBusPostingGroupId },
-    });
-    if (!vatBusPostingGroup) {
-      return res.status(404).json({
-        error: "Vat Bus Posting Group not found",
+    let vatBusPostingGroupCode;
+    let vatBusPostingGroupName;
+
+    //get the vatBusPostingGroup
+    if (defVatBusPostingGroupId) {
+      const vatBusPostingGroup = await db.vatBusPostingGroup.findUnique({
+        where: { id: defVatBusPostingGroupId },
+      });
+      if (!vatBusPostingGroup) {
+        return res.status(404).json({
+          error: "Vat Bus Posting Group not found",
+        });
+      }
+      vatBusPostingGroupCode = vatBusPostingGroup.code;
+      vatBusPostingGroupName = vatBusPostingGroup.name;
+    }
+
+    //check if the code is unique
+    const genBusPostingGroupCodeExists = await db.genBusPostingGroup.findUnique(
+      {
+        where: { code: codeUppercase },
+      }
+    );
+    if (genBusPostingGroupCodeExists) {
+      return res.status(400).json({
+        error: `Gen Bus Posting Group code: ${codeUppercase} already exists`,
       });
     }
 
-    //get the vatBusPostingGroup
-    const vatBusPostingGroupCode = vatBusPostingGroup.code;
-    const vatBusPostingGroupName = vatBusPostingGroup.name;
-
     const genBusPostingGroup = await db.genBusPostingGroup.create({
       data: {
-        code,
+        code: codeUppercase,
         name: nameUppercase,
         defVatBusPostingGroupId,
         autoInsertDefault,
         vatBusPostingGroupCode,
         vatBusPostingGroupName,
+      },
+      include: {
+        vatBusPostingGroup: true,
       },
     });
 
@@ -55,7 +68,14 @@ export const createGenBusPostingGroup = async (req: Request, res: Response) => {
 
 export const getGenBusPostingGroups = async (req: Request, res: Response) => {
   try {
-    const genBusPostingGroups = await db.genBusPostingGroup.findMany();
+    const genBusPostingGroups = await db.genBusPostingGroup.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        vatBusPostingGroup: true,
+      },
+    });
     return res.status(200).json({
       data: genBusPostingGroups,
       message: "Gen Bus Posting Groups fetched successfully",
@@ -74,6 +94,9 @@ export const getGenBusPostingGroup = async (req: Request, res: Response) => {
     const { id } = req.params;
     const genBusPostingGroup = await db.genBusPostingGroup.findUnique({
       where: { id },
+      include: {
+        vatBusPostingGroup: true,
+      },
     });
 
     if (!genBusPostingGroup) {
@@ -97,11 +120,10 @@ export const getGenBusPostingGroup = async (req: Request, res: Response) => {
 export const updateGenBusPostingGroup = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, defVatBusPostingGroupId, autoInsertDefault }: any = req.body;
+    const { code, name, defVatBusPostingGroupId, autoInsertDefault }: any =
+      req.body;
 
-    //name should be uppercase
-    const nameUppercase = name.toUpperCase();
-    // Check if the genBusPostingGroup exists
+    //check if the genBusPostingGroup exists
     const genBusPostingGroupExists = await db.genBusPostingGroup.findUnique({
       where: { id },
       select: {
@@ -109,12 +131,36 @@ export const updateGenBusPostingGroup = async (req: Request, res: Response) => {
         code: true,
         name: true,
         defVatBusPostingGroupId: true,
+        vatBusPostingGroup: true,
       },
     });
+
     if (!genBusPostingGroupExists) {
       return res
         .status(404)
         .json({ error: "Gen Bus Posting Group not found." });
+    }
+
+    //name should be uppercase
+    const nameUppercase = name
+      ? name.toUpperCase()
+      : genBusPostingGroupExists.name;
+    const codeUppercase = code
+      ? await slugify(code)
+      : genBusPostingGroupExists.code;
+
+    //check for duplicate code
+    if (codeUppercase && codeUppercase !== genBusPostingGroupExists.code) {
+      const genBusPostingGroupCodeExists =
+        await db.genBusPostingGroup.findUnique({
+          where: { code: codeUppercase },
+        });
+
+      if (genBusPostingGroupCodeExists) {
+        return res.status(400).json({
+          error: "Gen Bus Posting Group code already exists",
+        });
+      }
     }
 
     // check if defVatBusPostingGroupId is not the same as the current defVatBusPostingGroupId
@@ -141,6 +187,7 @@ export const updateGenBusPostingGroup = async (req: Request, res: Response) => {
     const genBusPostingGroup = await db.genBusPostingGroup.update({
       where: { id },
       data: {
+        code: codeUppercase,
         name: nameUppercase,
         defVatBusPostingGroupId,
         autoInsertDefault,
