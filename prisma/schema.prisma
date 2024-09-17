@@ -1079,13 +1079,14 @@ model VatBusPostingGroup {
 }
 
 model VatProductPostingGroup {
-  id              String            @id @default(auto()) @map("_id") @db.ObjectId
-  code            String            @unique
-  name            String
-  Product         Product[]
-  VatPostingSetup VatPostingSetup[]
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  id                         String                       @id @default(auto()) @map("_id") @db.ObjectId
+  code                       String                       @unique
+  name                       String
+  Product                    Product[]
+  VatPostingSetup            VatPostingSetup[]
+  createdAt                  DateTime                     @default(now())
+  updatedAt                  DateTime                     @updatedAt
+  GeneralProductPostingGroup GeneralProductPostingGroup[]
 }
 
 model VatPostingSetup {
@@ -1111,17 +1112,16 @@ model VatPostingSetup {
 }
 
 model GeneralProductPostingGroup {
-  id                          String            @id @default(auto()) @map("_id") @db.ObjectId
-  code                        String            @unique
+  id                          String                  @id @default(auto()) @map("_id") @db.ObjectId
+  code                        String                  @unique
   name                        String
-  defVatProductPostingGroupId String?           @db.ObjectId
-  vatProductPostingGroupCode  String?
-  vatProductPostingGroupName  String?
-  autoInsertDefault           Boolean?          @default(true)
+  defVatProductPostingGroupId String?                 @db.ObjectId
+  autoInsertDefault           Boolean?                @default(true)
   genPostingSetup             GenPostingSetup[]
   Product                     Product[]
-  createdAt                   DateTime          @default(now())
-  updatedAt                   DateTime          @updatedAt
+  vatProductPostingGroup      VatProductPostingGroup? @relation(fields: [defVatProductPostingGroupId], references: [id])
+  createdAt                   DateTime                @default(now())
+  updatedAt                   DateTime                @updatedAt
 }
 
 model GenBusPostingGroup {
@@ -1129,8 +1129,6 @@ model GenBusPostingGroup {
   code                    String              @unique
   name                    String
   defVatBusPostingGroupId String?             @db.ObjectId
-  vatBusPostingGroupCode  String?
-  vatBusPostingGroupName  String?
   autoInsertDefault       Boolean?
   genPostingSetup         GenPostingSetup[]
   Supplier                Supplier[]

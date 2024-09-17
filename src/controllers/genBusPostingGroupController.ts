@@ -10,24 +10,6 @@ export const createGenBusPostingGroup = async (req: Request, res: Response) => {
     const nameUppercase = name.toUpperCase();
     const codeUppercase = await slugify(code);
 
-    //get the vatBusPostingGroup
-    let vatBusPostingGroupCode;
-    let vatBusPostingGroupName;
-
-    //get the vatBusPostingGroup
-    if (defVatBusPostingGroupId) {
-      const vatBusPostingGroup = await db.vatBusPostingGroup.findUnique({
-        where: { id: defVatBusPostingGroupId },
-      });
-      if (!vatBusPostingGroup) {
-        return res.status(404).json({
-          error: "Vat Bus Posting Group not found",
-        });
-      }
-      vatBusPostingGroupCode = vatBusPostingGroup.code;
-      vatBusPostingGroupName = vatBusPostingGroup.name;
-    }
-
     //check if the code is unique
     const genBusPostingGroupCodeExists = await db.genBusPostingGroup.findUnique(
       {
@@ -46,8 +28,6 @@ export const createGenBusPostingGroup = async (req: Request, res: Response) => {
         name: nameUppercase,
         defVatBusPostingGroupId,
         autoInsertDefault,
-        vatBusPostingGroupCode,
-        vatBusPostingGroupName,
       },
       include: {
         vatBusPostingGroup: true,
@@ -161,26 +141,6 @@ export const updateGenBusPostingGroup = async (req: Request, res: Response) => {
           error: "Gen Bus Posting Group code already exists",
         });
       }
-    }
-
-    // check if defVatBusPostingGroupId is not the same as the current defVatBusPostingGroupId
-    let vatBusPostingGroupCode;
-    let vatBusPostingGroupName;
-    if (
-      defVatBusPostingGroupId &&
-      defVatBusPostingGroupId !==
-        genBusPostingGroupExists.defVatBusPostingGroupId
-    ) {
-      const vatBusPostingGroup = await db.vatBusPostingGroup.findUnique({
-        where: { id: defVatBusPostingGroupId },
-      });
-      if (!vatBusPostingGroup) {
-        return res.status(404).json({
-          error: "Vat Bus Posting Group not found",
-        });
-      }
-      vatBusPostingGroupCode = vatBusPostingGroup.code;
-      vatBusPostingGroupName = vatBusPostingGroup.name;
     }
 
     // Perform the update

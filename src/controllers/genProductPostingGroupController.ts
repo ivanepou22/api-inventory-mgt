@@ -1,46 +1,39 @@
 import { Request, Response } from "express";
 import { db } from "@/db/db";
-import { generateCode } from "@/utils/functions";
+import { generateCode, slugify } from "@/utils/functions";
 
 export const createGenProductPostingGroup = async (
   req: Request,
   res: Response
 ) => {
   try {
-    const { name, defVatProductPostingGroupId, autoInsertDefault } = req.body;
+    const { code, name, defVatProductPostingGroupId, autoInsertDefault } =
+      req.body;
 
     //name should be uppercase
     const nameUppercase = name.toUpperCase();
+    const codeUppercase = await slugify(code);
 
-    // Generate a unique code for the genProductPostingGroup
-    const genProductPostingGroupCount =
-      await db.generalProductPostingGroup.count();
-    const code = await generateCode({
-      format: "GPP",
-      valueCount: genProductPostingGroupCount,
-    });
-
-    //get the vatProductPostingGroup
-    const vatProductPostingGroup = await db.vatProductPostingGroup.findUnique({
-      where: { id: defVatProductPostingGroupId },
-    });
-    if (!vatProductPostingGroup) {
-      return res.status(404).json({
-        error: "Vat Product Posting Group not found",
+    //check if the code is unique
+    const genProductPostingGroupCodeExists =
+      await db.generalProductPostingGroup.findUnique({
+        where: { code: codeUppercase },
+      });
+    if (genProductPostingGroupCodeExists) {
+      return res.status(400).json({
+        error: `General Product Posting Group code: ${codeUppercase} already exists`,
       });
     }
 
-    const vatProductPostingGroupCode = vatProductPostingGroup.code;
-    const vatProductPostingGroupName = vatProductPostingGroup.name;
-
     const genProductPostingGroup = await db.generalProductPostingGroup.create({
       data: {
-        code,
+        code: codeUppercase,
         name: nameUppercase,
         autoInsertDefault,
         defVatProductPostingGroupId,
-        vatProductPostingGroupCode,
-        vatProductPostingGroupName,
+      },
+      include: {
+        vatProductPostingGroup: true,
       },
     });
 
@@ -62,7 +55,14 @@ export const getGenProductPostingGroups = async (
 ) => {
   try {
     const genProductPostingGroups =
-      await db.generalProductPostingGroup.findMany();
+      await db.generalProductPostingGroup.findMany({
+        orderBy: {
+          createdAt: "desc",
+        },
+        include: {
+          vatProductPostingGroup: true,
+        },
+      });
     return res.status(200).json({
       data: genProductPostingGroups,
       message: "General Product Posting Groups fetched successfully",
@@ -85,6 +85,9 @@ export const getGenProductPostingGroup = async (
     const genProductPostingGroup =
       await db.generalProductPostingGroup.findUnique({
         where: { id },
+        include: {
+          vatProductPostingGroup: true,
+        },
       });
 
     if (!genProductPostingGroup) {
@@ -111,11 +114,9 @@ export const updateGenProductPostingGroup = async (
 ) => {
   try {
     const { id } = req.params;
-    const { name, defVatProductPostingGroupId, autoInsertDefault }: any =
+    const { code, name, defVatProductPostingGroupId, autoInsertDefault }: any =
       req.body;
 
-    //name should be uppercase
-    const nameUppercase = name.toUpperCase();
     // Check if the genProductPostingGroup exists
     const genProductPostingGroupExists =
       await db.generalProductPostingGroup.findUnique({
@@ -126,8 +127,6 @@ export const updateGenProductPostingGroup = async (
           name: true,
           defVatProductPostingGroupId: true,
           autoInsertDefault: true,
-          vatProductPostingGroupCode: true,
-          vatProductPostingGroupName: true,
         },
       });
     if (!genProductPostingGroupExists) {
@@ -136,39 +135,25 @@ export const updateGenProductPostingGroup = async (
         .json({ error: "General Product Posting Group not found." });
     }
 
-    // check if defVatProductPostingGroupId is not the same as the current defVatProductPostingGroupId
-    let vatProductPostingGroupCode =
-      genProductPostingGroupExists.vatProductPostingGroupCode;
-    let vatProductPostingGroupName =
-      genProductPostingGroupExists.vatProductPostingGroupName;
-    if (
-      defVatProductPostingGroupId &&
-      defVatProductPostingGroupId !==
-        genProductPostingGroupExists.defVatProductPostingGroupId
-    ) {
-      const vatProductPostingGroup = await db.vatProductPostingGroup.findUnique(
-        {
-          where: { id: defVatProductPostingGroupId },
-        }
-      );
-      if (!vatProductPostingGroup) {
-        return res.status(404).json({
-          error: "Vat Product Posting Group not found",
-        });
-      }
-      vatProductPostingGroupCode = vatProductPostingGroup.code;
-      vatProductPostingGroupName = vatProductPostingGroup.name;
-    }
+    //name should be uppercase
+    const nameUppercase = name
+      ? name.toUpperCase()
+      : genProductPostingGroupExists.name;
+    const codeUppercase = code
+      ? await slugify(code)
+      : genProductPostingGroupExists.code;
 
     // Perform the update
     const genProductPostingGroup = await db.generalProductPostingGroup.update({
       where: { id },
       data: {
+        code: codeUppercase,
         name: nameUppercase,
         defVatProductPostingGroupId,
         autoInsertDefault,
-        vatProductPostingGroupCode,
-        vatProductPostingGroupName,
+      },
+      include: {
+        vatProductPostingGroup: true,
       },
     });
     return res.status(200).json({
