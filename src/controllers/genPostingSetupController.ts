@@ -4,9 +4,9 @@ import { db } from "@/db/db";
 export const createGenPostingSetup = async (req: Request, res: Response) => {
   try {
     const {
-      description,
       genBusPostingGroupId,
       genProductPostingGroupId,
+      description,
       salesAccount,
       purchaseAccount,
       salesCreditMemoAccount,
@@ -19,24 +19,86 @@ export const createGenPostingSetup = async (req: Request, res: Response) => {
     }: any = req.body;
 
     //get the genBusPostingGroup
-    const genBusPostingGroup = await db.genBusPostingGroup.findUnique({
-      where: { id: genBusPostingGroupId },
-    });
-    if (!genBusPostingGroup) {
-      return res.status(404).json({
-        error: "Gen Bus Posting Group not found",
+    if (genBusPostingGroupId) {
+      const genBusPostingGroup = await db.genBusPostingGroup.findUnique({
+        where: { id: genBusPostingGroupId },
       });
+      if (!genBusPostingGroup) {
+        return res.status(404).json({
+          error: "Gen Bus Posting Group not found",
+        });
+      }
     }
 
     //get the genProductPostingGroup
-    const genProductPostingGroup =
-      await db.generalProductPostingGroup.findUnique({
-        where: { id: genProductPostingGroupId },
+    if (genProductPostingGroupId) {
+      const genProductPostingGroup =
+        await db.generalProductPostingGroup.findUnique({
+          where: { id: genProductPostingGroupId },
+        });
+      if (!genProductPostingGroup) {
+        return res.status(404).json({
+          error: "Gen Product Posting Group not found",
+        });
+      }
+    }
+
+    //with both the genBusPostingGroupId and genProductPostingGroupId check whether the genPosting Setup exists
+    if (genBusPostingGroupId && genProductPostingGroupId) {
+      const genPostingSetupExists = await db.genPostingSetup.findUnique({
+        where: {
+          genBusPostingGroupId_genProductPostingGroupId: {
+            genBusPostingGroupId: genBusPostingGroupId,
+            genProductPostingGroupId: genProductPostingGroupId,
+          },
+        },
+        include: {
+          genBusPostingGroup: true,
+          genProductPostingGroup: true,
+        },
       });
-    if (!genProductPostingGroup) {
-      return res.status(404).json({
-        error: "Gen Product Posting Group not found",
+      if (genPostingSetupExists) {
+        return res.status(500).json({
+          error: `Gen Posting Setup with Bus Posting Group: ${genPostingSetupExists.genBusPostingGroup?.code} and General Product Posting Group: ${genPostingSetupExists.genProductPostingGroup?.code} already exists`,
+        });
+      }
+    }
+
+    if (genBusPostingGroupId && !genProductPostingGroupId) {
+      const genPostingSetupExists = await db.genPostingSetup.findFirst({
+        where: {
+          genBusPostingGroupId: genBusPostingGroupId,
+          genProductPostingGroup: null,
+        },
+        include: {
+          genBusPostingGroup: true,
+          genProductPostingGroup: true,
+        },
       });
+      if (genPostingSetupExists) {
+        return res.status(500).json({
+          error: `Gen Posting Setup with Bus Posting Group: ${genPostingSetupExists.genBusPostingGroup?.code} and General Product Posting Group: ${genPostingSetupExists.genProductPostingGroup?.code} already exists`,
+        });
+      }
+    }
+
+    if (!genBusPostingGroupId && genProductPostingGroupId) {
+      //use find first
+      const genPostingSetupExists = await db.genPostingSetup.findFirst({
+        where: {
+          genBusPostingGroup: null,
+          genProductPostingGroupId: genProductPostingGroupId,
+        },
+        include: {
+          genBusPostingGroup: true,
+          genProductPostingGroup: true,
+        },
+      });
+      if (genPostingSetupExists) {
+        return res.status(500).json({
+          error: `Gen Posting Setup with Bus Posting Group: ${genPostingSetupExists.genBusPostingGroup?.code} and General Product Posting Group: ${genPostingSetupExists.genProductPostingGroup?.code} already exists`,
+        });
+      }
     }
 
     const genPostingSetup = await db.genPostingSetup.create({
@@ -53,10 +115,10 @@ export const createGenPostingSetup = async (req: Request, res: Response) => {
         costOfGoodsSoldAccount,
         inventoryAdjustmentAccount,
         blocked,
-        genBusPostingGroupCode: genBusPostingGroup.code,
-        genBusPostingGroupName: genBusPostingGroup.name,
-        genProductPostingGroupCode: genProductPostingGroup.code,
-        genProductPostingGroupName: genProductPostingGroup.name,
+      },
+      include: {
+        genProductPostingGroup: true,
+        genBusPostingGroup: true,
       },
     });
 
@@ -67,14 +129,22 @@ export const createGenPostingSetup = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error("Error creating Gen Posting Setup:", error);
     return res.status(500).json({
-      error: `An unexpected error occurred: ${error.message}`,
+      error: `An unexpected error occurred.`,
     });
   }
 };
 
-export const getGenPostingSetups = async (req: Request, res: Response) => {
+export const getGenPostingSetups = async (_req: Request, res: Response) => {
   try {
-    const genPostingSetups = await db.genPostingSetup.findMany();
+    const genPostingSetups = await db.genPostingSetup.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        genProductPostingGroup: true,
+        genBusPostingGroup: true,
+      },
+    });
     return res.status(200).json({
       data: genPostingSetups,
       message: "Gen Posting Setups fetched successfully",
@@ -92,6 +162,10 @@ export const getGenPostingSetup = async (req: Request, res: Response) => {
     const { id } = req.params;
     const genPostingSetup = await db.genPostingSetup.findUnique({
       where: { id },
+      include: {
+        genProductPostingGroup: true,
+        genBusPostingGroup: true,
+      },
     });
 
     if (!genPostingSetup) {
@@ -107,7 +181,7 @@ export const getGenPostingSetup = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error("Error fetching Gen Posting Setup:", error);
     return res.status(500).json({
-      error: `An unexpected error occurred while fetching the Gen Posting Setup: ${error.message}`,
+      error: `An unexpected error occurred while fetching the Gen Posting Setup.`,
     });
   }
 };
@@ -140,13 +214,6 @@ export const updateGenPostingSetup = async (req: Request, res: Response) => {
       });
     }
 
-    let genBusPostingGroupCode = genPostingSetupExists.genBusPostingGroupCode;
-    let genBusPostingGroupName = genPostingSetupExists.genBusPostingGroupName;
-    let genProductPostingGroupCode =
-      genPostingSetupExists.genProductPostingGroupCode;
-    let genProductPostingGroupName =
-      genPostingSetupExists.genProductPostingGroupName;
-
     //check if the  genBusPostingGroup exists only if the genBusPostingGroupId is not null and not the same as the current genBusPostingGroupId
     if (
       genBusPostingGroupId &&
@@ -160,8 +227,6 @@ export const updateGenPostingSetup = async (req: Request, res: Response) => {
           error: "Gen Bus Posting Group not found",
         });
       }
-      genBusPostingGroupCode = genBusPostingGroup.code;
-      genBusPostingGroupName = genBusPostingGroup.name;
     }
 
     //check if the  genProductPostingGroup exists only if the genProductPostingGroupId is not null and not the same as the current genProductPostingGroupId
@@ -179,8 +244,103 @@ export const updateGenPostingSetup = async (req: Request, res: Response) => {
           error: "General Product Posting Group not found",
         });
       }
-      genProductPostingGroupCode = genProductPostingGroup.code;
-      genProductPostingGroupName = genProductPostingGroup.name;
+    }
+
+    if (genBusPostingGroupId && genProductPostingGroupId) {
+      const genPostingSetupExists = await db.genPostingSetup.findUnique({
+        where: {
+          genBusPostingGroupId_genProductPostingGroupId: {
+            genBusPostingGroupId: genBusPostingGroupId,
+            genProductPostingGroupId: genProductPostingGroupId,
+          },
+        },
+        include: {
+          genBusPostingGroup: true,
+          genProductPostingGroup: true,
+        },
+      });
+      if (genPostingSetupExists) {
+        return res.status(500).json({
+          error: `Gen Posting Setup with Bus Posting Group: ${genPostingSetupExists.genBusPostingGroup?.code} and General Product Posting Group: ${genPostingSetupExists.genProductPostingGroup?.code} already exists`,
+        });
+      }
+    }
+
+    let newGenProductPostingGroupId =
+      genPostingSetupExists.genProductPostingGroupId
+        ? genPostingSetupExists.genProductPostingGroupId
+        : null;
+    if (genBusPostingGroupId && !genProductPostingGroupId) {
+      //use find first
+      let genPostingSetupExists;
+      if (newGenProductPostingGroupId) {
+        genPostingSetupExists = await db.genPostingSetup.findUnique({
+          where: {
+            genBusPostingGroupId_genProductPostingGroupId: {
+              genBusPostingGroupId: genBusPostingGroupId,
+              genProductPostingGroupId: newGenProductPostingGroupId,
+            },
+          },
+          include: {
+            genBusPostingGroup: true,
+            genProductPostingGroup: true,
+          },
+        });
+      } else {
+        genPostingSetupExists = await db.genPostingSetup.findFirst({
+          where: {
+            genBusPostingGroupId: genBusPostingGroupId,
+            genProductPostingGroup: null,
+          },
+          include: {
+            genBusPostingGroup: true,
+            genProductPostingGroup: true,
+          },
+        });
+      }
+      if (genPostingSetupExists) {
+        return res.status(500).json({
+          error: `Gen Posting Setup with Bus Posting Group: ${genPostingSetupExists.genBusPostingGroup?.code} and General Product Posting Group: ${genPostingSetupExists.genProductPostingGroup?.code} already exists`,
+        });
+      }
+    }
+
+    let newGenBusPostingGroupId = genPostingSetupExists.genBusPostingGroupId
+      ? genPostingSetupExists.genBusPostingGroupId
+      : null;
+    if (!genBusPostingGroupId && genProductPostingGroupId) {
+      //use find first
+      let genPostingSetupExists;
+      if (newGenBusPostingGroupId) {
+        genPostingSetupExists = await db.genPostingSetup.findUnique({
+          where: {
+            genBusPostingGroupId_genProductPostingGroupId: {
+              genBusPostingGroupId: newGenBusPostingGroupId,
+              genProductPostingGroupId: genProductPostingGroupId,
+            },
+          },
+          include: {
+            genBusPostingGroup: true,
+            genProductPostingGroup: true,
+          },
+        });
+      } else {
+        genPostingSetupExists = await db.genPostingSetup.findFirst({
+          where: {
+            genBusPostingGroup: null,
+            genProductPostingGroupId: genProductPostingGroupId,
+          },
+          include: {
+            genBusPostingGroup: true,
+            genProductPostingGroup: true,
+          },
+        });
+      }
+      if (genPostingSetupExists) {
+        return res.status(500).json({
+          error: `Gen Posting Setup with Bus Posting Group: ${genPostingSetupExists.genBusPostingGroup?.code} and General Product Posting Group: ${genPostingSetupExists.genProductPostingGroup?.code} already exists`,
+        });
+      }
     }
 
     // Perform the update
@@ -199,10 +359,6 @@ export const updateGenPostingSetup = async (req: Request, res: Response) => {
         costOfGoodsSoldAccount,
         inventoryAdjustmentAccount,
         blocked,
-        genBusPostingGroupCode,
-        genBusPostingGroupName,
-        genProductPostingGroupCode,
-        genProductPostingGroupName,
       },
     });
     return res.status(200).json({
@@ -212,7 +368,7 @@ export const updateGenPostingSetup = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error("Error updating Gen Posting Setup:", error);
     return res.status(500).json({
-      error: `An unexpected error occurred while updating the Gen Posting Setup: ${error.message}`,
+      error: `An unexpected error occurred while updating the Gen Posting Setup.`,
     });
   }
 };
@@ -238,7 +394,7 @@ export const deleteGenPostingSetup = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error("Error deleting Gen Posting Setup:", error);
     return res.status(500).json({
-      error: `An unexpected error occurred while deleting the Gen Posting Setup: ${error.message}`,
+      error: `An unexpected error occurred while deleting the Gen Posting Setup.`,
     });
   }
 };

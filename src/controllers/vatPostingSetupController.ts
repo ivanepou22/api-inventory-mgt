@@ -14,11 +14,6 @@ export const createVatPostingSetup = async (req: Request, res: Response) => {
       blocked,
     }: any = req.body;
 
-    let vatBusPostingGroupCode;
-    let vatBusPostingGroupName;
-    let vatProductPostingGroupCode;
-    let vatProductPostingGroupName;
-
     //get the vatBusPostingGroup
     if (vatBusPostingGroupId) {
       const vatBusPostingGroup = await db.vatBusPostingGroup.findUnique({
@@ -29,8 +24,6 @@ export const createVatPostingSetup = async (req: Request, res: Response) => {
           error: "Vat Bus Posting Group not found",
         });
       }
-      vatBusPostingGroupCode = vatBusPostingGroup.code;
-      vatBusPostingGroupName = vatBusPostingGroup.name;
     }
 
     //get the vatProductPostingGroup
@@ -45,8 +38,6 @@ export const createVatPostingSetup = async (req: Request, res: Response) => {
           error: "Vat Product Posting Group not found",
         });
       }
-      vatProductPostingGroupCode = vatProductPostingGroup.code;
-      vatProductPostingGroupName = vatProductPostingGroup.name;
     }
     //check if the vatBusPostingGroup and vatProductPostingGroup are unique
     if (vatBusPostingGroupId && vatProductPostingGroupId) {
@@ -57,43 +48,51 @@ export const createVatPostingSetup = async (req: Request, res: Response) => {
             vatProductPostingGroupId: vatProductPostingGroupId,
           },
         },
+        include: {
+          vatBusPostingGroup: true,
+          vatProductPostingGroup: true,
+        },
       });
       if (vatPostingSetupExists) {
         return res.status(409).json({
-          error: `Vat Posting Setup with vat Bus. Posting Group Code: ${vatPostingSetupExists.vatBusPostingGroupCode} and vat Product Posting Group Code: ${vatPostingSetupExists.vatProductPostingGroupCode} already exists`,
+          error: `Vat Posting Setup with vat Bus. Posting Group Code: ${vatPostingSetupExists.vatBusPostingGroup?.code} and vat Product Posting Group Code: ${vatPostingSetupExists.vatProductPostingGroup?.code} already exists`,
         });
       }
     }
     if (vatBusPostingGroupId && !vatProductPostingGroupId) {
       //check if the vat posting setup exists with the same vatBusPostingGroupId and a null vatProductPostingGroupId
-      const vatPostingSetupExists = await db.vatPostingSetup.findUnique({
+      const vatPostingSetupExists = await db.vatPostingSetup.findFirst({
         where: {
-          vatBusPostingGroupId_vatProductPostingGroupId: {
-            vatBusPostingGroupId: vatBusPostingGroupId,
-            vatProductPostingGroupId: "",
-          },
+          vatBusPostingGroupId: vatBusPostingGroupId,
+          vatProductPostingGroup: null,
+        },
+        include: {
+          vatBusPostingGroup: true,
+          vatProductPostingGroup: true,
         },
       });
       if (vatPostingSetupExists) {
         return res.status(409).json({
-          error: `Vat Posting Setup with vat Bus. Posting Group Code: ${vatPostingSetupExists.vatBusPostingGroupCode} and vat Product Posting Group Code: ${vatPostingSetupExists.vatProductPostingGroupCode} already exists`,
+          error: `Vat Posting Setup with vat Bus. Posting Group Code: ${vatPostingSetupExists.vatBusPostingGroup?.code} and vat Product Posting Group Code: ${vatPostingSetupExists.vatProductPostingGroup?.code} already exists`,
         });
       }
     }
 
     if (!vatBusPostingGroupId && vatProductPostingGroupId) {
       //check if the vat posting setup exists with the same vatBusPostingGroupId and a null vatProductPostingGroupId
-      const vatPostingSetupExists = await db.vatPostingSetup.findUnique({
+      const vatPostingSetupExists = await db.vatPostingSetup.findFirst({
         where: {
-          vatBusPostingGroupId_vatProductPostingGroupId: {
-            vatBusPostingGroupId: "",
-            vatProductPostingGroupId,
-          },
+          vatBusPostingGroup: null,
+          vatProductPostingGroupId,
+        },
+        include: {
+          vatBusPostingGroup: true,
+          vatProductPostingGroup: true,
         },
       });
       if (vatPostingSetupExists) {
         return res.status(409).json({
-          error: `Vat Posting Setup with vat Bus. Posting Group Code: ${vatPostingSetupExists.vatBusPostingGroupCode} and vat Product Posting Group Code: ${vatPostingSetupExists.vatProductPostingGroupCode} already exists`,
+          error: `Vat Posting Setup with vat Bus. Posting Group Code: ${vatPostingSetupExists.vatBusPostingGroup?.code} and vat Product Posting Group Code: ${vatPostingSetupExists.vatProductPostingGroup?.code} already exists`,
         });
       }
     }
@@ -102,11 +101,7 @@ export const createVatPostingSetup = async (req: Request, res: Response) => {
       data: {
         description,
         vatBusPostingGroupId,
-        vatBusPostingGroupCode,
-        vatBusPostingGroupName,
         vatProductPostingGroupId,
-        vatProductPostingGroupCode,
-        vatProductPostingGroupName,
         taxPercent,
         vatIdentifier,
         salesVatAccount,
@@ -127,7 +122,7 @@ export const createVatPostingSetup = async (req: Request, res: Response) => {
   }
 };
 
-export const getVatPostingSetups = async (req: Request, res: Response) => {
+export const getVatPostingSetups = async (_req: Request, res: Response) => {
   try {
     const vatPostingSetups = await db.vatPostingSetup.findMany();
     return res.status(200).json({
@@ -184,17 +179,13 @@ export const updateVatPostingSetup = async (req: Request, res: Response) => {
     //check if the vatPostingSetup exists
     const vatPostingSetupExists = await db.vatPostingSetup.findUnique({
       where: { id },
+      include: { vatBusPostingGroup: true, vatProductPostingGroup: true },
     });
     if (!vatPostingSetupExists) {
       return res.status(404).json({
         error: "Vat Posting Setup not found",
       });
     }
-
-    let vatBusPostingGroupCode;
-    let vatBusPostingGroupName;
-    let vatProductPostingGroupCode;
-    let vatProductPostingGroupName;
 
     //check if the  vatBusPostingGroup exists only if the vatBusPostingGroupId is not null and not the same as the current vatBusPostingGroupId
     if (
@@ -209,86 +200,117 @@ export const updateVatPostingSetup = async (req: Request, res: Response) => {
           error: "Vat Bus Posting Group not found",
         });
       }
-      vatBusPostingGroupCode = vatBusPostingGroup.code;
-      vatBusPostingGroupName = vatBusPostingGroup.name;
 
-      if (vatBusPostingGroupId && !vatProductPostingGroupId) {
-        const vatPostingSetupExists = await db.vatPostingSetup.findUnique({
-          where: {
-            vatBusPostingGroupId_vatProductPostingGroupId: {
-              vatBusPostingGroupId: vatBusPostingGroupId,
-              vatProductPostingGroupId: "",
-            },
-          },
-        });
-        if (vatPostingSetupExists) {
-          return res.status(409).json({
-            error: `Vat Posting Setup with vat Bus. Posting Group Code: ${vatPostingSetupExists.vatBusPostingGroupCode} and vat Product Posting Group Code: ${vatPostingSetupExists.vatProductPostingGroupCode} already exists`,
+      //check if the  vatProductPostingGroup exists only if the vatProductPostingGroupId is not null and not the same as the current vatProductPostingGroupId
+      if (
+        vatProductPostingGroupId &&
+        vatProductPostingGroupId !==
+          vatPostingSetupExists.vatProductPostingGroupId
+      ) {
+        const vatProductPostingGroup =
+          await db.vatProductPostingGroup.findUnique({
+            where: { id: vatProductPostingGroupId },
+          });
+        if (!vatProductPostingGroup) {
+          return res.status(404).json({
+            error: "Vat Product Posting Group not found",
           });
         }
-      }
-    }
 
-    //check if the  vatProductPostingGroup exists only if the vatProductPostingGroupId is not null and not the same as the current vatProductPostingGroupId
-    if (
-      vatProductPostingGroupId &&
-      vatProductPostingGroupId !==
+        if (vatBusPostingGroupId && vatProductPostingGroupId) {
+          const vatPostingSetupExists = await db.vatPostingSetup.findUnique({
+            where: {
+              vatBusPostingGroupId_vatProductPostingGroupId: {
+                vatBusPostingGroupId: vatBusPostingGroupId,
+                vatProductPostingGroupId: vatProductPostingGroupId,
+              },
+            },
+            include: {
+              vatBusPostingGroup: true,
+              vatProductPostingGroup: true,
+            },
+          });
+          if (vatPostingSetupExists) {
+            return res.status(409).json({
+              error: `Vat Posting Setup with vat Bus. Posting Group Code: ${vatPostingSetupExists.vatBusPostingGroup?.code} and vat Product Posting Group Code: ${vatPostingSetupExists.vatProductPostingGroup?.code} already exists`,
+            });
+          }
+        }
+      }
+
+      let newVatProductPostingGroupId =
         vatPostingSetupExists.vatProductPostingGroupId
-    ) {
-      const vatProductPostingGroup = await db.vatProductPostingGroup.findUnique(
-        {
-          where: { id: vatProductPostingGroupId },
-        }
-      );
-      if (!vatProductPostingGroup) {
-        return res.status(404).json({
-          error: "Vat Product Posting Group not found",
-        });
-      }
-      vatProductPostingGroupCode = vatProductPostingGroup.code;
-      vatProductPostingGroupName = vatProductPostingGroup.name;
-
-      if (!vatBusPostingGroupId && vatProductPostingGroupId) {
-        //check if the vat posting setup exists with the same vatBusPostingGroupId and a null vatProductPostingGroupId
-        const vatPostingSetupExists = await db.vatPostingSetup.findUnique({
-          where: {
-            vatBusPostingGroupId_vatProductPostingGroupId: {
-              vatBusPostingGroupId: "",
-              vatProductPostingGroupId,
+          ? vatPostingSetupExists.vatProductPostingGroupId
+          : null;
+      if (vatBusPostingGroupId && !vatProductPostingGroupId) {
+        let vatPostingSetupExists;
+        if (newVatProductPostingGroupId) {
+          vatPostingSetupExists = await db.vatPostingSetup.findUnique({
+            where: {
+              vatBusPostingGroupId_vatProductPostingGroupId: {
+                vatBusPostingGroupId: vatBusPostingGroupId,
+                vatProductPostingGroupId: newVatProductPostingGroupId,
+              },
             },
-          },
-        });
+            include: {
+              vatBusPostingGroup: true,
+              vatProductPostingGroup: true,
+            },
+          });
+        } else {
+          vatPostingSetupExists = await db.vatPostingSetup.findFirst({
+            where: {
+              vatBusPostingGroupId: vatBusPostingGroupId,
+              vatProductPostingGroup: null,
+            },
+            include: {
+              vatBusPostingGroup: true,
+              vatProductPostingGroup: true,
+            },
+          });
+        }
         if (vatPostingSetupExists) {
           return res.status(409).json({
-            error: `Vat Posting Setup with vat Bus. Posting Group Code: ${vatPostingSetupExists.vatBusPostingGroupCode} and vat Product Posting Group Code: ${vatPostingSetupExists.vatProductPostingGroupCode} already exists`,
+            error: `Vat Posting Setup with vat Bus. Posting Group Code: ${vatPostingSetupExists.vatBusPostingGroup?.code} and vat Product Posting Group Code: ${vatPostingSetupExists.vatProductPostingGroup?.code} already exists`,
           });
         }
       }
     }
 
-    if (
-      (vatBusPostingGroupId &&
-        vatBusPostingGroupCode !==
-          vatPostingSetupExists.vatBusPostingGroupCode) ||
-      (vatProductPostingGroupId &&
-        vatProductPostingGroupCode !==
-          vatPostingSetupExists.vatProductPostingGroupCode)
-    ) {
-      //check if the vatBusPostingGroup and vatProductPostingGroup are unique
-      if (vatBusPostingGroupId && vatProductPostingGroupId) {
-        const vatPostingSetupExists = await db.vatPostingSetup.findUnique({
+    let newVatBusPostingGroupId = vatPostingSetupExists.vatBusPostingGroupId
+      ? vatPostingSetupExists.vatBusPostingGroupId
+      : null;
+    if (!vatBusPostingGroupId && vatProductPostingGroupId) {
+      let vatPostingSetupExists;
+      if (newVatBusPostingGroupId) {
+        vatPostingSetupExists = await db.vatPostingSetup.findUnique({
           where: {
             vatBusPostingGroupId_vatProductPostingGroupId: {
-              vatBusPostingGroupId: vatBusPostingGroupId,
+              vatBusPostingGroupId: newVatBusPostingGroupId,
               vatProductPostingGroupId: vatProductPostingGroupId,
             },
           },
+          include: {
+            vatBusPostingGroup: true,
+            vatProductPostingGroup: true,
+          },
         });
-        if (vatPostingSetupExists) {
-          return res.status(409).json({
-            error: `Vat Posting Setup with vat Bus. Posting Group Code: ${vatPostingSetupExists.vatBusPostingGroupCode} and vat Product Posting Group Code: ${vatPostingSetupExists.vatProductPostingGroupCode} already exists`,
-          });
-        }
+      } else {
+        vatPostingSetupExists = await db.vatPostingSetup.findFirst({
+          where: {
+            vatBusPostingGroup: null,
+            vatProductPostingGroupId,
+          },
+          include: {
+            vatBusPostingGroup: true,
+            vatProductPostingGroup: true,
+          },
+        });
+      }
+      if (vatPostingSetupExists) {
+        return res.status(409).json({
+          error: `Vat Posting Setup with vat Bus. Posting Group Code: ${vatPostingSetupExists.vatBusPostingGroup?.code} and vat Product Posting Group Code: ${vatPostingSetupExists.vatProductPostingGroup?.code} already exists`,
+        });
       }
     }
 
@@ -303,10 +325,6 @@ export const updateVatPostingSetup = async (req: Request, res: Response) => {
         salesVatAccount,
         purchaseVatAccount,
         blocked,
-        vatBusPostingGroupCode,
-        vatBusPostingGroupName,
-        vatProductPostingGroupCode,
-        vatProductPostingGroupName,
       },
     });
     return res.status(200).json({

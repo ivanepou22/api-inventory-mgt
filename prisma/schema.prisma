@@ -1084,23 +1084,19 @@ model VatProductPostingGroup {
 }
 
 model VatPostingSetup {
-  id                         String                  @id @default(auto()) @map("_id") @db.ObjectId
-  description                String?
-  vatBusPostingGroupId       String?                 @db.ObjectId
-  vatBusPostingGroupCode     String?
-  vatBusPostingGroupName     String?
-  vatProductPostingGroupId   String?                 @db.ObjectId
-  vatProductPostingGroupCode String?
-  vatProductPostingGroupName String?
-  taxPercent                 Float?
-  vatIdentifier              String?
-  salesVatAccount            String?
-  purchaseVatAccount         String?
-  blocked                    Boolean?                @default(false)
-  vatProductPostingGroup     VatProductPostingGroup? @relation(fields: [vatProductPostingGroupId], references: [id])
-  vatBusPostingGroup         VatBusPostingGroup?     @relation(fields: [vatBusPostingGroupId], references: [id])
-  createdAt                  DateTime                @default(now())
-  updatedAt                  DateTime                @updatedAt
+  id                       String                  @id @default(auto()) @map("_id") @db.ObjectId
+  description              String?
+  vatBusPostingGroupId     String?                 @db.ObjectId
+  vatProductPostingGroupId String?                 @db.ObjectId
+  taxPercent               Float?
+  vatIdentifier            String?
+  salesVatAccount          String?
+  purchaseVatAccount       String?
+  blocked                  Boolean?                @default(false)
+  vatProductPostingGroup   VatProductPostingGroup? @relation(fields: [vatProductPostingGroupId], references: [id])
+  vatBusPostingGroup       VatBusPostingGroup?     @relation(fields: [vatBusPostingGroupId], references: [id])
+  createdAt                DateTime                @default(now())
+  updatedAt                DateTime                @updatedAt
 
   @@unique([vatBusPostingGroupId, vatProductPostingGroupId])
 }
@@ -1136,12 +1132,8 @@ model GenPostingSetup {
   id                         String                      @id @default(auto()) @map("_id") @db.ObjectId
   description                String?
   genBusPostingGroupId       String?                     @db.ObjectId
-  genBusPostingGroupCode     String?
-  genBusPostingGroupName     String?
   genProductPostingGroupId   String?                     @db.ObjectId
-  genProductPostingGroupCode String?
-  genProductPostingGroupName String?
-  blocked                    Boolean?
+  blocked                    Boolean?                    @default(false)
   salesAccount               String?
   purchaseAccount            String?
   salesCreditMemoAccount     String?
@@ -1154,6 +1146,8 @@ model GenPostingSetup {
   genBusPostingGroup         GenBusPostingGroup?         @relation(fields: [genBusPostingGroupId], references: [id])
   createdAt                  DateTime                    @default(now())
   updatedAt                  DateTime                    @updatedAt
+
+  @@unique([genBusPostingGroupId, genProductPostingGroupId])
 }
 
 model InventoryPostingGroup {
