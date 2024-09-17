@@ -16,11 +16,14 @@ export const createJournalBatch = async (req: Request, res: Response) => {
         journalTemplateId: journalTemplateId,
       },
     },
+    include: {
+      journalTemplate: true,
+    },
   });
 
   if (journalBatchExists) {
     return res.status(409).json({
-      error: `Journal Batch with name: ${nameUppercase} and template ID: ${journalBatchExists.journalTemplateName} already exists`,
+      error: `Journal Batch with name: ${nameUppercase} and template ID: ${journalBatchExists.journalTemplate.name} already exists`,
     });
   }
 
@@ -36,7 +39,6 @@ export const createJournalBatch = async (req: Request, res: Response) => {
     });
   }
   //check if the noSeries exists
-  let noSeriesCode = null;
   if (noSeriesId) {
     const noSeries = await db.noSeries.findUnique({
       where: {
@@ -49,7 +51,6 @@ export const createJournalBatch = async (req: Request, res: Response) => {
         error: "No Series not found.",
       });
     }
-    noSeriesCode = noSeries.code;
   }
 
   try {
@@ -58,13 +59,7 @@ export const createJournalBatch = async (req: Request, res: Response) => {
         name: nameUppercase,
         description,
         journalTemplateId,
-        journalTemplateCode: journalTemplate.name,
-        journalTemplateName: journalTemplate.name,
-        journalTemplateSourceCode: journalTemplate.sourceCode,
-        journalTemplateReasonCode: journalTemplate.reasonCode,
-        journalTemplateType: journalTemplate.type,
         noSeriesId,
-        noSeriesCode,
       },
     });
     return res.status(201).json({
@@ -85,6 +80,9 @@ export const getJournalBatches = async (_req: Request, res: Response) => {
       orderBy: {
         createdAt: "desc",
       },
+      include: {
+        journalTemplate: true,
+      },
     });
     return res.status(200).json({
       data: journalBatches,
@@ -103,6 +101,9 @@ export const getJournalBatch = async (req: Request, res: Response) => {
     const journalBatch = await db.journalBatch.findUnique({
       where: {
         id,
+      },
+      include: {
+        journalTemplate: true,
       },
     });
     if (!journalBatch) {
@@ -128,29 +129,13 @@ export const updateJournalBatch = async (req: Request, res: Response) => {
   try {
     const journalBatchExists = await db.journalBatch.findUnique({
       where: { id },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        journalTemplateId: true,
-        journalTemplateCode: true,
-        journalTemplateName: true,
-        journalTemplateSourceCode: true,
-        journalTemplateReasonCode: true,
-        journalTemplateType: true,
+      include: {
+        journalTemplate: true,
       },
     });
     if (!journalBatchExists) {
       return res.status(404).json({ error: "Journal Batch not found." });
     }
-
-    let journalTemplateCode = journalBatchExists.journalTemplateCode;
-    let journalTemplateName = journalBatchExists.journalTemplateName;
-    let journalTemplateSourceCode =
-      journalBatchExists.journalTemplateSourceCode;
-    let journalTemplateReasonCode =
-      journalBatchExists.journalTemplateReasonCode;
-    let journalTemplateType = journalBatchExists.journalTemplateType;
 
     if (
       journalTemplateId &&
@@ -166,11 +151,6 @@ export const updateJournalBatch = async (req: Request, res: Response) => {
           error: "Journal Template not found.",
         });
       }
-      journalTemplateCode = journalTemplate.name;
-      journalTemplateName = journalTemplate.name;
-      journalTemplateSourceCode = journalTemplate.sourceCode;
-      journalTemplateReasonCode = journalTemplate.reasonCode;
-      journalTemplateType = journalTemplate.type;
     }
 
     //make name uppercase
@@ -200,11 +180,6 @@ export const updateJournalBatch = async (req: Request, res: Response) => {
         name: nameUppercase,
         description,
         journalTemplateId,
-        journalTemplateCode,
-        journalTemplateName,
-        journalTemplateSourceCode,
-        journalTemplateReasonCode,
-        journalTemplateType,
       },
     });
     return res.status(200).json({
@@ -226,7 +201,9 @@ export const deleteJournalBatch = async (req: Request, res: Response) => {
     // Check if the journalBatch exists
     const journalBatch = await db.journalBatch.findUnique({
       where: { id },
-      select: { id: true },
+      include: {
+        journalTemplate: true,
+      },
     });
     if (!journalBatch) {
       return res.status(404).json({ error: "Journal Batch not found." });
