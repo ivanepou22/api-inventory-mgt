@@ -124,7 +124,15 @@ export const createVatPostingSetup = async (req: Request, res: Response) => {
 
 export const getVatPostingSetups = async (_req: Request, res: Response) => {
   try {
-    const vatPostingSetups = await db.vatPostingSetup.findMany();
+    const vatPostingSetups = await db.vatPostingSetup.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        vatBusPostingGroup: true,
+        vatProductPostingGroup: true,
+      },
+    });
     return res.status(200).json({
       data: vatPostingSetups,
       message: "Vat Posting Setups fetched successfully",
@@ -142,6 +150,10 @@ export const getVatPostingSetup = async (req: Request, res: Response) => {
     const { id } = req.params;
     const vatPostingSetup = await db.vatPostingSetup.findUnique({
       where: { id },
+      include: {
+        vatBusPostingGroup: true,
+        vatProductPostingGroup: true,
+      },
     });
 
     if (!vatPostingSetup) {
@@ -345,6 +357,10 @@ export const deleteVatPostingSetup = async (req: Request, res: Response) => {
 
     const vatPostingSetup = await db.vatPostingSetup.findUnique({
       where: { id },
+      include: {
+        vatBusPostingGroup: true,
+        vatProductPostingGroup: true,
+      },
     });
     if (!vatPostingSetup) {
       return res.status(404).json({ error: "Vat Posting Setup not found." });
