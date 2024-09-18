@@ -1161,21 +1161,16 @@ model InventoryPostingGroup {
 }
 
 model InventoryPostingSetup {
-  id                        String                 @id @default(auto()) @map("_id") @db.ObjectId
-  description               String?
-  inventoryPostingGroupId   String?                @db.ObjectId
-  inventoryPostingGroupCode String?
-  inventoryPostingGroupName String?
-  blocked                   Boolean?
-  shopId                    String?                @db.ObjectId
-  shopName                  String?
-  shopCode                  String?
-  shopSlug                  String?
-  inventoryAccount          String?
-  shop                      Shop?                  @relation(fields: [shopId], references: [id])
-  inventoryPostingGroup     InventoryPostingGroup? @relation(fields: [inventoryPostingGroupId], references: [id])
-  createdAt                 DateTime               @default(now())
-  updatedAt                 DateTime               @updatedAt
+  id                      String                 @id @default(auto()) @map("_id") @db.ObjectId
+  description             String?
+  inventoryPostingGroupId String?                @db.ObjectId
+  blocked                 Boolean?
+  shopId                  String?                @db.ObjectId
+  inventoryAccount        String?
+  shop                    Shop?                  @relation(fields: [shopId], references: [id])
+  inventoryPostingGroup   InventoryPostingGroup? @relation(fields: [inventoryPostingGroupId], references: [id])
+  createdAt               DateTime               @default(now())
+  updatedAt               DateTime               @updatedAt
 }
 
 model NoSeries {
