@@ -199,7 +199,6 @@ export const updateVatPostingSetup = async (req: Request, res: Response) => {
       });
     }
 
-    //check if the  vatBusPostingGroup exists only if the vatBusPostingGroupId is not null and not the same as the current vatBusPostingGroupId
     if (
       vatBusPostingGroupId &&
       vatBusPostingGroupId !== vatPostingSetupExists.vatBusPostingGroupId
@@ -213,7 +212,6 @@ export const updateVatPostingSetup = async (req: Request, res: Response) => {
         });
       }
 
-      //check if the  vatProductPostingGroup exists only if the vatProductPostingGroupId is not null and not the same as the current vatProductPostingGroupId
       if (
         vatProductPostingGroupId &&
         vatProductPostingGroupId !==

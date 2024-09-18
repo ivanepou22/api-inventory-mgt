@@ -1216,11 +1216,12 @@ model NoSeriesSetup {
 }
 
 model Tenant {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  Company   Company[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id                 String               @id @default(auto()) @map("_id") @db.ObjectId
+  name               String
+  Company            Company[]
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  companyInformation companyInformation[]
 }
 
 model Company {
@@ -1260,10 +1261,9 @@ model companyInformation {
   bankAccountName   String?
   swiftCode         String?
   companyId         String   @db.ObjectId
-  companyName       String?
   tenantId          String   @db.ObjectId
-  tenantName        String?
   company           Company  @relation(fields: [companyId], references: [id])
+  tenant            Tenant   @relation(fields: [tenantId], references: [id])
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
