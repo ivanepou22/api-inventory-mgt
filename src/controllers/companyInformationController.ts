@@ -86,9 +86,11 @@ export const createCompanyInformation = async (req: Request, res: Response) => {
         bankAccountName,
         swiftCode,
         companyId,
-        companyName: companyExists.name,
         tenantId,
-        tenantName: tenantExists.name,
+      },
+      include: {
+        tenant: true,
+        company: true,
       },
     });
 
@@ -109,6 +111,10 @@ export const getCompanyInformation = async (req: Request, res: Response) => {
     const { id } = req.params;
     const companyInformation = await db.companyInformation.findUnique({
       where: { id },
+      include: {
+        tenant: true,
+        company: true,
+      },
     });
 
     if (!companyInformation) {
@@ -188,6 +194,10 @@ export const updateCompanyInformation = async (req: Request, res: Response) => {
         bankAccountNumber,
         bankAccountName,
         swiftCode,
+      },
+      include: {
+        tenant: true,
+        company: true,
       },
     });
     return res.status(200).json({
