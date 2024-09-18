@@ -24,9 +24,6 @@ export const createInventoryPostingSetup = async (
       });
     }
 
-    const inventoryPostingGroupCode = inventoryPostingGroup.code;
-    const inventoryPostingGroupName = inventoryPostingGroup.name;
-
     //get the shop
     const shop = await db.shop.findUnique({
       where: { id: shopId },
@@ -41,14 +38,13 @@ export const createInventoryPostingSetup = async (
       data: {
         description,
         inventoryPostingGroupId,
-        inventoryPostingGroupCode,
-        inventoryPostingGroupName,
         blocked,
         shopId,
-        shopCode: shop.slug,
-        shopName: shop.name,
-        shopSlug: shop.slug,
         inventoryAccount,
+      },
+      include: {
+        inventoryPostingGroup: true,
+        shop: true,
       },
     });
 
@@ -69,7 +65,15 @@ export const getInventoryPostingSetups = async (
   res: Response
 ) => {
   try {
-    const inventoryPostingSetups = await db.inventoryPostingSetup.findMany();
+    const inventoryPostingSetups = await db.inventoryPostingSetup.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        inventoryPostingGroup: true,
+        shop: true,
+      },
+    });
     return res.status(200).json({
       data: inventoryPostingSetups,
       message: "Inventory Posting Setups fetched successfully",
@@ -88,6 +92,10 @@ export const getInventoryPostingSetup = async (req: Request, res: Response) => {
     const { id } = req.params;
     const inventoryPostingSetup = await db.inventoryPostingSetup.findUnique({
       where: { id },
+      include: {
+        inventoryPostingGroup: true,
+        shop: true,
+      },
     });
 
     if (!inventoryPostingSetup) {
@@ -133,11 +141,6 @@ export const updateInventoryPostingSetup = async (
       });
     }
 
-    let inventoryPostingGroupCode =
-      inventoryPostingSetupExists.inventoryPostingGroupCode;
-    let inventoryPostingGroupName =
-      inventoryPostingSetupExists.inventoryPostingGroupName;
-
     //check if the  inventoryPostingGroup exists only if the inventoryPostingGroupId is not null and not the same as the current inventoryPostingGroupId
     if (
       inventoryPostingGroupId &&
@@ -152,13 +155,7 @@ export const updateInventoryPostingSetup = async (
           error: "Inventory Posting Group not found",
         });
       }
-      inventoryPostingGroupCode = inventoryPostingGroup.code;
-      inventoryPostingGroupName = inventoryPostingGroup.name;
     }
-
-    let shopCode = inventoryPostingSetupExists.shopCode;
-    let shopName = inventoryPostingSetupExists.shopName;
-    let shopSlug = inventoryPostingSetupExists.shopSlug;
 
     //get the shop
     if (shopId && shopId !== inventoryPostingSetupExists.shopId) {
@@ -170,9 +167,6 @@ export const updateInventoryPostingSetup = async (
           error: "Shop not found",
         });
       }
-      shopCode = shop.slug;
-      shopName = shop.name;
-      shopSlug = shop.slug;
     }
     // Perform the update
     const inventoryPostingSetup = await db.inventoryPostingSetup.update({
@@ -180,14 +174,13 @@ export const updateInventoryPostingSetup = async (
       data: {
         description,
         inventoryPostingGroupId,
-        inventoryPostingGroupCode,
-        inventoryPostingGroupName,
         blocked,
         inventoryAccount,
         shopId,
-        shopCode,
-        shopName,
-        shopSlug,
+      },
+      include: {
+        inventoryPostingGroup: true,
+        shop: true,
       },
     });
     return res.status(200).json({
