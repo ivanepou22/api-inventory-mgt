@@ -210,61 +210,55 @@ model Category {
 }
 
 model Product {
-  id                             String                      @id @default(auto()) @map("_id") @db.ObjectId
-  name                           String
-  description                    String?
-  sku                            String                      @unique
-  productCode                    String                      @unique
-  slug                           String                      @unique
-  expiryDate                     DateTime?                   @default("2024-08-30T20:11:57.173Z")
-  alertQty                       Int
-  unitPrice                      Float
-  wholeSalePrice                 Float?                      @default(0)
-  unitCost                       Float?
-  batchNo                        String?
-  featured                       Boolean?
-  productContent                 String?
-  taxMethod                      String?
-  productTax                     Float?
-  stockQty                       Float?
-  barCode                        String?                     @unique
-  status                         ProductStatus               @default(ACTIVE)
-  inventoryPostingGroupId        String?                     @db.ObjectId
-  inventoryPostingGroupCode      String?
-  inventoryPostingGroupName      String?
-  generalProductPostingGroupId   String?                     @db.ObjectId
-  generalProductPostingGroupCode String?
-  generalProductPostingGroupName String?
-  vatProductPostingGroupId       String?                     @db.ObjectId
-  vatProductPostingGroupCode     String?
-  vatProductPostingGroupName     String?
-  unitId                         String?                     @db.ObjectId
-  shopId                         String?                     @default("66c5ea9361d22bb4f6af4e2b") @db.ObjectId
-  brandId                        String?                     @db.ObjectId
-  categoryId                     String?                     @db.ObjectId
-  supplierId                     String?                     @db.ObjectId
-  images                         String[]
-  seoMeta                        SeoMeta[]
-  productVariants                ProductVariant[]
-  stockHistories                 StockHistory[]
-  productRelations               ProductRelation[]
-  discounts                      Discount[]
-  tags                           ProductTag[]
-  versions                       ProductVersion[]
-  salesLines                     SalesLine[]
-  AdjustmentLine                 AdjustmentLine[]
-  PurchaseRecieptLine            PurchaseRecieptLine[]
-  PurchaseLine                   PurchaseLine[]
-  InventoryPostingGroup          InventoryPostingGroup?      @relation(fields: [inventoryPostingGroupId], references: [id])
-  GeneralProductPostingGroup     GeneralProductPostingGroup? @relation(fields: [generalProductPostingGroupId], references: [id])
-  VatProductPostingGroup         VatProductPostingGroup?     @relation(fields: [vatProductPostingGroupId], references: [id])
-  Unit                           Unit?                       @relation(fields: [unitId], references: [id])
-  Shop                           Shop?                       @relation(fields: [shopId], references: [id])
-  Brand                          Brand?                      @relation(fields: [brandId], references: [id])
-  Category                       Category?                   @relation(fields: [categoryId], references: [id])
-  Supplier                       Supplier?                   @relation(fields: [supplierId], references: [id])
-  createdAt                      DateTime                    @default(now())
-  updatedAt                      DateTime                    @updatedAt
+  id                           String                      @id @default(auto()) @map("_id") @db.ObjectId
+  name                         String
+  description                  String?
+  sku                          String                      @unique
+  productCode                  String                      @unique
+  slug                         String                      @unique
+  expiryDate                   DateTime?                   @default("2024-08-30T20:11:57.173Z")
+  alertQty                     Int
+  unitPrice                    Float
+  wholeSalePrice               Float?                      @default(0)
+  unitCost                     Float?
+  batchNo                      String?
+  featured                     Boolean?
+  productContent               String?
+  taxMethod                    String?
+  productTax                   Float?
+  stockQty                     Float?
+  barCode                      String?                     @unique
+  status                       ProductStatus               @default(ACTIVE)
+  inventoryPostingGroupId      String?                     @db.ObjectId
+  generalProductPostingGroupId String?                     @db.ObjectId
+  vatProductPostingGroupId     String?                     @db.ObjectId
+  unitId                       String?                     @db.ObjectId
+  shopId                       String?                     @default("66c5ea9361d22bb4f6af4e2b") @db.ObjectId
+  brandId                      String?                     @db.ObjectId
+  categoryId                   String?                     @db.ObjectId
+  supplierId                   String?                     @db.ObjectId
+  images                       String[]
+  seoMeta                      SeoMeta[]
+  productVariants              ProductVariant[]
+  stockHistories               StockHistory[]
+  productRelations             ProductRelation[]
+  discounts                    Discount[]
+  tags                         ProductTag[]
+  versions                     ProductVersion[]
+  salesLines                   SalesLine[]
+  AdjustmentLine               AdjustmentLine[]
+  PurchaseRecieptLine          PurchaseRecieptLine[]
+  PurchaseLine                 PurchaseLine[]
+  InventoryPostingGroup        InventoryPostingGroup?      @relation(fields: [inventoryPostingGroupId], references: [id])
+  GeneralProductPostingGroup   GeneralProductPostingGroup? @relation(fields: [generalProductPostingGroupId], references: [id])
+  VatProductPostingGroup       VatProductPostingGroup?     @relation(fields: [vatProductPostingGroupId], references: [id])
+  Unit                         Unit?                       @relation(fields: [unitId], references: [id])
+  Shop                         Shop?                       @relation(fields: [shopId], references: [id])
+  Brand                        Brand?                      @relation(fields: [brandId], references: [id])
+  Category                     Category?                   @relation(fields: [categoryId], references: [id])
+  Supplier                     Supplier?                   @relation(fields: [supplierId], references: [id])
+  createdAt                    DateTime                    @default(now())
+  updatedAt                    DateTime                    @updatedAt
 }
 
 enum MediaType {

@@ -102,6 +102,23 @@ export const createProduct = async (req: Request, res: Response) => {
         Supplier: supplierId ? { connect: { id: supplierId } } : undefined,
         Shop: shopId ? { connect: { id: shopId } } : undefined,
       },
+      include: {
+        seoMeta: true,
+        productVariants: true,
+        stockHistories: true,
+        productRelations: true,
+        discounts: true,
+        tags: true,
+        versions: true,
+        InventoryPostingGroup: true,
+        GeneralProductPostingGroup: true,
+        VatProductPostingGroup: true,
+        Unit: true,
+        Shop: true,
+        Brand: true,
+        Category: true,
+        Supplier: true,
+      },
     });
     res.status(201).json({ data: product });
   } catch (error) {
@@ -118,15 +135,21 @@ export const getProducts = async (_req: Request, res: Response) => {
         createdAt: "desc",
       },
       include: {
-        media: true,
         seoMeta: true,
         productVariants: true,
-        warehouseStocks: true,
         stockHistories: true,
         productRelations: true,
         discounts: true,
         tags: true,
         versions: true,
+        InventoryPostingGroup: true,
+        GeneralProductPostingGroup: true,
+        VatProductPostingGroup: true,
+        Unit: true,
+        Shop: true,
+        Brand: true,
+        Category: true,
+        Supplier: true,
       },
     });
     res.status(200).json({ data: products });
@@ -144,14 +167,20 @@ export const getProduct = async (req: Request, res: Response) => {
     const product = await db.product.findUnique({
       where: { id },
       include: {
-        media: true,
         seoMeta: true,
         productVariants: true,
-        warehouseStocks: true,
         stockHistories: true,
         productRelations: true,
         discounts: true,
         tags: true,
+        InventoryPostingGroup: true,
+        GeneralProductPostingGroup: true,
+        VatProductPostingGroup: true,
+        Unit: true,
+        Shop: true,
+        Brand: true,
+        Category: true,
+        Supplier: true,
       },
     });
 
@@ -284,6 +313,23 @@ export const updateProduct = async (req: Request, res: Response) => {
         shopId,
         status,
       },
+      include: {
+        seoMeta: true,
+        productVariants: true,
+        stockHistories: true,
+        productRelations: true,
+        discounts: true,
+        tags: true,
+        versions: true,
+        InventoryPostingGroup: true,
+        GeneralProductPostingGroup: true,
+        VatProductPostingGroup: true,
+        Unit: true,
+        Shop: true,
+        Brand: true,
+        Category: true,
+        Supplier: true,
+      },
     });
 
     res.status(200).json({ data: updatedProduct });
@@ -330,9 +376,20 @@ export const getProductsByBrand = async (req: Request, res: Response) => {
     const products = await db.product.findMany({
       where: { brandId },
       include: {
+        seoMeta: true,
+        productVariants: true,
+        stockHistories: true,
+        productRelations: true,
+        discounts: true,
+        tags: true,
+        InventoryPostingGroup: true,
+        GeneralProductPostingGroup: true,
+        VatProductPostingGroup: true,
+        Unit: true,
+        Shop: true,
         Brand: true,
-        media: true,
         Category: true,
+        Supplier: true,
       },
     });
     res.status(200).json({ data: products });
@@ -348,7 +405,22 @@ export const getFeaturedProducts = async (req: Request, res: Response) => {
   try {
     const featuredProducts = await db.product.findMany({
       where: { featured: true },
-      include: { media: true },
+      include: {
+        seoMeta: true,
+        productVariants: true,
+        stockHistories: true,
+        productRelations: true,
+        discounts: true,
+        tags: true,
+        InventoryPostingGroup: true,
+        GeneralProductPostingGroup: true,
+        VatProductPostingGroup: true,
+        Unit: true,
+        Shop: true,
+        Brand: true,
+        Category: true,
+        Supplier: true,
+      },
     });
     res.status(200).json({ data: featuredProducts });
   } catch (error) {
@@ -386,7 +458,22 @@ export const getProductsByCategory = async (req: Request, res: Response) => {
     const { categoryId } = req.params;
     const products = await db.product.findMany({
       where: { categoryId },
-      include: { Category: true },
+      include: {
+        seoMeta: true,
+        productVariants: true,
+        stockHistories: true,
+        productRelations: true,
+        discounts: true,
+        tags: true,
+        InventoryPostingGroup: true,
+        GeneralProductPostingGroup: true,
+        VatProductPostingGroup: true,
+        Unit: true,
+        Shop: true,
+        Brand: true,
+        Category: true,
+        Supplier: true,
+      },
     });
     res.status(200).json({ data: products });
   } catch (error) {
@@ -403,6 +490,22 @@ export const updateStockQty = async (req: Request, res: Response) => {
     const { stockQty } = req.body;
     const product = await db.product.findUnique({
       where: { id },
+      include: {
+        seoMeta: true,
+        productVariants: true,
+        stockHistories: true,
+        productRelations: true,
+        discounts: true,
+        tags: true,
+        InventoryPostingGroup: true,
+        GeneralProductPostingGroup: true,
+        VatProductPostingGroup: true,
+        Unit: true,
+        Shop: true,
+        Brand: true,
+        Category: true,
+        Supplier: true,
+      },
     });
     if (!product) {
       return res.status(404).json({ error: "Product not found" });
@@ -426,6 +529,22 @@ export const negativeStockQty = async (req: Request, res: Response) => {
     const { stockQty } = req.body;
     const product = await db.product.findUnique({
       where: { id },
+      include: {
+        seoMeta: true,
+        productVariants: true,
+        stockHistories: true,
+        productRelations: true,
+        discounts: true,
+        tags: true,
+        InventoryPostingGroup: true,
+        GeneralProductPostingGroup: true,
+        VatProductPostingGroup: true,
+        Unit: true,
+        Shop: true,
+        Brand: true,
+        Category: true,
+        Supplier: true,
+      },
     });
     if (!product) {
       return res.status(404).json({ error: "Product not found" });
@@ -434,6 +553,22 @@ export const negativeStockQty = async (req: Request, res: Response) => {
       where: { id },
       data: {
         stockQty: product.stockQty !== null ? product.stockQty - stockQty : 0,
+      },
+      include: {
+        seoMeta: true,
+        productVariants: true,
+        stockHistories: true,
+        productRelations: true,
+        discounts: true,
+        tags: true,
+        InventoryPostingGroup: true,
+        GeneralProductPostingGroup: true,
+        VatProductPostingGroup: true,
+        Unit: true,
+        Shop: true,
+        Brand: true,
+        Category: true,
+        Supplier: true,
       },
     });
     res.status(200).json({ data: updatedProduct });
