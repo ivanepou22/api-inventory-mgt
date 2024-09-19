@@ -74,6 +74,13 @@ export const createCustomer = async (req: Request, res: Response) => {
           ? image
           : "https://utfs.io/f/276c9ec4-bff3-40fc-8759-6b4c362c1e59-o0u7dg.png",
       },
+      include: {
+        salesPerson: true,
+        customerPostingGroup: true,
+        genBusPostingGroup: true,
+        vatBusPostingGroup: true,
+        salesHeaders: true,
+      },
     });
 
     return res.status(201).json({
@@ -92,6 +99,13 @@ export const getCustomers = async (_req: Request, res: Response) => {
     const customers = await db.customer.findMany({
       orderBy: {
         createdAt: "desc",
+      },
+      include: {
+        salesPerson: true,
+        customerPostingGroup: true,
+        genBusPostingGroup: true,
+        vatBusPostingGroup: true,
+        salesHeaders: true,
       },
     });
 
@@ -112,6 +126,13 @@ export const getCustomer = async (req: Request, res: Response) => {
     const customer = await db.customer.findUnique({
       where: {
         id,
+      },
+      include: {
+        salesPerson: true,
+        customerPostingGroup: true,
+        genBusPostingGroup: true,
+        vatBusPostingGroup: true,
+        salesHeaders: true,
       },
     });
 
@@ -210,6 +231,13 @@ export const updateCustomer = async (req: Request, res: Response) => {
         regNumber: regNumber || existingCustomer.regNumber,
         paymentTerms: paymentTerms || existingCustomer.paymentTerms,
         NIN: NIN || existingCustomer.NIN,
+      },
+      include: {
+        salesPerson: true,
+        customerPostingGroup: true,
+        genBusPostingGroup: true,
+        vatBusPostingGroup: true,
+        salesHeaders: true,
       },
     });
 

@@ -8,45 +8,39 @@ datasource db {
 }
 
 model Customer {
-  id                       String                @id @default(auto()) @map("_id") @db.ObjectId
-  customerType             CustomerType
-  name                     String
-  phone                    String                @unique
-  email                    String?               @unique
-  image                    String?
-  country                  String
-  address                  String
-  address_2                String?
-  website                  String?
-  maxCreditLimit           Float?
-  maxCreditDays            Int?
-  salesAmount              Float?                @default(0)
-  paidAmount               Float?                @default(0)
-  balanceAmount            Float?                @default(0)
-  contactPerson            String?
-  contact_phone            String?
-  contact_email            String?
-  taxPin                   String?
-  regNumber                String?
-  paymentTerms             String?
-  NIN                      String?
-  customerPostingGroupId   String?               @db.ObjectId
-  customerPostingGroupCode String?
-  customerPostingGroupName String?
-  genBusPostingGroupId     String?               @db.ObjectId
-  genBusPostingGroupCode   String?
-  genBusPostingGroupName   String?
-  vatBusPostingGroupId     String?               @db.ObjectId
-  vatBusPostingGroupCode   String?
-  vatBusPostingGroupName   String?
-  salesPersonId            String?               @db.ObjectId
-  salesPerson              SalesPerson?          @relation(fields: [salesPersonId], references: [id])
-  customerPostingGroup     CustomerPostingGroup? @relation(fields: [customerPostingGroupId], references: [id])
-  genBusPostingGroup       GenBusPostingGroup?   @relation(fields: [genBusPostingGroupId], references: [id])
-  vatBusPostingGroup       VatBusPostingGroup?   @relation(fields: [vatBusPostingGroupId], references: [id])
-  createdAt                DateTime              @default(now())
-  updatedAt                DateTime              @updatedAt
-  salesHeaders             SalesHeader[]
+  id                     String                @id @default(auto()) @map("_id") @db.ObjectId
+  customerType           CustomerType
+  name                   String
+  phone                  String                @unique
+  email                  String?               @unique
+  image                  String?
+  country                String
+  address                String
+  address_2              String?
+  website                String?
+  maxCreditLimit         Float?
+  maxCreditDays          Int?
+  salesAmount            Float?                @default(0)
+  paidAmount             Float?                @default(0)
+  balanceAmount          Float?                @default(0)
+  contactPerson          String?
+  contact_phone          String?
+  contact_email          String?
+  taxPin                 String?
+  regNumber              String?
+  paymentTerms           String?
+  NIN                    String?
+  customerPostingGroupId String?               @db.ObjectId
+  genBusPostingGroupId   String?               @db.ObjectId
+  vatBusPostingGroupId   String?               @db.ObjectId
+  salesPersonId          String?               @db.ObjectId
+  salesPerson            SalesPerson?          @relation(fields: [salesPersonId], references: [id])
+  customerPostingGroup   CustomerPostingGroup? @relation(fields: [customerPostingGroupId], references: [id])
+  genBusPostingGroup     GenBusPostingGroup?   @relation(fields: [genBusPostingGroupId], references: [id])
+  vatBusPostingGroup     VatBusPostingGroup?   @relation(fields: [vatBusPostingGroupId], references: [id])
+  salesHeaders           SalesHeader[]
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
 }
 
 model SalesPerson {
