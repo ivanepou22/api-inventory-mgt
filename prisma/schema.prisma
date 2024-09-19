@@ -243,7 +243,7 @@ model Product {
   brandId                        String?                     @db.ObjectId
   categoryId                     String?                     @db.ObjectId
   supplierId                     String?                     @db.ObjectId
-  media                          Media[]
+  images                         String[]
   seoMeta                        SeoMeta[]
   productVariants                ProductVariant[]
   stockHistories                 StockHistory[]
@@ -265,18 +265,6 @@ model Product {
   Supplier                       Supplier?                   @relation(fields: [supplierId], references: [id])
   createdAt                      DateTime                    @default(now())
   updatedAt                      DateTime                    @updatedAt
-}
-
-model Media {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  productId String    @db.ObjectId
-  url       String
-  type      MediaType
-  altText   String?
-  position  Int?
-  product   Product   @relation(fields: [productId], references: [id])
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
 }
 
 enum MediaType {
