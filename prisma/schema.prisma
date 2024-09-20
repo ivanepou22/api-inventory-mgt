@@ -98,61 +98,61 @@ enum Role {
 }
 
 model Shop {
-  id                    String                  @id @default(auto()) @map("_id") @db.ObjectId
-  name                  String
-  slug                  String                  @unique
-  location              String
-  adminId               String                  @db.ObjectId
-  admin                 User                    @relation(fields: [adminId], references: [id])
-  attendantIds          String[]                @db.ObjectId
-  Products              Product[]
-  salesHeaders          SalesHeader[]
-  createdAt             DateTime                @default(now())
-  updatedAt             DateTime                @updatedAt
-  Expense               Expense[]
-  AdjustmentLine        AdjustmentLine[]
-  PurchaseHeader        PurchaseHeader[]
-  PurchaseLine          PurchaseLine[]
-  PurchaseReceiptHeader PurchaseReceiptHeader[]
-  PurchaseRecieptLine   PurchaseRecieptLine[]
-  InventoryPostingSetup InventoryPostingSetup[]
+  id                     String                  @id @default(auto()) @map("_id") @db.ObjectId
+  name                   String
+  slug                   String                  @unique
+  location               String
+  adminId                String                  @db.ObjectId
+  admin                  User                    @relation(fields: [adminId], references: [id])
+  attendantIds           String[]                @db.ObjectId
+  Products               Product[]
+  salesHeaders           SalesHeader[]
+  expenses               Expense[]
+  adjustmentLines        AdjustmentLine[]
+  purchaseHeaders        PurchaseHeader[]
+  purchaseLines          PurchaseLine[]
+  purchaseReceiptHeaders PurchaseReceiptHeader[]
+  purchaseReceiptLines   PurchaseReceiptLine[]
+  inventoryPostingSetups InventoryPostingSetup[]
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
 }
 
 model Supplier {
-  id                    String                  @id @default(auto()) @map("_id") @db.ObjectId
-  supplierType          SupplierType
-  name                  String
-  contactPerson         String
-  phone                 String                  @unique
-  email                 String?                 @unique
-  country               String
-  location              String
-  website               String?
-  taxPin                String?
-  regNumber             String?                 @unique
-  bankAccountNumber     String?
-  bankName              String?
-  paymentTerms          String?
-  totalAmount           Float?                  @default(0)
-  paidAmount            Float?                  @default(0)
-  balanceAmount         Float?                  @default(0)
-  logo                  String?                 @default("https://utfs.io/f/7d3eb071-433f-47e9-b962-7de707bdbeb2-uwz78d.png")
-  rating                Float?
-  note                  String?
-  vendorPostingGroupId  String?                 @db.ObjectId
-  genBusPostingGroupId  String?                 @db.ObjectId
-  vatBusPostingGroupId  String?                 @db.ObjectId
-  products              Product[]
-  PurchaseHeader        PurchaseHeader[]
-  SupplierLedgerEntry   SupplierLedgerEntry[]
-  PurchaseReceiptHeader PurchaseReceiptHeader[]
-  PurchaseLine          PurchaseLine[]
-  PurchaseRecieptLine   PurchaseRecieptLine[]
-  vendorPostingGroup    VendorPostingGroup?     @relation(fields: [vendorPostingGroupId], references: [id])
-  genBusPostingGroup    GenBusPostingGroup?     @relation(fields: [genBusPostingGroupId], references: [id])
-  vatBusPostingGroup    VatBusPostingGroup?     @relation(fields: [vatBusPostingGroupId], references: [id])
-  createdAt             DateTime                @default(now())
-  updatedAt             DateTime                @updatedAt
+  id                     String                  @id @default(auto()) @map("_id") @db.ObjectId
+  supplierType           SupplierType
+  name                   String
+  contactPerson          String
+  phone                  String                  @unique
+  email                  String?                 @unique
+  country                String
+  location               String
+  website                String?
+  taxPin                 String?
+  regNumber              String?                 @unique
+  bankAccountNumber      String?
+  bankName               String?
+  paymentTerms           String?
+  totalAmount            Float?                  @default(0)
+  paidAmount             Float?                  @default(0)
+  balanceAmount          Float?                  @default(0)
+  logo                   String?                 @default("https://utfs.io/f/7d3eb071-433f-47e9-b962-7de707bdbeb2-uwz78d.png")
+  rating                 Float?
+  note                   String?
+  vendorPostingGroupId   String?                 @db.ObjectId
+  genBusPostingGroupId   String?                 @db.ObjectId
+  vatBusPostingGroupId   String?                 @db.ObjectId
+  products               Product[]
+  PurchaseHeaders        PurchaseHeader[]
+  SupplierLedgerEntries  SupplierLedgerEntry[]
+  PurchaseReceiptHeaders PurchaseReceiptHeader[]
+  PurchaseLines          PurchaseLine[]
+  PurchaseReceiptLines   PurchaseReceiptLine[]
+  vendorPostingGroup     VendorPostingGroup?     @relation(fields: [vendorPostingGroupId], references: [id])
+  genBusPostingGroup     GenBusPostingGroup?     @relation(fields: [genBusPostingGroupId], references: [id])
+  vatBusPostingGroup     VatBusPostingGroup?     @relation(fields: [vatBusPostingGroupId], references: [id])
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
 }
 
 enum SupplierType {
@@ -164,17 +164,17 @@ enum SupplierType {
 }
 
 model Unit {
-  id                  String                @id @default(auto()) @map("_id") @db.ObjectId
-  name                String
-  abbreviation        String
-  slug                String                @unique
-  products            Product[]
-  createdAt           DateTime              @default(now())
-  updatedAt           DateTime              @updatedAt
-  AdjustmentLine      AdjustmentLine[]
-  StockHistory        StockHistory[]
-  PurchaseLine        PurchaseLine[]
-  PurchaseRecieptLine PurchaseRecieptLine[]
+  id                   String                @id @default(auto()) @map("_id") @db.ObjectId
+  name                 String
+  abbreviation         String
+  slug                 String                @unique
+  products             Product[]
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  AdjustmentLine       AdjustmentLine[]
+  StockHistory         StockHistory[]
+  PurchaseLine         PurchaseLine[]
+  PurchaseReceiptLines PurchaseReceiptLine[]
 }
 
 model Brand {
@@ -234,9 +234,9 @@ model Product {
   tags                         ProductTag[]
   versions                     ProductVersion[]
   salesLines                   SalesLine[]
-  AdjustmentLine               AdjustmentLine[]
-  PurchaseRecieptLine          PurchaseRecieptLine[]
-  PurchaseLine                 PurchaseLine[]
+  AdjustmentLines              AdjustmentLine[]
+  PurchaseReceiptLines         PurchaseReceiptLine[]
+  PurchaseLines                PurchaseLine[]
   InventoryPostingGroup        InventoryPostingGroup?      @relation(fields: [inventoryPostingGroupId], references: [id])
   GeneralProductPostingGroup   GeneralProductPostingGroup? @relation(fields: [generalProductPostingGroupId], references: [id])
   VatProductPostingGroup       VatProductPostingGroup?     @relation(fields: [vatProductPostingGroupId], references: [id])
@@ -927,7 +927,7 @@ model PurchaseReceiptHeader {
   noPrinted              Int?
   noCopied               Int?
   noEmailed              Int?
-  purchaseRecieptLines   PurchaseRecieptLine[]
+  purchaseReceiptLines   PurchaseReceiptLine[]
   Shop                   Shop?                 @relation(fields: [locationCode], references: [id])
   supplier               Supplier?             @relation(fields: [supplierId], references: [id])
   vendorPostingGroup     VendorPostingGroup?   @relation(fields: [vendorPostingGroupId], references: [id])
@@ -935,7 +935,7 @@ model PurchaseReceiptHeader {
   updatedAt              DateTime              @updatedAt
 }
 
-model PurchaseRecieptLine {
+model PurchaseReceiptLine {
   id                         String                 @id @default(auto()) @map("_id") @db.ObjectId
   purchaseReceiptHeaderId    String?                @db.ObjectId
   documentNo                 String?

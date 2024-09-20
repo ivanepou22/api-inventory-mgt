@@ -82,6 +82,17 @@ export const createSupplier = async (req: Request, res: Response) => {
         rating,
         note,
       },
+      include: {
+        products: true,
+        PurchaseHeaders: true,
+        SupplierLedgerEntries: true,
+        PurchaseReceiptHeaders: true,
+        PurchaseLines: true,
+        PurchaseReceiptLines: true,
+        vendorPostingGroup: true,
+        genBusPostingGroup: true,
+        vatBusPostingGroup: true,
+      },
     });
 
     return res.status(201).json({
