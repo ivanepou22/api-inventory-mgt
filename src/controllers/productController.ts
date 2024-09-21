@@ -27,6 +27,7 @@ export const createProduct = async (req: Request, res: Response) => {
       supplierId,
       shopId,
       status,
+      images,
     } = req.body;
 
     const slug = await slugify(name);
@@ -101,6 +102,7 @@ export const createProduct = async (req: Request, res: Response) => {
         Category: categoryId ? { connect: { id: categoryId } } : undefined,
         Supplier: supplierId ? { connect: { id: supplierId } } : undefined,
         Shop: shopId ? { connect: { id: shopId } } : undefined,
+        images,
       },
       include: {
         seoMeta: true,
@@ -223,6 +225,7 @@ export const updateProduct = async (req: Request, res: Response) => {
       supplierId,
       shopId,
       status,
+      images,
     } = req.body;
 
     const product = await db.product.findUnique({
@@ -312,6 +315,7 @@ export const updateProduct = async (req: Request, res: Response) => {
         supplierId,
         shopId,
         status,
+        images,
       },
       include: {
         seoMeta: true,
