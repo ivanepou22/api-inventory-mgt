@@ -249,12 +249,6 @@ model Product {
   updatedAt                    DateTime                    @updatedAt
 }
 
-enum MediaType {
-  IMAGE
-  VIDEO
-  DOCUMENT
-}
-
 model SeoMeta {
   id              String   @id @default(auto()) @map("_id") @db.ObjectId
   productId       String   @db.ObjectId
