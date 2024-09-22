@@ -79,30 +79,71 @@ export const getBrand = async (id: string) => {
   }
 };
 
-// //create a service to update a brand
-// export const updateBrand = async (id: string, brand: any) => {
-//   try {
-//     const updatedBrand = await db.collection("brands").doc(id).update(brand);
-//     return updatedBrand;
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
+//Update a brand
+export const updateBrand = async (
+  id: string,
+  brand: Prisma.BrandCreateInput
+) => {
+  const { name, slug, image } = brand;
+  try {
+    const brandExists = await db.brand.findUnique({
+      where: { id },
+      select: { id: true, name: true, slug: true, image: true },
+    });
+    if (!brandExists) {
+      throw new Error("Brand not found.");
+    }
+    if (slug && slug !== brandExists.slug) {
+      const brandBySlug = await db.brand.findUnique({
+        where: {
+          slug,
+        },
+      });
+      if (brandBySlug) {
+        throw new Error(`Brand with slug: ${slug} already exists`);
+      }
+    }
+    // Perform the update
+    const updatedBrand = await db.brand.update({
+      where: { id },
+      data: { name, slug, image },
+    });
+    return { data: updatedBrand, message: "Brand updated successfully" };
+  } catch (error: any) {
+    console.error("Error updating Brand:", error);
+    throw new Error("An unexpected error occurred. Please try again later.");
+  }
+};
 
-// //create a service to delete a brand
-// export const deleteBrand = async (id: string) => {
-//   try {
-//     const deletedBrand = await db.collection("brands").doc(id).delete();
-//     return deletedBrand;
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
+//create a service to delete a brand
+export const deleteBrand = async (id: string) => {
+  try {
+    // Check if the brand exists
+    const brand = await db.brand.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+    if (!brand) {
+      throw new Error("Brand not found.");
+    }
+    // Delete the brand
+    const deletedBrand = await db.brand.delete({
+      where: { id },
+    });
+    return {
+      data: deletedBrand,
+      message: `Brand deleted successfully`,
+    };
+  } catch (error: any) {
+    console.error("Error deleting Brand:", error);
+    throw new Error("An unexpected error occurred. Please try again later.");
+  }
+};
 
 export const brandService = {
   createBrand,
   getBrands,
   getBrand,
-  // updateBrand,
-  // deleteBrand,
+  updateBrand,
+  deleteBrand,
 };
