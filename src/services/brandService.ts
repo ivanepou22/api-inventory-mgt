@@ -26,10 +26,7 @@ export const createBrand = async (brand: Prisma.BrandCreateInput) => {
     };
   } catch (error) {
     console.error("Error creating Brand:", error);
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      throw new Error(error.message);
-    } else
-      throw new Error("An unexpected error occurred. Please try again later.");
+    throw new Error("An unexpected error occurred. Please try again later.");
   }
 };
 
@@ -45,12 +42,8 @@ export const getBrands = async () => {
       data: brands,
     };
   } catch (err: any) {
-    console.log(err);
-    if (err instanceof Prisma.PrismaClientKnownRequestError) {
-      throw new Error(err.message);
-    } else {
-      throw new Error("An unexpected error occurred. Please try again later.");
-    }
+    console.log(err.message);
+    throw new Error("An unexpected error occurred. Please try again later.");
   }
 };
 
@@ -72,7 +65,9 @@ export const getBrand = async (id: string) => {
   } catch (error: any) {
     console.log(error);
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      throw new Error(error.message);
+      throw new Error(
+        `The provided ID "${id}" is invalid. It must be a 12-byte hexadecimal string, but it is 25 characters long.`
+      );
     } else {
       throw new Error("An unexpected error occurred. Please try again later.");
     }
