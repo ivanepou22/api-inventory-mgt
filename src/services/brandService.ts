@@ -24,9 +24,13 @@ export const createBrand = async (brand: Prisma.BrandCreateInput) => {
       error: null,
       message: "Brand created successfully",
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error creating Brand:", error);
-    throw new Error("An unexpected error occurred. Please try again later.");
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      throw new Error(`An unexpected error occurred. Please try again later.`);
+    } else {
+      throw new Error(error.message);
+    }
   }
 };
 
@@ -41,9 +45,13 @@ export const getBrands = async () => {
     return {
       data: brands,
     };
-  } catch (err: any) {
-    console.log(err.message);
-    throw new Error("An unexpected error occurred. Please try again later.");
+  } catch (error: any) {
+    console.log(error.message);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      throw new Error(`An unexpected error occurred. Please try again later.`);
+    } else {
+      throw new Error(`An unexpected error occurred. Please try again later.`);
+    }
   }
 };
 
@@ -69,7 +77,7 @@ export const getBrand = async (id: string) => {
         `The provided ID "${id}" is invalid. It must be a 12-byte hexadecimal string, but it is 25 characters long.`
       );
     } else {
-      throw new Error("An unexpected error occurred. Please try again later.");
+      throw new Error(error.message);
     }
   }
 };
@@ -105,8 +113,14 @@ export const updateBrand = async (
     });
     return { data: updatedBrand, message: "Brand updated successfully" };
   } catch (error: any) {
-    console.error("Error updating Brand:", error);
-    throw new Error("An unexpected error occurred. Please try again later.");
+    console.error("Error updating Brand:", error.message);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      throw new Error(
+        `The provided ID "${id}" is invalid. It must be a 12-byte hexadecimal string, but it is 25 characters long.`
+      );
+    } else {
+      throw new Error(error.message);
+    }
   }
 };
 
@@ -130,8 +144,14 @@ export const deleteBrand = async (id: string) => {
       message: `Brand deleted successfully`,
     };
   } catch (error: any) {
-    console.error("Error deleting Brand:", error);
-    throw new Error("An unexpected error occurred. Please try again later.");
+    console.error("Error deleting Brand:", error.message);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      throw new Error(
+        `The provided ID "${id}" is invalid. It must be a 12-byte hexadecimal string, but it is 25 characters long.`
+      );
+    } else {
+      throw new Error(error.message);
+    }
   }
 };
 

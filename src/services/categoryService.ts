@@ -24,9 +24,13 @@ export const createCategory = async (category: Prisma.CategoryCreateInput) => {
       data: newCategory,
       message: "Category created successfully",
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error creating Category:", error);
-    throw new Error("An unexpected error occurred. Please try again later.");
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      throw new Error(`An unexpected error occurred. Please try again later.`);
+    } else {
+      throw new Error(error.message);
+    }
   }
 };
 
@@ -69,7 +73,7 @@ export const getCategory = async (id: string) => {
         `The provided ID "${id}" is invalid. It must be a 12-byte hexadecimal string, but it is 25 characters long.`
       );
     } else {
-      throw new Error("An unexpected error occurred. Please try again later.");
+      throw new Error(error.message);
     }
   }
 };
@@ -106,7 +110,13 @@ export const updateCategory = async (
     return { data: updatedCategory, message: "Category updated successfully" };
   } catch (error: any) {
     console.error("Error updating Category:", error);
-    throw new Error("An unexpected error occurred. Please try again later.");
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      throw new Error(
+        `The provided ID "${id}" is invalid. It must be a 12-byte hexadecimal string, but it is 25 characters long.`
+      );
+    } else {
+      throw new Error(error.message);
+    }
   }
 };
 
@@ -131,7 +141,13 @@ export const deleteCategory = async (id: string) => {
     };
   } catch (error: any) {
     console.error("Error deleting Category:", error);
-    throw new Error("An unexpected error occurred. Please try again later.");
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      throw new Error(
+        `The provided ID "${id}" is invalid. It must be a 12-byte hexadecimal string, but it is 25 characters long.`
+      );
+    } else {
+      throw new Error(error.message);
+    }
   }
 };
 

@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { db } from "@/db/db";
 import { companyService } from "@/services/companyService";
 
 export const createCompany = async (req: Request, res: Response) => {

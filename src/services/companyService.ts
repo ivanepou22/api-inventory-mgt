@@ -36,9 +36,13 @@ export const createCompany = async (company: Prisma.CompanyCreateInput) => {
       data: newCompany,
       message: "Company created successfully",
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error creating Company:", error);
-    throw new Error("An unexpected error occurred. Please try again later.");
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      throw new Error(`An unexpected error occurred. Please try again later.`);
+    } else {
+      throw new Error(error.message);
+    }
   }
 };
 
@@ -83,7 +87,7 @@ export const getCompany = async (id: string) => {
         `The provided ID "${id}" is invalid. It must be a 12-byte hexadecimal string, but it is 25 characters long.`
       );
     } else {
-      throw new Error("An unexpected error occurred. Please try again later.");
+      throw new Error(error.message);
     }
   }
 };
@@ -123,7 +127,11 @@ export const updateCompany = async (
     return { data: updatedCompany, message: "Company updated successfully" };
   } catch (error: any) {
     console.error("Error updating Company:", error);
-    throw new Error("An unexpected error occurred. Please try again later.");
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      throw new Error(`An unexpected error occurred. Please try again later.`);
+    } else {
+      throw new Error(error.message);
+    }
   }
 };
 
@@ -148,7 +156,13 @@ export const deleteCompany = async (id: string) => {
     };
   } catch (error: any) {
     console.error("Error deleting Company:", error);
-    throw new Error("An unexpected error occurred. Please try again later.");
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      throw new Error(
+        `The provided ID "${id}" is invalid. It must be a 12-byte hexadecimal string, but it is 25 characters long.`
+      );
+    } else {
+      throw new Error(error.message);
+    }
   }
 };
 
