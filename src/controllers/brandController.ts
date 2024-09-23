@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { db } from "@/db/db";
 import { brandService } from "@/services/brandService";
 
 export const createBrand = async (req: Request, res: Response) => {
