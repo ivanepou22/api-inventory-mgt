@@ -9,7 +9,7 @@ export const createBrand = async (req: Request, res: Response) => {
   } catch (error: any) {
     return res
       .status(500)
-      .json({ error: `Failed to create brand ${error.message}` });
+      .json({ error: `Failed to create brand: ${error.message}` });
   }
 };
 
@@ -20,7 +20,7 @@ export const getBrands = async (_req: Request, res: Response) => {
   } catch (error: any) {
     return res
       .status(500)
-      .json({ error: `Failed to get brands ${error.message}` });
+      .json({ error: `Failed to get brands: ${error.message}` });
   }
 };
 
@@ -32,7 +32,7 @@ export const getBrand = async (req: Request, res: Response) => {
   } catch (error: any) {
     return res
       .status(500)
-      .json({ error: `Failed to get brand ${error.message}` });
+      .json({ error: `Failed to get brand: ${error.message}` });
   }
 };
 
@@ -44,7 +44,7 @@ export const updateBrand = async (req: Request, res: Response) => {
   } catch (error: any) {
     return res
       .status(500)
-      .json({ error: `Failed to update brand ${error.message}` });
+      .json({ error: `Failed to update brand: ${error.message}` });
   }
 };
 
@@ -57,6 +57,6 @@ export const deleteBrand = async (req: Request, res: Response) => {
   } catch (error: any) {
     return res
       .status(500)
-      .json({ error: `Failed to delete brand ${error.message}` });
+      .json({ error: `Failed to delete brand: ${error.message}` });
   }
 };

@@ -8,7 +8,7 @@ export const createCompany = async (req: Request, res: Response) => {
   } catch (error: any) {
     return res
       .status(500)
-      .json({ error: `Failed to create company ${error.message}` });
+      .json({ error: `Failed to create company: ${error.message}` });
   }
 };
 
@@ -22,7 +22,7 @@ export const getCompanies = async (_req: Request, res: Response) => {
   } catch (error: any) {
     return res
       .status(500)
-      .json({ error: `Failed to get companies ${error.message}` });
+      .json({ error: `Failed to get companies: ${error.message}` });
   }
 };
 
@@ -34,7 +34,7 @@ export const getCompany = async (req: Request, res: Response) => {
   } catch (error: any) {
     return res
       .status(500)
-      .json({ error: `Failed to get company ${error.message}` });
+      .json({ error: `Failed to get company: ${error.message}` });
   }
 };
 
@@ -49,7 +49,7 @@ export const updateCompany = async (req: Request, res: Response) => {
   } catch (error: any) {
     return res
       .status(500)
-      .json({ error: `Failed to update company ${error.message}` });
+      .json({ error: `Failed to update company: ${error.message}` });
   }
 };
 
@@ -61,6 +61,6 @@ export const deleteCompany = async (req: Request, res: Response) => {
   } catch (error: any) {
     return res
       .status(500)
-      .json({ error: `Failed to delete company ${error.message}` });
+      .json({ error: `Failed to delete company: ${error.message}` });
   }
 };
