@@ -15,10 +15,7 @@ export const createCompany = async (req: Request, res: Response) => {
 export const getCompanies = async (_req: Request, res: Response) => {
   try {
     const companies = await companyService.getCompanies();
-    return res.status(200).json({
-      data: companies,
-      message: "Companies fetched successfully",
-    });
+    return res.status(200).json(companies);
   } catch (error: any) {
     return res
       .status(500)
@@ -42,10 +39,7 @@ export const updateCompany = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const company = await companyService.updateCompany(id, req.body);
-    return res.status(200).json({
-      data: company,
-      message: "Company updated successfully",
-    });
+    return res.status(200).json(company);
   } catch (error: any) {
     return res
       .status(500)
