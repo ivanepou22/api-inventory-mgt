@@ -1,25 +1,20 @@
 import { Request, Response } from "express";
 import { db } from "@/db/db";
-import { generateCode } from "@/utils/functions";
+import { slugify } from "@/utils/functions";
 
 export const createCustomerPostingGroup = async (
   req: Request,
   res: Response
 ) => {
-  const { name, receivableAccount } = req.body;
+  const { code, name, receivableAccount } = req.body;
 
   //make name uppercase
   const nameUppercase = name.toUpperCase();
-  // Generate a unique code for the customer posting group
-  const customerPostingGroupCount = await db.customerPostingGroup.count();
-  const code = await generateCode({
-    format: "CPG",
-    valueCount: customerPostingGroupCount,
-  });
+  const codeUppercase = await slugify(code);
 
   const customerPostingGroupExists = await db.customerPostingGroup.findUnique({
     where: {
-      code,
+      code: codeUppercase,
     },
   });
   if (customerPostingGroupExists) {
@@ -30,7 +25,7 @@ export const createCustomerPostingGroup = async (
   try {
     const newCustomerPostingGroup = await db.customerPostingGroup.create({
       data: {
-        code,
+        code: codeUppercase,
         name: nameUppercase,
         receivableAccount,
       },
@@ -98,9 +93,8 @@ export const updateCustomerPostingGroup = async (
   res: Response
 ) => {
   const id = req.params.id;
-  const { name, receivableAccount } = req.body;
-  //make name uppercase
-  const nameUppercase = name.toUpperCase();
+  const { code, name, receivableAccount } = req.body;
+
   try {
     const customerPostingGroupExists = await db.customerPostingGroup.findUnique(
       {
@@ -113,10 +107,33 @@ export const updateCustomerPostingGroup = async (
         .status(404)
         .json({ error: "Customer Posting Group not found." });
     }
+
+    const nameUppercase = name
+      ? name.toUpperCase()
+      : customerPostingGroupExists.name;
+    const codeUppercase = code
+      ? await slugify(code)
+      : customerPostingGroupExists.code;
+
+    // Check if the code already exists
+    if (codeUppercase && codeUppercase !== customerPostingGroupExists.code) {
+      const customerPostingGroupCodeExists =
+        await db.customerPostingGroup.findUnique({
+          where: {
+            code: codeUppercase,
+          },
+        });
+      if (customerPostingGroupCodeExists) {
+        return res.status(409).json({
+          error: `Customer Posting Group with code: ${codeUppercase} already exists`,
+        });
+      }
+    }
+
     // Perform the update
     const updatedCustomerPostingGroup = await db.customerPostingGroup.update({
       where: { id },
-      data: { name: nameUppercase, receivableAccount },
+      data: { code: codeUppercase, name: nameUppercase, receivableAccount },
     });
     return res.status(200).json({
       data: updatedCustomerPostingGroup,
