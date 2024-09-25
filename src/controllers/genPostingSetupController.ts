@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { db } from "@/db/db";
 import { genPostingSetupService } from "@/services/genPostingSetupService";
 
 export const createGenPostingSetup = async (req: Request, res: Response) => {
@@ -63,7 +62,7 @@ export const deleteGenPostingSetup = async (req: Request, res: Response) => {
     );
     return res.status(200).json(genPostingSetup);
   } catch (error: any) {
-    console.error(error);
+    console.error(error.message);
     return res.status(500).json({
       error: `Failed to delete gen posting setup: ${error.message}`,
     });
