@@ -1,60 +1,29 @@
 import { db } from "@/db/db";
-import { slugify } from "@/utils/functions";
+import { expenseCategoryService } from "@/services/expenseCategoryService";
 import { Request, Response } from "express";
 
 export const createExpenseCategory = async (req: Request, res: Response) => {
-  const { name } = req.body;
-
-  const slug = await slugify(name);
-
-  const expenseCategoryExists = await db.expenseCategory.findUnique({
-    where: {
-      slug,
-    },
-  });
-
-  if (expenseCategoryExists) {
-    return res.status(409).json({
-      error: `ExpenseCategory with slug: ${slug} already exists`,
-    });
-  }
-
   try {
-    const newExpenseCategory = await db.expenseCategory.create({
-      data: {
-        name,
-        slug,
-      },
-    });
-
-    return res.status(201).json({
-      data: newExpenseCategory,
-      error: null,
-      message: "ExpenseCategory created successfully",
-    });
-  } catch (error) {
+    const newExpenseCategory =
+      await expenseCategoryService.createExpenseCategory(req.body);
+    return res.status(201).json(newExpenseCategory);
+  } catch (error: any) {
     console.error("Error creating ExpenseCategory:", error);
     return res.status(500).json({
-      error: "An unexpected error occurred. Please try again later.",
+      error: `Failed to create expense category: ${error.message}`,
     });
   }
 };
 
 export const getExpenseCategories = async (_req: Request, res: Response) => {
   try {
-    const expenseCategories = await db.expenseCategory.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-
-    return res.status(200).json({
-      data: expenseCategories,
-    });
+    const expenseCategories =
+      await expenseCategoryService.getExpenseCategories();
+    return res.status(200).json(expenseCategories);
   } catch (err: any) {
-    console.log(err);
-    return res.status(201).json({
-      error: `An unexpected error occurred. Please try again later.`,
+    console.log(err.message);
+    return res.status(500).json({
+      error: `Failed to get expense categories: ${err.message}`,
     });
   }
 };
@@ -62,69 +31,28 @@ export const getExpenseCategories = async (_req: Request, res: Response) => {
 export const getExpenseCategory = async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
-    const expenseCategory = await db.expenseCategory.findUnique({
-      where: {
-        id,
-      },
-    });
-    if (!expenseCategory) {
-      return res.status(404).json({
-        data: null,
-        error: `ExpenseCategory not found.`,
-      });
-    }
-    return res.status(200).json({
-      data: expenseCategory,
-    });
+    const expenseCategory = await expenseCategoryService.getExpenseCategory(id);
+    return res.status(200).json(expenseCategory);
   } catch (error: any) {
-    console.log(error);
-    return res.status(201).json({
-      error: `An unexpected error occurred. Please try again later.`,
+    console.log(error.message);
+    return res.status(500).json({
+      error: `Failed to get expense category: ${error.message}`,
     });
   }
 };
 
 export const updateExpenseCategory = async (req: Request, res: Response) => {
   const id = req.params.id;
-  const { name, slug } = req.body;
-
   try {
-    const expenseCategoryExists = await db.expenseCategory.findUnique({
-      where: { id },
-      select: { id: true, name: true, slug: true },
-    });
-
-    if (!expenseCategoryExists) {
-      return res.status(404).json({ error: "ExpenseCategory not found." });
-    }
-
-    if (slug && slug !== expenseCategoryExists.slug) {
-      const expenseCategoryBySlug = await db.expenseCategory.findUnique({
-        where: {
-          slug,
-        },
-      });
-      if (expenseCategoryBySlug) {
-        return res.status(409).json({
-          error: `ExpenseCategory with slug: ${slug} already exists`,
-        });
-      }
-    }
-    // Perform the update
-    const updatedExpenseCategory = await db.expenseCategory.update({
-      where: { id },
-      data: { name, slug },
-    });
-
-    return res.status(200).json({
-      data: updatedExpenseCategory,
-      message: "ExpenseCategory updated successfully",
-    });
+    const expenseCategory = await expenseCategoryService.updateExpenseCategory(
+      id,
+      req.body
+    );
+    return res.status(200).json(expenseCategory);
   } catch (error: any) {
-    console.error("Error updating ExpenseCategory:", error);
-
+    console.error(error);
     return res.status(500).json({
-      error: "An unexpected error occurred. Please try again later.",
+      error: `Failed to update expense category: ${error.message}`,
     });
   }
 };
@@ -133,26 +61,14 @@ export const updateExpenseCategory = async (req: Request, res: Response) => {
 export const deleteExpenseCategory = async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
-    // Check if the expenseCategory exists
-    const expenseCategory = await db.expenseCategory.findUnique({
-      where: { id },
-      select: { id: true },
-    });
-    if (!expenseCategory) {
-      return res.status(404).json({ error: "ExpenseCategory not found." });
-    }
-    // Delete the expenseCategory
-    const deletedExpenseCategory = await db.expenseCategory.delete({
-      where: { id },
-    });
-    return res.status(200).json({
-      data: deletedExpenseCategory,
-      message: `ExpenseCategory deleted successfully`,
-    });
+    const expenseCategory = await expenseCategoryService.deleteExpenseCategory(
+      id
+    );
+    return res.status(200).json(expenseCategory);
   } catch (error: any) {
-    console.error("Error deleting ExpenseCategory:", error);
+    console.error(error);
     return res.status(500).json({
-      error: "An unexpected error occurred. Please try again later.",
+      error: `Failed to delete expense category: ${error.message}`,
     });
   }
 };
