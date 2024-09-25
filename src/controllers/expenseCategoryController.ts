@@ -1,4 +1,3 @@
-import { db } from "@/db/db";
 import { expenseCategoryService } from "@/services/expenseCategoryService";
 import { Request, Response } from "express";
 
