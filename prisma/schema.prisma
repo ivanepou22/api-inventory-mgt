@@ -1123,6 +1123,8 @@ model InventoryPostingSetup {
   inventoryPostingGroup   InventoryPostingGroup? @relation(fields: [inventoryPostingGroupId], references: [id])
   createdAt               DateTime               @default(now())
   updatedAt               DateTime               @updatedAt
+
+  @@unique([shopId, inventoryPostingGroupId])
 }
 
 model NoSeries {
