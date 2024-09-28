@@ -1,164 +1,30 @@
 import { db } from "@/db/db";
-import { slugify } from "@/utils/functions";
+import { productService } from "@/services/productService";
 import { Request, Response } from "express";
 
 // Create a new product
 export const createProduct = async (req: Request, res: Response) => {
   try {
-    const {
-      name,
-      description,
-      sku,
-      productCode,
-      expiryDate,
-      alertQty,
-      unitPrice,
-      wholeSalePrice,
-      unitCost,
-      batchNo,
-      featured,
-      productContent,
-      taxMethod,
-      productTax,
-      barCode,
-      unitId,
-      brandId,
-      categoryId,
-      supplierId,
-      shopId,
-      status,
-      images,
-    } = req.body;
-
-    const slug = await slugify(name);
-
-    const productBySlug = await db.product.findUnique({
-      where: {
-        slug,
-      },
+    const newProduct = await productService.createProduct(req.body);
+    return res.status(201).json(newProduct);
+  } catch (error: any) {
+    console.error("Error creating Product:", error);
+    return res.status(500).json({
+      error: `Failed to create Product: ${error.message}`,
     });
-    if (productBySlug) {
-      return res.status(409).json({
-        error: `Product with slug: ${slug} already exists`,
-      });
-    }
-
-    const productBySku = await db.product.findUnique({
-      where: {
-        sku,
-      },
-    });
-    if (productBySku) {
-      return res.status(409).json({
-        error: `Product with SKU: ${sku} already exists`,
-      });
-    }
-
-    if (barCode) {
-      const productByBarcode = await db.product.findUnique({
-        where: {
-          barCode,
-        },
-      });
-      if (productByBarcode) {
-        return res.status(409).json({
-          error: `Product with BarCode: ${barCode} already exists`,
-        });
-      }
-    }
-
-    const productByCode = await db.product.findUnique({
-      where: {
-        productCode,
-      },
-    });
-    if (productByCode) {
-      return res.status(409).json({
-        error: `Product with Product Code: ${productCode} already exists`,
-      });
-    }
-
-    const product = await db.product.create({
-      data: {
-        name,
-        description,
-        sku,
-        productCode,
-        slug,
-        expiryDate: new Date(expiryDate),
-        alertQty,
-        unitPrice,
-        wholeSalePrice,
-        unitCost,
-        batchNo,
-        featured,
-        productContent,
-        taxMethod,
-        productTax,
-        barCode,
-        status,
-        Unit: unitId ? { connect: { id: unitId } } : undefined,
-        Brand: brandId ? { connect: { id: brandId } } : undefined,
-        Category: categoryId ? { connect: { id: categoryId } } : undefined,
-        Supplier: supplierId ? { connect: { id: supplierId } } : undefined,
-        Shop: shopId ? { connect: { id: shopId } } : undefined,
-        images,
-      },
-      include: {
-        seoMeta: true,
-        productVariants: true,
-        stockHistories: true,
-        productRelations: true,
-        discounts: true,
-        tags: true,
-        versions: true,
-        InventoryPostingGroup: true,
-        GeneralProductPostingGroup: true,
-        VatProductPostingGroup: true,
-        Unit: true,
-        Shop: true,
-        Brand: true,
-        Category: true,
-        Supplier: true,
-      },
-    });
-    res.status(201).json({ data: product });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "An unexpected error occurred" });
   }
 };
 
 // Get all products
 export const getProducts = async (_req: Request, res: Response) => {
   try {
-    const products = await db.product.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
-      include: {
-        seoMeta: true,
-        productVariants: true,
-        stockHistories: true,
-        productRelations: true,
-        discounts: true,
-        tags: true,
-        versions: true,
-        InventoryPostingGroup: true,
-        GeneralProductPostingGroup: true,
-        VatProductPostingGroup: true,
-        Unit: true,
-        Shop: true,
-        Brand: true,
-        Category: true,
-        Supplier: true,
-      },
+    const products = await productService.getProducts();
+    return res.status(200).json(products);
+  } catch (error: any) {
+    console.error("Error fetching Products:", error);
+    return res.status(500).json({
+      error: `Failed to fetch Products: ${error.message}`,
     });
-    res.status(200).json({ data: products });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ error: "An error occurred while fetching products" });
   }
 };
 
@@ -166,35 +32,13 @@ export const getProducts = async (_req: Request, res: Response) => {
 export const getProduct = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const product = await db.product.findUnique({
-      where: { id },
-      include: {
-        seoMeta: true,
-        productVariants: true,
-        stockHistories: true,
-        productRelations: true,
-        discounts: true,
-        tags: true,
-        InventoryPostingGroup: true,
-        GeneralProductPostingGroup: true,
-        VatProductPostingGroup: true,
-        Unit: true,
-        Shop: true,
-        Brand: true,
-        Category: true,
-        Supplier: true,
-      },
+    const product = await productService.getProduct(id);
+    return res.status(200).json(product);
+  } catch (error: any) {
+    console.error("Error fetching Product:", error);
+    return res.status(500).json({
+      error: `Failed to fetch Product: ${error.message}`,
     });
-
-    if (!product) {
-      return res.status(404).json({ error: "Product not found" });
-    }
-    res.status(200).json({ data: product });
-  } catch (error) {
-    console.log(error);
-    res
-      .status(500)
-      .json({ error: "An error occurred while fetching the product" });
   }
 };
 
@@ -202,145 +46,12 @@ export const getProduct = async (req: Request, res: Response) => {
 export const updateProduct = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const {
-      name,
-      description,
-      sku,
-      productCode,
-      slug,
-      expiryDate,
-      alertQty,
-      unitPrice,
-      wholeSalePrice,
-      unitCost,
-      batchNo,
-      featured,
-      productContent,
-      taxMethod,
-      productTax,
-      barCode,
-      unitId,
-      brandId,
-      categoryId,
-      supplierId,
-      shopId,
-      status,
-      images,
-    } = req.body;
-
-    const product = await db.product.findUnique({
-      where: { id },
-    });
-
-    if (!product) {
-      return res.status(404).json({ error: "Product not found" });
-    }
-
-    if (slug && slug !== product.slug) {
-      const productBySlug = await db.product.findUnique({
-        where: {
-          slug,
-        },
-      });
-      if (productBySlug) {
-        return res.status(409).json({
-          error: `Product with slug: ${slug} already exists`,
-        });
-      }
-    }
-
-    if (sku && sku !== product.sku) {
-      const productBySku = await db.product.findUnique({
-        where: {
-          sku,
-        },
-      });
-      if (productBySku) {
-        return res.status(409).json({
-          error: `Product with SKU: ${sku} already exists`,
-        });
-      }
-    }
-
-    if (barCode && barCode !== product.barCode) {
-      if (barCode) {
-        const productByBarcode = await db.product.findUnique({
-          where: {
-            barCode,
-          },
-        });
-        if (productByBarcode) {
-          return res.status(409).json({
-            error: `Product with BarCode: ${barCode} already exists`,
-          });
-        }
-      }
-    }
-
-    if (productCode && productCode !== product.productCode) {
-      const productByCode = await db.product.findUnique({
-        where: {
-          productCode,
-        },
-      });
-      if (productByCode) {
-        return res.status(409).json({
-          error: `Product with Product Code: ${productCode} already exists`,
-        });
-      }
-    }
-
-    const updatedProduct = await db.product.update({
-      where: { id },
-      data: {
-        name,
-        description,
-        sku,
-        productCode,
-        slug,
-        expiryDate,
-        alertQty,
-        unitPrice,
-        wholeSalePrice,
-        unitCost,
-        batchNo,
-        featured,
-        productContent,
-        taxMethod,
-        productTax,
-        barCode,
-        unitId,
-        brandId,
-        categoryId,
-        supplierId,
-        shopId,
-        status,
-        images,
-      },
-      include: {
-        seoMeta: true,
-        productVariants: true,
-        stockHistories: true,
-        productRelations: true,
-        discounts: true,
-        tags: true,
-        versions: true,
-        InventoryPostingGroup: true,
-        GeneralProductPostingGroup: true,
-        VatProductPostingGroup: true,
-        Unit: true,
-        Shop: true,
-        Brand: true,
-        Category: true,
-        Supplier: true,
-      },
-    });
-
-    res.status(200).json({ data: updatedProduct });
-  } catch (error) {
-    console.error("Error updating Unit:", error);
+    const updatedProduct = await productService.updateProduct(id, req.body);
+    return res.status(200).json(updatedProduct);
+  } catch (error: any) {
+    console.error("Error updating Product:", error);
     return res.status(500).json({
-      error: "An unexpected error occurred. Please try again later.",
+      error: `Failed to update Product: ${error.message}`,
     });
   }
 };
@@ -349,27 +60,13 @@ export const updateProduct = async (req: Request, res: Response) => {
 export const deleteProduct = async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
-    // Check if the Product exists
-    const product = await db.product.findUnique({
-      where: { id },
-      select: { id: true },
-    });
-    if (!product) {
-      return res.status(404).json({ error: "Product not found." });
-    }
-    // Delete the Product
-    const deletedProduct = await db.unit.delete({
-      where: { id },
-    });
-    return res.status(200).json({
-      data: deletedProduct,
-      message: `Product deleted successfully`,
-    });
+    const deletedProduct = await productService.deleteProduct(id);
+    return res.status(200).json(deletedProduct);
   } catch (error: any) {
-    console.error("Error deleting Product:", error);
-    return res.status(500).json({
-      error: "An unexpected error occurred. Please try again later.",
-    });
+    console.error("Error deleting Product:", error.message);
+    return res
+      .status(500)
+      .json({ error: `Failed to delete Product: ${error.message}` });
   }
 };
 
@@ -377,60 +74,26 @@ export const deleteProduct = async (req: Request, res: Response) => {
 export const getProductsByBrand = async (req: Request, res: Response) => {
   try {
     const { brandId } = req.params;
-    const products = await db.product.findMany({
-      where: { brandId },
-      include: {
-        seoMeta: true,
-        productVariants: true,
-        stockHistories: true,
-        productRelations: true,
-        discounts: true,
-        tags: true,
-        InventoryPostingGroup: true,
-        GeneralProductPostingGroup: true,
-        VatProductPostingGroup: true,
-        Unit: true,
-        Shop: true,
-        Brand: true,
-        Category: true,
-        Supplier: true,
-      },
+    const products = await productService.getProductsByBrand(brandId);
+    return res.status(200).json(products);
+  } catch (error: any) {
+    console.error("Error fetching Products by Brand:", error);
+    return res.status(500).json({
+      error: `Failed to fetch Products by Brand: ${error.message}`,
     });
-    res.status(200).json({ data: products });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ error: "An error occurred while fetching products by brand" });
   }
 };
 
 // Get featured products
 export const getFeaturedProducts = async (req: Request, res: Response) => {
   try {
-    const featuredProducts = await db.product.findMany({
-      where: { featured: true },
-      include: {
-        seoMeta: true,
-        productVariants: true,
-        stockHistories: true,
-        productRelations: true,
-        discounts: true,
-        tags: true,
-        InventoryPostingGroup: true,
-        GeneralProductPostingGroup: true,
-        VatProductPostingGroup: true,
-        Unit: true,
-        Shop: true,
-        Brand: true,
-        Category: true,
-        Supplier: true,
-      },
+    const featuredProducts = await productService.getFeaturedProducts();
+    return res.status(200).json(featuredProducts);
+  } catch (error: any) {
+    console.error("Error fetching Featured Products:", error);
+    return res.status(500).json({
+      error: `Failed to fetch Featured Products: ${error.message}`,
     });
-    res.status(200).json({ data: featuredProducts });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ error: "An error occurred while fetching featured products" });
   }
 };
 
@@ -438,21 +101,17 @@ export const getFeaturedProducts = async (req: Request, res: Response) => {
 export const searchProducts = async (req: Request, res: Response) => {
   try {
     const { query } = req.query;
-    const products = await db.product.findMany({
-      where: {
-        OR: [
-          { name: { contains: query as string, mode: "insensitive" } },
-          { description: { contains: query as string, mode: "insensitive" } },
-          { sku: { contains: query as string, mode: "insensitive" } },
-          { productCode: { contains: query as string, mode: "insensitive" } },
-        ],
-      },
+    if (!query) {
+      return res.status(400).json({ error: "Missing query parameter" });
+    } else {
+      const products = await productService.searchProducts(query);
+      return res.status(200).json(products);
+    }
+  } catch (error: any) {
+    console.error("Error searching Products:", error);
+    return res.status(500).json({
+      error: `Failed to search Products: ${error.message}`,
     });
-    res.status(200).json({ data: products });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ error: "An error occurred while searching for products" });
   }
 };
 
@@ -460,29 +119,12 @@ export const searchProducts = async (req: Request, res: Response) => {
 export const getProductsByCategory = async (req: Request, res: Response) => {
   try {
     const { categoryId } = req.params;
-    const products = await db.product.findMany({
-      where: { categoryId },
-      include: {
-        seoMeta: true,
-        productVariants: true,
-        stockHistories: true,
-        productRelations: true,
-        discounts: true,
-        tags: true,
-        InventoryPostingGroup: true,
-        GeneralProductPostingGroup: true,
-        VatProductPostingGroup: true,
-        Unit: true,
-        Shop: true,
-        Brand: true,
-        Category: true,
-        Supplier: true,
-      },
-    });
-    res.status(200).json({ data: products });
-  } catch (error) {
-    res.status(500).json({
-      error: "An error occurred while fetching products by category",
+    const products = await productService.getProductsByCategory(categoryId);
+    return res.status(200).json(products);
+  } catch (error: any) {
+    console.error("Error fetching Products by Category:", error);
+    return res.status(500).json({
+      error: `Failed to fetch Products by Category: ${error.message}`,
     });
   }
 };
@@ -492,37 +134,13 @@ export const updateStockQty = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { stockQty } = req.body;
-    const product = await db.product.findUnique({
-      where: { id },
-      include: {
-        seoMeta: true,
-        productVariants: true,
-        stockHistories: true,
-        productRelations: true,
-        discounts: true,
-        tags: true,
-        InventoryPostingGroup: true,
-        GeneralProductPostingGroup: true,
-        VatProductPostingGroup: true,
-        Unit: true,
-        Shop: true,
-        Brand: true,
-        Category: true,
-        Supplier: true,
-      },
+    const updatedProduct = await productService.updateStockQty(id, stockQty);
+    return res.status(200).json(updatedProduct);
+  } catch (error: any) {
+    console.error("Error updating Stock Quantity:", error);
+    return res.status(500).json({
+      error: `Failed to update Stock Quantity: ${error.message}`,
     });
-    if (!product) {
-      return res.status(404).json({ error: "Product not found" });
-    }
-    const updatedProduct = await db.product.update({
-      where: { id },
-      data: { stockQty: product.stockQty + stockQty },
-    });
-    res.status(200).json({ data: updatedProduct });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ error: "An error occurred while updating the stock quantity" });
   }
 };
 
@@ -531,54 +149,12 @@ export const negativeStockQty = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { stockQty } = req.body;
-    const product = await db.product.findUnique({
-      where: { id },
-      include: {
-        seoMeta: true,
-        productVariants: true,
-        stockHistories: true,
-        productRelations: true,
-        discounts: true,
-        tags: true,
-        InventoryPostingGroup: true,
-        GeneralProductPostingGroup: true,
-        VatProductPostingGroup: true,
-        Unit: true,
-        Shop: true,
-        Brand: true,
-        Category: true,
-        Supplier: true,
-      },
+    const updatedProduct = await productService.negativeStockQty(id, stockQty);
+    return res.status(200).json(updatedProduct);
+  } catch (error: any) {
+    console.error("Error updating Stock Quantity:", error);
+    return res.status(500).json({
+      error: `Failed to update Stock Quantity: ${error.message}`,
     });
-    if (!product) {
-      return res.status(404).json({ error: "Product not found" });
-    }
-    const updatedProduct = await db.product.update({
-      where: { id },
-      data: {
-        stockQty: product.stockQty !== null ? product.stockQty - stockQty : 0,
-      },
-      include: {
-        seoMeta: true,
-        productVariants: true,
-        stockHistories: true,
-        productRelations: true,
-        discounts: true,
-        tags: true,
-        InventoryPostingGroup: true,
-        GeneralProductPostingGroup: true,
-        VatProductPostingGroup: true,
-        Unit: true,
-        Shop: true,
-        Brand: true,
-        Category: true,
-        Supplier: true,
-      },
-    });
-    res.status(200).json({ data: updatedProduct });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ error: "An error occurred while updating the stock quantity" });
   }
 };
