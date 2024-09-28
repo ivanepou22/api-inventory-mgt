@@ -1,6 +1,4 @@
 import { Request, Response } from "express";
-import { db } from "@/db/db";
-import { slugify } from "@/utils/functions";
 import { noSeriesService } from "@/services/noSeriesService";
 
 export const createNoSeries = async (req: Request, res: Response) => {
