@@ -12,7 +12,9 @@ export const createNotification = async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.error("Error creating Notification:", error);
-    return res.status(500).json(error.message);
+    return res
+      .status(500)
+      .json({ error: `Failed to fetch No Series Lines: ${error.message}` });
   }
 };
 
@@ -22,7 +24,9 @@ export const getNotifications = async (_req: Request, res: Response) => {
     return res.status(200).json(notifications);
   } catch (error: any) {
     console.log(error);
-    return res.status(500).json(error.message);
+    return res
+      .status(500)
+      .json({ error: `Failed to fetch No Series Lines: ${error.message}` });
   }
 };
 
@@ -33,7 +37,9 @@ export const getNotification = async (req: Request, res: Response) => {
     return res.status(200).json(notification);
   } catch (error: any) {
     console.log(error);
-    return res.status(500).json(error.message);
+    return res
+      .status(500)
+      .json({ error: `Failed to fetch No Series Lines: ${error.message}` });
   }
 };
 
@@ -47,7 +53,9 @@ export const updateNotification = async (req: Request, res: Response) => {
     return res.status(200).json(updatedNotification);
   } catch (error: any) {
     console.log(error);
-    return res.status(500).json(error.message);
+    return res
+      .status(500)
+      .json({ error: `Failed to fetch No Series Lines: ${error.message}` });
   }
 };
 
@@ -61,7 +69,9 @@ export const deleteNotification = async (req: Request, res: Response) => {
     return res.status(200).json(deletedNotification);
   } catch (error: any) {
     console.log(error);
-    return res.status(500).json(error.message);
+    return res
+      .status(500)
+      .json({ error: `Failed to fetch No Series Lines: ${error.message}` });
   }
 };
 
@@ -73,7 +83,9 @@ export const markNotificationAsRead = async (req: Request, res: Response) => {
     return res.status(200).json(updatedNotification);
   } catch (error: any) {
     console.log(error);
-    return res.status(500).json(error.message);
+    return res
+      .status(500)
+      .json({ error: `Failed to fetch No Series Lines: ${error.message}` });
   }
 };
 
@@ -85,6 +97,8 @@ export const markNotificationAsUnread = async (req: Request, res: Response) => {
     return res.status(200).json(updatedNotification);
   } catch (error: any) {
     console.log(error);
-    return res.status(500).json(error.message);
+    return res
+      .status(500)
+      .json({ error: `Failed to fetch No Series Lines: ${error.message}` });
   }
 };
