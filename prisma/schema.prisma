@@ -366,10 +366,22 @@ model Discount {
 model ProductTag {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   productId String   @db.ObjectId
-  tagName   String
+  tagId     String   @db.ObjectId
+  tag       Tag      @relation(fields: [tagId], references: [id])
   product   Product  @relation(fields: [productId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([productId, tagId])
+}
+
+model Tag {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  slug        String       @unique
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  productTags ProductTag[]
 }
 
 model ProductVersion {
