@@ -3,7 +3,7 @@ import { slugify } from "@/utils/functions";
 import { Prisma } from "@prisma/client";
 
 const createShop = async (shop: Prisma.ShopUncheckedCreateInput) => {
-  const { name, location, adminId, attendantIds } = shop;
+  const { name, location, adminId, attendantId } = shop;
   const slug = await slugify(name);
   const shopExists = await db.shop.findUnique({
     where: {
@@ -22,7 +22,11 @@ const createShop = async (shop: Prisma.ShopUncheckedCreateInput) => {
         slug,
         location,
         adminId,
-        attendantIds,
+        attendantId,
+      },
+      include: {
+        admin: true,
+        attendants: true,
       },
     });
 
@@ -42,6 +46,10 @@ const getShops = async () => {
       orderBy: {
         createdAt: "desc",
       },
+      include: {
+        admin: true,
+        attendants: true,
+      },
     });
     return {
       data: shops,
@@ -58,7 +66,8 @@ const getShop = async (id: string) => {
     const shop = await db.shop.findUnique({
       where: { id },
       include: {
-        attendantIds: true,
+        admin: true,
+        attendants: true,
       },
     });
     if (!shop) {
@@ -84,11 +93,15 @@ const updateShop = async (
   id: string,
   shop: Prisma.ShopUncheckedCreateInput
 ) => {
-  const { name, location, adminId, attendantIds } = shop;
+  const { name, location, adminId, attendantId } = shop;
   try {
     // Find the shop first
     const shopExists = await db.shop.findUnique({
       where: { id },
+      include: {
+        admin: true,
+        attendants: true,
+      },
     });
 
     if (!shopExists) {
@@ -109,7 +122,10 @@ const updateShop = async (
     // Perform the update
     const updatedShop = await db.shop.update({
       where: { id },
-      data: { name, slug, location, adminId, attendantIds },
+      data: { name, slug, location, adminId, attendantId },
+      include: {
+        attendants: true,
+      },
     });
     return {
       data: updatedShop,
@@ -171,7 +187,7 @@ const getShopAttendants = async (id: string) => {
     const attendants = await db.user.findMany({
       where: {
         id: {
-          in: shop.attendantIds,
+          in: shop.attendantId,
         },
       },
       select: {

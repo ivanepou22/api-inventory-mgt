@@ -106,7 +106,7 @@ model Shop {
   adminId                String                  @db.ObjectId
   admin                  User?                   @relation("ShopAdmins", fields: [adminId], references: [id])
   attendantId            String[]                @db.ObjectId
-  attendant              User?                   @relation("ShopAttendants", fields: [attendantId], references: [id])
+  attendants             User?                   @relation("ShopAttendants", fields: [attendantId], references: [id])
   Products               Product[]
   salesHeaders           SalesHeader[]
   expenses               Expense[]
