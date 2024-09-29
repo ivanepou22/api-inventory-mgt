@@ -82,8 +82,9 @@ model User {
   resetTokenExpiry DateTime?
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
-  shops            Shop[]
   salesHeaders     SalesHeader[]
+  ShopAdmins       Shop[]        @relation("ShopAdmins")
+  ShopAttendants   Shop[]        @relation("ShopAttendants")
 }
 
 enum Gender {
@@ -103,8 +104,9 @@ model Shop {
   slug                   String                  @unique
   location               String
   adminId                String                  @db.ObjectId
-  admin                  User                    @relation(fields: [adminId], references: [id])
-  attendantIds           String[]                @db.ObjectId
+  admin                  User?                   @relation("ShopAdmins", fields: [adminId], references: [id])
+  attendantId            String[]                @db.ObjectId
+  attendant              User?                   @relation("ShopAttendants", fields: [attendantId], references: [id])
   Products               Product[]
   salesHeaders           SalesHeader[]
   expenses               Expense[]
