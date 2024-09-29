@@ -1,5 +1,5 @@
-import { tagService } from "@/services/TagService";
 import { Request, Response } from "express";
+import { tagService } from "@/services/tagService";
 
 // Create a new tag
 export const createTag = async (req: Request, res: Response) => {

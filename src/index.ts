@@ -38,6 +38,7 @@ import noSeriesLineRouter from "./routes/noSeriesLineRoutes";
 import tenantRouter from "./routes/tenantRoutes";
 import companyRouter from "./routes/companyRoutes";
 import companyInformationRouter from "./routes/companyInformationRoutes";
+import tagRouter from "./routes/tagRoutes";
 
 require("dotenv").config();
 const app = express();
@@ -125,6 +126,7 @@ const apiRoutes = [
   { router: tenantRouter },
   { router: companyRouter },
   { router: companyInformationRouter },
+  { router: tagRouter },
 ];
 
 apiRoutes.forEach(({ router, useRouteLimiter }) => {
