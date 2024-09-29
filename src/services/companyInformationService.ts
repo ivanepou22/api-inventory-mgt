@@ -3,7 +3,7 @@ import { Prisma } from "@prisma/client";
 
 //create a service to create a companyInformation
 const createCompanyInformation = async (
-  companyInformation: Prisma.companyInformationCreateInput
+  companyInformation: Prisma.companyInformationUncheckedCreateInput
 ) => {
   try {
     const {

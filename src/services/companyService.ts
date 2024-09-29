@@ -1,7 +1,9 @@
 import { db } from "@/db/db";
 import { Prisma } from "@prisma/client";
 
-export const createCompany = async (company: Prisma.CompanyCreateInput) => {
+export const createCompany = async (
+  company: Prisma.CompanyUncheckedCreateInput
+) => {
   const { code, name, tenantId } = company;
   //check if the tenant exists
   const tenantExists = await db.tenant.findUnique({
