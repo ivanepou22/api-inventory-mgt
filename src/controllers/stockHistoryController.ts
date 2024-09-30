@@ -29,7 +29,6 @@ export const getStockHistory = async (req: Request, res: Response) => {
 export const updateStockHistory = async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
-    const { description, open } = req.body;
     const updatedStockHistory = await stockHistoryService.updateStockHistory(
       id,
       req.body
