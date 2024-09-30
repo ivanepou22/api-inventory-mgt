@@ -46,14 +46,7 @@ export const getStockHistory = async (req: Request, res: Response) => {
 
 export const updateStockHistory = async (req: Request, res: Response) => {
   const id = req.params.id;
-  const {
-    description,
-    productId,
-    productName,
-    unitName,
-    unitAbbreviation,
-    open,
-  } = req.body;
+  const { description, open } = req.body;
   try {
     const stockHistoryExists = await db.stockHistory.findUnique({
       where: { id },
@@ -66,10 +59,6 @@ export const updateStockHistory = async (req: Request, res: Response) => {
       where: { id },
       data: {
         description,
-        productId,
-        productName,
-        unitName,
-        unitAbbreviation,
         open,
       },
     });
