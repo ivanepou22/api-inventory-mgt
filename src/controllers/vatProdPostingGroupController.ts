@@ -1,7 +1,5 @@
 import { Request, Response } from "express";
-import { db } from "@/db/db";
-import { slugify } from "@/utils/functions";
-import { vatProductPostingGroupService } from "@/services/vatProdGroupService";
+import { vatProductPostingGroupService } from "@/services/vatProdPostingGroupService";
 
 export const createVatProductPostingGroup = async (
   req: Request,

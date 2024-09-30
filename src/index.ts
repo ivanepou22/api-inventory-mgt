@@ -27,7 +27,7 @@ import journalTemplateRouter from "./routes/journalTemplateRoutes";
 import journalBatchRouter from "./routes/journalBatchRoutes";
 import vatPostingSetupRouter from "./routes/vatPostingSetupRoutes";
 import vatBusPostingGroupRouter from "./routes/vatBusPostingGroupRoutes";
-import vatProductPostingGroupRouter from "./routes/vatProdGroupRoutes";
+import vatProductPostingGroupRouter from "./routes/vatProdPostingGroupRoutes";
 import genBusPostingGroupRouter from "./routes/genBusPostingGroupRoutes";
 import genProductPostingGroupRouter from "./routes/genProductPostingGroupRoutes";
 import genPostingSetupRouter from "./routes/genPostingSetupRoutes";

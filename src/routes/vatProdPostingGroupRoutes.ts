@@ -5,7 +5,7 @@ import {
   getVatProductPostingGroup,
   getVatProductPostingGroups,
   updateVatProductPostingGroup,
-} from "@/controllers/vatProdGroupController";
+} from "@/controllers/vatProdPostingGroupController";
 
 const vatProductPostingGroupRouter = express.Router();
 
