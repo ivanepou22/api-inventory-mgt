@@ -1,112 +1,26 @@
-import { db } from "@/db/db";
 import { Request, Response } from "express";
-import bcrypt from "bcrypt";
+import { userService } from "@/services/userService";
 
 export const createUser = async (req: Request, res: Response) => {
-  const {
-    email,
-    username,
-    password,
-    firstName,
-    lastName,
-    phone,
-    dob,
-    gender,
-    image,
-    role,
-  } = req.body;
-
   try {
-    //check the field validation
-    //check if the user exists by email, username and phone
-    const userByEmail = await db.user.findUnique({
-      where: {
-        email,
-      },
-    });
-
-    if (userByEmail) {
-      return res
-        .status(409)
-        .json({ error: `Email: ${email} is Already taken`, data: null });
-    }
-
-    const userByUsername = await db.user.findUnique({
-      where: {
-        username,
-      },
-    });
-
-    if (userByUsername) {
-      return res
-        .status(409)
-        .json({ error: `Username: ${username} is Already taken`, data: null });
-    }
-
-    const userByPhone = await db.user.findUnique({
-      where: {
-        phone,
-      },
-    });
-    if (userByPhone) {
-      return res
-        .status(409)
-        .json({ error: `Phone Number: ${phone} is Already taken`, data: null });
-    }
-    //hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
-    //create the user
-    const newUser = await db.user.create({
-      data: {
-        email,
-        username,
-        password: hashedPassword,
-        firstName,
-        lastName,
-        phone,
-        dob,
-        gender,
-        image: image
-          ? image
-          : "https://utfs.io/f/276c9ec4-bff3-40fc-8759-6b4c362c1e59-o0u7dg.png",
-        role,
-      },
-    });
-    //send verification code
-    //modify the returned user
-    const { password: string, ...modifiedUser } = newUser;
-    return res.status(201).json({
-      data: modifiedUser,
-      message: "User created successfully",
-    });
-  } catch (err: any) {
-    console.log(err);
-    return res.status(201).json({
-      data: null,
-      error: `Something went wrong: ${err.message}`,
+    const newUser = await userService.createUser(req.body);
+    return res.status(201).json(newUser);
+  } catch (error: any) {
+    console.error("Error creating User:", error);
+    return res.status(500).json({
+      error: `Failed to create user: ${error.message}`,
     });
   }
 };
 
 export const getUsers = async (_req: Request, res: Response) => {
   try {
-    const users = await db.user.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-    const modifiedUser = users?.map((user) => {
-      const { password, ...otherViews } = user;
-      return otherViews;
-    });
-    return res.status(200).json({
-      data: modifiedUser,
-    });
-  } catch (err: any) {
-    console.log(err);
-    return res.status(201).json({
-      data: null,
-      error: `Something went wrong: ${err.message}`,
+    const users = await userService.getUsers();
+    return res.status(200).json(users);
+  } catch (error: any) {
+    console.error("Error fetching users:", error);
+    return res.status(500).json({
+      error: `Failed to fetch users: ${error.message}`,
     });
   }
 };
@@ -114,125 +28,25 @@ export const getUsers = async (_req: Request, res: Response) => {
 export const getUser = async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
-    const user = await db.user.findUnique({
-      where: {
-        id,
-      },
-    });
-    if (!user) {
-      return res.status(404).json({
-        data: null,
-        error: `User not found.`,
-      });
-    }
-    const { password, ...modifiedUser } = user;
-    return res.status(200).json({
-      data: modifiedUser,
-    });
+    const user = await userService.getUser(id);
+    return res.status(200).json(user);
   } catch (error: any) {
-    console.log(error);
-    return res.status(201).json({
-      data: null,
-      error: `Something went wrong: ${error.message}`,
+    console.error("Error fetching user:", error);
+    return res.status(500).json({
+      error: `Failed to fetch user: ${error.message}`,
     });
   }
 };
 
 export const updateUser = async (req: Request, res: Response) => {
   const id = req.params.id;
-  const { email, username, firstName, lastName, phone, dob, gender, image } =
-    req.body;
-
   try {
-    // Find the user first
-    const existingUser = await db.user.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        email,
-        username,
-        firstName,
-        lastName,
-        phone,
-        dob,
-        gender,
-        image: image,
-      }, // Fetch only required data
-    });
-
-    if (!existingUser) {
-      return res.status(404).json({ error: "User not found." });
-    }
-
-    //check if the user exists by email, username and phone
-    if (email && email !== existingUser.email) {
-      const userByEmail = await db.user.findUnique({
-        where: {
-          email,
-        },
-      });
-      if (userByEmail) {
-        return res
-          .status(409)
-          .json({ error: `Email: ${email} is Already taken`, data: null });
-      }
-    }
-
-    if (username && username !== existingUser.username) {
-      const userByUsername = await db.user.findUnique({
-        where: {
-          username,
-        },
-      });
-      if (userByUsername) {
-        return res.status(409).json({
-          error: `Username: ${username} is Already taken`,
-          data: null,
-        });
-      }
-    }
-
-    if (phone && phone !== existingUser.phone) {
-      const userByPhone = await db.user.findUnique({
-        where: {
-          phone,
-        },
-      });
-      if (userByPhone) {
-        return res.status(409).json({
-          error: `Phone Number: ${phone} is Already taken`,
-          data: null,
-        });
-      }
-    }
-
-    // Perform the update
-    const updatedUser = await db.user.update({
-      where: { id },
-      data: { email, username, firstName, lastName, phone, dob, gender, image },
-      select: {
-        id: true,
-        email: true,
-        username: true,
-        firstName: true,
-        lastName: true,
-        phone: true,
-        dob: true,
-        gender: true,
-        image: true,
-        createdAt: true,
-        updatedAt: true,
-      }, // Select only the fields you want to return
-    });
-
-    return res
-      .status(200)
-      .json({ data: updatedUser, message: "User updated successfully" });
+    const user = await userService.updateUser(id, req.body);
+    return res.status(200).json(user);
   } catch (error: any) {
-    console.error("Error updating user:", error);
-
+    console.error("Error updating User:", error);
     return res.status(500).json({
-      error: "An unexpected error occurred. Please try again later.",
+      error: `Failed to update user: ${error.message}`,
     });
   }
 };
@@ -241,52 +55,17 @@ export const updateUser = async (req: Request, res: Response) => {
 export const updateUserPassword = async (req: Request, res: Response) => {
   const id = req.params.id;
   const { oldPassword, newPassword } = req.body;
-
   try {
-    // Fetch the user's current password
-    const user = await db.user.findUnique({
-      where: { id },
-      select: { id: true, password: true },
-    });
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found." });
-    }
-
-    // Verify old password
-    const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
-    if (!isPasswordValid) {
-      return res.status(400).json({ error: "Old password is incorrect." });
-    }
-
-    // Hash the new password
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-    // Update the password in the database
-    const updatedUser = await db.user.update({
-      where: { id },
-      data: { password: hashedPassword },
-      select: {
-        id: true,
-        email: true,
-        username: true,
-        firstName: true,
-        lastName: true,
-        phone: true,
-        dob: true,
-        gender: true,
-        image: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
-    return res
-      .status(200)
-      .json({ data: updatedUser, message: "Password updated successfully." });
+    const user = await userService.updateUserPassword(
+      id,
+      oldPassword,
+      newPassword
+    );
+    return res.status(200).json(user);
   } catch (error: any) {
-    console.error("Error updating password:", error);
+    console.error("Error updating User Password:", error);
     return res.status(500).json({
-      error: "An unexpected error occurred. Please try again later.",
+      error: `Failed to update user password: ${error.message}`,
     });
   }
 };
@@ -296,94 +75,36 @@ export const deleteUser = async (req: Request, res: Response) => {
   const id = req.params.id;
 
   try {
-    // Check if the user exists
-    const user = await db.user.findUnique({
-      where: { id },
-      select: { id: true },
-    });
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found." });
-    }
-
-    // Delete the user
-    const deletedUser = await db.user.delete({
-      where: { id },
-      select: {
-        id: true,
-        email: true,
-        username: true,
-        firstName: true,
-        lastName: true,
-        phone: true,
-        dob: true,
-        gender: true,
-        image: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
-
-    return res.status(200).json({
-      data: deletedUser,
-      message: `User deleted successfully`,
-    });
+    const user = await userService.deleteUser(id);
+    return res.status(200).json(user);
   } catch (error: any) {
-    console.error("Error deleting user:", error);
+    console.error("Error deleting User:", error);
     return res.status(500).json({
-      error: "An unexpected error occurred. Please try again later.",
+      error: `Failed to delete user: ${error.message}`,
     });
   }
 };
 
 export const getAttendants = async (_req: Request, res: Response) => {
   try {
-    const users = await db.user.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
-      where: {
-        role: "ATTENDANT",
-      },
-    });
-    const modifiedUser = users?.map((user) => {
-      const { password, ...otherViews } = user;
-      return otherViews;
-    });
-    return res.status(200).json({
-      data: modifiedUser,
-    });
-  } catch (err: any) {
-    console.log(err);
-    return res.status(201).json({
-      data: null,
-      error: `Something went wrong: ${err.message}`,
+    const attendants = await userService.getAttendants();
+    return res.status(200).json(attendants);
+  } catch (error: any) {
+    console.error("Error fetching attendants:", error);
+    return res.status(500).json({
+      error: `Failed to fetch attendants: ${error.message}`,
     });
   }
 };
 
 export const getAdmins = async (_req: Request, res: Response) => {
   try {
-    const users = await db.user.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
-      where: {
-        role: "ADMIN",
-      },
-    });
-    const modifiedUser = users?.map((user) => {
-      const { password, ...otherViews } = user;
-      return otherViews;
-    });
-    return res.status(200).json({
-      data: modifiedUser,
-    });
+    const admins = await userService.getAdmins();
+    return res.status(200).json(admins);
   } catch (err: any) {
     console.log(err);
     return res.status(201).json({
-      data: null,
-      error: `Something went wrong: ${err.message}`,
+      error: `Failed to fetch admins: ${err.message}`,
     });
   }
 };
