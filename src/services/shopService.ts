@@ -25,8 +25,24 @@ const createShop = async (shop: Prisma.ShopUncheckedCreateInput) => {
         attendantId,
       },
       include: {
-        admin: true,
-        attendants: true,
+        admin: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            phone: true,
+          },
+        },
+        attendants: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            phone: true,
+          },
+        },
       },
     });
 
@@ -47,8 +63,24 @@ const getShops = async () => {
         createdAt: "desc",
       },
       include: {
-        admin: true,
-        attendants: true,
+        admin: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            phone: true,
+          },
+        },
+        attendants: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            phone: true,
+          },
+        },
       },
     });
     return {
@@ -66,8 +98,24 @@ const getShop = async (id: string) => {
     const shop = await db.shop.findUnique({
       where: { id },
       include: {
-        admin: true,
-        attendants: true,
+        admin: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            phone: true,
+          },
+        },
+        attendants: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            phone: true,
+          },
+        },
       },
     });
     if (!shop) {
@@ -99,8 +147,24 @@ const updateShop = async (
     const shopExists = await db.shop.findUnique({
       where: { id },
       include: {
-        admin: true,
-        attendants: true,
+        admin: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            phone: true,
+          },
+        },
+        attendants: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            phone: true,
+          },
+        },
       },
     });
 
@@ -124,7 +188,26 @@ const updateShop = async (
       where: { id },
       data: { name, slug, location, adminId, attendantId },
       include: {
-        attendants: true,
+        admin: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            phone: true,
+            image: true,
+          },
+        },
+        attendants: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            phone: true,
+            image: true,
+          },
+        },
       },
     });
     return {
