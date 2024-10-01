@@ -1,6 +1,4 @@
 import { Request, Response } from "express";
-import { db } from "@/db/db";
-import { generateCode, slugify } from "@/utils/functions";
 import { genProductPostingGroupService } from "@/services/genProductPostingGroupService";
 
 export const createGenProductPostingGroup = async (
@@ -44,27 +42,12 @@ export const getGenProductPostingGroup = async (
   try {
     const { id } = req.params;
     const genProductPostingGroup =
-      await db.generalProductPostingGroup.findUnique({
-        where: { id },
-        select: {
-          id: true,
-          code: true,
-          name: true,
-          defVatProductPostingGroupId: true,
-          autoInsertDefault: true,
-        },
-      });
-    if (!genProductPostingGroup) {
-      throw new Error("General product posting group not found.");
-    }
-    return res.status(200).json({
-      data: genProductPostingGroup,
-      message: "General product posting group fetched successfully",
-    });
+      await genProductPostingGroupService.getGenProductPostingGroup(id);
+    return res.status(200).json(genProductPostingGroup);
   } catch (error: any) {
-    console.error(error);
+    console.error("Error fetching General Product Posting Group:", error);
     return res.status(500).json({
-      error: "Failed to fetch general product posting group: ${error.message}",
+      error: `Failed to fetch general product posting group: ${error.message}`,
     });
   }
 };
