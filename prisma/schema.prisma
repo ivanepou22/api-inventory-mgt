@@ -41,6 +41,7 @@ model Customer {
   salesHeaders           SalesHeader[]
   createdAt              DateTime              @default(now())
   updatedAt              DateTime              @updatedAt
+  OnlineOrderSetup       OnlineOrderSetup[]
 }
 
 model SalesPerson {
@@ -1182,6 +1183,7 @@ model Tenant {
   companyInformation companyInformation[]
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
+  OnlineOrderSetup   OnlineOrderSetup[]
 }
 
 model Company {
@@ -1194,6 +1196,7 @@ model Company {
   tenant             Tenant               @relation(fields: [tenantId], references: [id])
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
+  OnlineOrderSetup   OnlineOrderSetup[]
 
   @@unique([tenantId, code])
 }
@@ -1226,6 +1229,20 @@ model companyInformation {
   tenant            Tenant   @relation(fields: [tenantId], references: [id])
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+
+  @@unique([tenantId, companyId])
+}
+
+model OnlineOrderSetup {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  customerId String   @db.ObjectId
+  tenantId   String   @db.ObjectId
+  companyId  String   @db.ObjectId
+  customer   Customer @relation(fields: [customerId], references: [id])
+  tenant     Tenant   @relation(fields: [tenantId], references: [id])
+  company    Company  @relation(fields: [companyId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@unique([tenantId, companyId])
 }
