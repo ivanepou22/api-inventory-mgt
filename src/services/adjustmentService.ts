@@ -242,7 +242,14 @@ export const createAdjustment = async (data: AdjustmentInput) => {
 
 export const getAdjustments = async () => {
   try {
-    const adjustments = await db.adjustment.findMany();
+    const adjustments = await db.adjustment.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        adjustmentLines: true,
+      },
+    });
     return {
       data: adjustments,
       message: "Adjustments fetched successfully",
