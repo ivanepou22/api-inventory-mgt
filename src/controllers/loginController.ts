@@ -8,7 +8,7 @@ export const authorizeUser = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error("Error authorizing user:", error);
     return res.status(500).json({
-      error: `Something went wrong, please try again`,
+      error: `Failed to authorize user: ${error.message}`,
     });
   }
 };
