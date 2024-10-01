@@ -1,380 +1,70 @@
 import { Request, Response } from "express";
-import { db } from "@/db/db";
+import { vatPostingSetupService } from "@/services/vatPostingSetupService";
 
 export const createVatPostingSetup = async (req: Request, res: Response) => {
   try {
-    const {
-      description,
-      vatBusPostingGroupId,
-      vatProductPostingGroupId,
-      taxPercent,
-      vatIdentifier,
-      salesVatAccount,
-      purchaseVatAccount,
-      blocked,
-    }: any = req.body;
-
-    //get the vatBusPostingGroup
-    if (vatBusPostingGroupId) {
-      const vatBusPostingGroup = await db.vatBusPostingGroup.findUnique({
-        where: { id: vatBusPostingGroupId },
-      });
-      if (!vatBusPostingGroup) {
-        return res.status(404).json({
-          error: "Vat Bus Posting Group not found",
-        });
-      }
-    }
-
-    //get the vatProductPostingGroup
-    if (vatProductPostingGroupId) {
-      const vatProductPostingGroup = await db.vatProductPostingGroup.findUnique(
-        {
-          where: { id: vatProductPostingGroupId },
-        }
-      );
-      if (!vatProductPostingGroup) {
-        return res.status(404).json({
-          error: "Vat Product Posting Group not found",
-        });
-      }
-    }
-    //check if the vatBusPostingGroup and vatProductPostingGroup are unique
-    if (vatBusPostingGroupId && vatProductPostingGroupId) {
-      const vatPostingSetupExists = await db.vatPostingSetup.findUnique({
-        where: {
-          vatBusPostingGroupId_vatProductPostingGroupId: {
-            vatBusPostingGroupId: vatBusPostingGroupId,
-            vatProductPostingGroupId: vatProductPostingGroupId,
-          },
-        },
-        include: {
-          vatBusPostingGroup: true,
-          vatProductPostingGroup: true,
-        },
-      });
-      if (vatPostingSetupExists) {
-        return res.status(409).json({
-          error: `Vat Posting Setup with vat Bus. Posting Group Code: ${vatPostingSetupExists.vatBusPostingGroup?.code} and vat Product Posting Group Code: ${vatPostingSetupExists.vatProductPostingGroup?.code} already exists`,
-        });
-      }
-    }
-    if (vatBusPostingGroupId && !vatProductPostingGroupId) {
-      //check if the vat posting setup exists with the same vatBusPostingGroupId and a null vatProductPostingGroupId
-      const vatPostingSetupExists = await db.vatPostingSetup.findFirst({
-        where: {
-          vatBusPostingGroupId: vatBusPostingGroupId,
-          vatProductPostingGroup: null,
-        },
-        include: {
-          vatBusPostingGroup: true,
-          vatProductPostingGroup: true,
-        },
-      });
-      if (vatPostingSetupExists) {
-        return res.status(409).json({
-          error: `Vat Posting Setup with vat Bus. Posting Group Code: ${vatPostingSetupExists.vatBusPostingGroup?.code} and vat Product Posting Group Code: ${vatPostingSetupExists.vatProductPostingGroup?.code} already exists`,
-        });
-      }
-    }
-
-    if (!vatBusPostingGroupId && vatProductPostingGroupId) {
-      //check if the vat posting setup exists with the same vatBusPostingGroupId and a null vatProductPostingGroupId
-      const vatPostingSetupExists = await db.vatPostingSetup.findFirst({
-        where: {
-          vatBusPostingGroup: null,
-          vatProductPostingGroupId,
-        },
-        include: {
-          vatBusPostingGroup: true,
-          vatProductPostingGroup: true,
-        },
-      });
-      if (vatPostingSetupExists) {
-        return res.status(409).json({
-          error: `Vat Posting Setup with vat Bus. Posting Group Code: ${vatPostingSetupExists.vatBusPostingGroup?.code} and vat Product Posting Group Code: ${vatPostingSetupExists.vatProductPostingGroup?.code} already exists`,
-        });
-      }
-    }
-
-    const vatPostingSetup = await db.vatPostingSetup.create({
-      data: {
-        description,
-        vatBusPostingGroupId,
-        vatProductPostingGroupId,
-        taxPercent,
-        vatIdentifier,
-        salesVatAccount,
-        purchaseVatAccount,
-        blocked,
-      },
-    });
-
-    return res.status(201).json({
-      data: vatPostingSetup,
-      message: "Vat Posting Setup created successfully",
-    });
+    const vatPostingSetup = await vatPostingSetupService.createVatPostingSetup(
+      req.body
+    );
+    res.status(201).json(vatPostingSetup);
   } catch (error: any) {
-    console.error("Error creating Vat Posting Setup:", error);
-    return res.status(500).json({
-      error: `An unexpected error occurred while creating the Vat Posting Setup.`,
-    });
+    res
+      .status(500)
+      .json({ error: `Failed to create vat posting setup: ${error.message}` });
   }
 };
 
 export const getVatPostingSetups = async (_req: Request, res: Response) => {
   try {
-    const vatPostingSetups = await db.vatPostingSetup.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
-      include: {
-        vatBusPostingGroup: true,
-        vatProductPostingGroup: true,
-      },
-    });
-    return res.status(200).json({
-      data: vatPostingSetups,
-      message: "Vat Posting Setups fetched successfully",
-    });
+    const vatPostingSetups = await vatPostingSetupService.getVatPostingSetups();
+    return res.status(200).json(vatPostingSetups);
   } catch (error: any) {
-    console.error("Error fetching Vat Posting Setups:", error);
-    return res.status(500).json({
-      error: "An unexpected error occurred while fetching Vat Posting Setups.",
-    });
+    console.error("Error fetching Vat Posting Setups:", error.message);
+    res
+      .status(500)
+      .json({ error: `Failed to fetch vat posting setups: ${error.message}` });
   }
 };
 
 export const getVatPostingSetup = async (req: Request, res: Response) => {
+  const { id } = req.params; // get the id from the request params
   try {
-    const { id } = req.params;
-    const vatPostingSetup = await db.vatPostingSetup.findUnique({
-      where: { id },
-      include: {
-        vatBusPostingGroup: true,
-        vatProductPostingGroup: true,
-      },
-    });
-
-    if (!vatPostingSetup) {
-      return res.status(404).json({
-        error: "Vat Posting Setup not found",
-      });
-    }
-
-    return res.status(200).json({
-      data: vatPostingSetup,
-      message: "Vat Posting Setup fetched successfully",
-    });
+    const vatPostingSetup = await vatPostingSetupService.getVatPostingSetup(id);
+    return res.status(200).json(vatPostingSetup);
   } catch (error: any) {
-    console.error("Error fetching Vat Posting Setup:", error);
-    return res.status(500).json({
-      error: `An unexpected error occurred while fetching the Vat Posting Setup.`,
-    });
+    console.error("Error fetching Vat Posting Setup:", error.message);
+    res
+      .status(500)
+      .json({ error: `Failed to fetch vat posting setup: ${error.message}` });
   }
 };
 
 export const updateVatPostingSetup = async (req: Request, res: Response) => {
+  const { id } = req.params;
   try {
-    const { id } = req.params;
-    const {
-      description,
-      vatBusPostingGroupId,
-      vatProductPostingGroupId,
-      taxPercent,
-      vatIdentifier,
-      salesVatAccount,
-      purchaseVatAccount,
-      blocked,
-    }: any = req.body;
-
-    //check if the vatPostingSetup exists
-    const vatPostingSetupExists = await db.vatPostingSetup.findUnique({
-      where: { id },
-      include: { vatBusPostingGroup: true, vatProductPostingGroup: true },
-    });
-    if (!vatPostingSetupExists) {
-      return res.status(404).json({
-        error: "Vat Posting Setup not found",
-      });
-    }
-
-    if (
-      vatBusPostingGroupId &&
-      vatBusPostingGroupId !== vatPostingSetupExists.vatBusPostingGroupId
-    ) {
-      const vatBusPostingGroup = await db.vatBusPostingGroup.findUnique({
-        where: { id: vatBusPostingGroupId },
-      });
-      if (!vatBusPostingGroup) {
-        return res.status(404).json({
-          error: "Vat Bus Posting Group not found",
-        });
-      }
-
-      if (
-        vatProductPostingGroupId &&
-        vatProductPostingGroupId !==
-          vatPostingSetupExists.vatProductPostingGroupId
-      ) {
-        const vatProductPostingGroup =
-          await db.vatProductPostingGroup.findUnique({
-            where: { id: vatProductPostingGroupId },
-          });
-        if (!vatProductPostingGroup) {
-          return res.status(404).json({
-            error: "Vat Product Posting Group not found",
-          });
-        }
-
-        if (vatBusPostingGroupId && vatProductPostingGroupId) {
-          const vatPostingSetupExists = await db.vatPostingSetup.findUnique({
-            where: {
-              vatBusPostingGroupId_vatProductPostingGroupId: {
-                vatBusPostingGroupId: vatBusPostingGroupId,
-                vatProductPostingGroupId: vatProductPostingGroupId,
-              },
-            },
-            include: {
-              vatBusPostingGroup: true,
-              vatProductPostingGroup: true,
-            },
-          });
-          if (vatPostingSetupExists) {
-            return res.status(409).json({
-              error: `Vat Posting Setup with vat Bus. Posting Group Code: ${vatPostingSetupExists.vatBusPostingGroup?.code} and vat Product Posting Group Code: ${vatPostingSetupExists.vatProductPostingGroup?.code} already exists`,
-            });
-          }
-        }
-      }
-
-      let newVatProductPostingGroupId =
-        vatPostingSetupExists.vatProductPostingGroupId
-          ? vatPostingSetupExists.vatProductPostingGroupId
-          : null;
-      if (vatBusPostingGroupId && !vatProductPostingGroupId) {
-        let vatPostingSetupExists;
-        if (newVatProductPostingGroupId) {
-          vatPostingSetupExists = await db.vatPostingSetup.findUnique({
-            where: {
-              vatBusPostingGroupId_vatProductPostingGroupId: {
-                vatBusPostingGroupId: vatBusPostingGroupId,
-                vatProductPostingGroupId: newVatProductPostingGroupId,
-              },
-            },
-            include: {
-              vatBusPostingGroup: true,
-              vatProductPostingGroup: true,
-            },
-          });
-        } else {
-          vatPostingSetupExists = await db.vatPostingSetup.findFirst({
-            where: {
-              vatBusPostingGroupId: vatBusPostingGroupId,
-              vatProductPostingGroup: null,
-            },
-            include: {
-              vatBusPostingGroup: true,
-              vatProductPostingGroup: true,
-            },
-          });
-        }
-        if (vatPostingSetupExists) {
-          return res.status(409).json({
-            error: `Vat Posting Setup with vat Bus. Posting Group Code: ${vatPostingSetupExists.vatBusPostingGroup?.code} and vat Product Posting Group Code: ${vatPostingSetupExists.vatProductPostingGroup?.code} already exists`,
-          });
-        }
-      }
-    }
-
-    let newVatBusPostingGroupId = vatPostingSetupExists.vatBusPostingGroupId
-      ? vatPostingSetupExists.vatBusPostingGroupId
-      : null;
-    if (!vatBusPostingGroupId && vatProductPostingGroupId) {
-      let vatPostingSetupExists;
-      if (newVatBusPostingGroupId) {
-        vatPostingSetupExists = await db.vatPostingSetup.findUnique({
-          where: {
-            vatBusPostingGroupId_vatProductPostingGroupId: {
-              vatBusPostingGroupId: newVatBusPostingGroupId,
-              vatProductPostingGroupId: vatProductPostingGroupId,
-            },
-          },
-          include: {
-            vatBusPostingGroup: true,
-            vatProductPostingGroup: true,
-          },
-        });
-      } else {
-        vatPostingSetupExists = await db.vatPostingSetup.findFirst({
-          where: {
-            vatBusPostingGroup: null,
-            vatProductPostingGroupId,
-          },
-          include: {
-            vatBusPostingGroup: true,
-            vatProductPostingGroup: true,
-          },
-        });
-      }
-      if (vatPostingSetupExists) {
-        return res.status(409).json({
-          error: `Vat Posting Setup with vat Bus. Posting Group Code: ${vatPostingSetupExists.vatBusPostingGroup?.code} and vat Product Posting Group Code: ${vatPostingSetupExists.vatProductPostingGroup?.code} already exists`,
-        });
-      }
-    }
-
-    const vatPostingSetup = await db.vatPostingSetup.update({
-      where: { id },
-      data: {
-        description,
-        vatBusPostingGroupId,
-        vatProductPostingGroupId,
-        taxPercent,
-        vatIdentifier,
-        salesVatAccount,
-        purchaseVatAccount,
-        blocked,
-      },
-    });
-    return res.status(200).json({
-      data: vatPostingSetup,
-      message: "Vat Posting Setup updated successfully",
-    });
+    const vatPostingSetup = await vatPostingSetupService.updateVatPostingSetup(
+      id,
+      req.body
+    );
+    return res.status(200).json(vatPostingSetup);
   } catch (error: any) {
-    console.error("Error updating Vat Posting Setup:", error);
-    return res.status(500).json({
-      error: `An unexpected error occurred while updating the Vat Posting Setup.`,
-    });
+    console.error("Error updating Vat Posting Setup:", error.message);
+    res
+      .status(500)
+      .json({ error: `Failed to update vat posting setup: ${error.message}` });
   }
 };
 
 export const deleteVatPostingSetup = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-
-    const vatPostingSetup = await db.vatPostingSetup.findUnique({
-      where: { id },
-      include: {
-        vatBusPostingGroup: true,
-        vatProductPostingGroup: true,
-      },
-    });
-    if (!vatPostingSetup) {
-      return res.status(404).json({ error: "Vat Posting Setup not found." });
-    }
-
-    const vatPostingSetupDeleted = await db.vatPostingSetup.delete({
-      where: { id },
-    });
-    return res.status(200).json({
-      data: vatPostingSetupDeleted,
-      message: "Vat Posting Setup deleted successfully",
-    });
+    const deletedVatPostingSetup =
+      await vatPostingSetupService.deleteVatPostingSetup(id);
+    return res.status(200).json(deletedVatPostingSetup);
   } catch (error: any) {
-    console.error("Error deleting Vat Posting Setup:", error);
-    return res.status(500).json({
-      error: `An unexpected error occurred while deleting the Vat Posting Setup.`,
-    });
+    console.error("Error deleting Vat Posting Setup:", error.message);
+    res
+      .status(500)
+      .json({ error: `Failed to delete vat posting setup: ${error.message}` });
   }
 };

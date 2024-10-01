@@ -1,6 +1,4 @@
 import { Request, Response } from "express";
-import { db } from "@/db/db";
-import { slugify } from "@/utils/functions";
 import { vendorPostingGroupService } from "@/services/vendorPostingGroupService";
 
 export const createVendorPostingGroup = async (req: Request, res: Response) => {

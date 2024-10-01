@@ -14,7 +14,7 @@ export const createVatProductPostingGroup = async (
   } catch (error: any) {
     console.error("Error creating Vat Product Posting Group:", error);
     return res.status(500).json({
-      error: `An unexpected error occurred: ${error.message}`,
+      error: `Failed to create Vat Product Posting Group: ${error.message}`,
     });
   }
 };
