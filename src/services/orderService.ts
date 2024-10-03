@@ -383,10 +383,183 @@ const cancelOrder = async (id: string) => {
   }
 };
 
+const getShopSales = async (shopId: string) => {
+  try {
+    //check if shopId is valid
+    const shop = await db.shop.findUnique({
+      where: { id: shopId },
+    });
+    if (!shop) {
+      throw new Error("Shop not found.");
+    }
+
+    // Define time periods
+    const todayStart = startOfDay(new Date());
+    const todayEnd = endOfDay(new Date());
+    const weekStart = startOfWeek(new Date());
+    const weekEnd = endOfWeek(new Date());
+    const monthStart = startOfMonth(new Date());
+    const monthEnd = endOfMonth(new Date());
+
+    // Fetch sales for different periods
+    const categorizeSales = async (sales: any[]) => {
+      return {
+        sales,
+        salesPaidInCash: sales.filter((sale) => sale.paymentMethod === "CASH"),
+        salesByMobileMoney: sales.filter(
+          (sale) => sale.paymentMethod === "MOBILE_MONEY"
+        ),
+        salesByCheque: sales.filter((sale) => sale.paymentMethod === "CHEQUE"),
+        salesByBankTransfer: sales.filter(
+          (sale) => sale.paymentMethod === "BANK_TRANSFER"
+        ),
+        salesByCredit: sales.filter((sale) => sale.paymentMethod === "CREDIT"),
+        salesByCard: sales.filter((sale) => sale.paymentMethod === "CARD"),
+      };
+    };
+
+    const salesToday = await db.salesHeader.findMany({
+      where: {
+        shopId,
+        createdAt: {
+          gte: todayStart,
+          lte: todayEnd,
+        },
+      },
+    });
+
+    const salesThisWeek = await db.salesHeader.findMany({
+      where: {
+        shopId,
+        createdAt: {
+          gte: weekStart,
+          lte: weekEnd,
+        },
+      },
+    });
+
+    const salesThisMonth = await db.salesHeader.findMany({
+      where: {
+        shopId,
+        createdAt: {
+          gte: monthStart,
+          lte: monthEnd,
+        },
+      },
+    });
+
+    const salesAllTime = await db.salesHeader.findMany({
+      where: {
+        shopId,
+      },
+    });
+
+    return {
+      today: await categorizeSales(salesToday),
+      thisWeek: await categorizeSales(salesThisWeek),
+      thisMonth: await categorizeSales(salesThisMonth),
+      allTime: await categorizeSales(salesAllTime),
+      error: null,
+    };
+  } catch (error: any) {
+    console.error("Error fetching Shop Sales:", error);
+    throw new Error(error.message);
+  }
+};
+
+const getShopsSales = async () => {
+  try {
+    const todayStart = startOfDay(new Date());
+    const todayEnd = endOfDay(new Date());
+    const weekStart = startOfWeek(new Date());
+    const weekEnd = endOfWeek(new Date());
+    const monthStart = startOfMonth(new Date());
+    const monthEnd = endOfMonth(new Date());
+
+    //fetch all sales
+    const fetchAllSales = async (startDate: Date, endDate?: Date) => {
+      return await db.salesHeader.findMany({
+        where: endDate
+          ? {
+              createdAt: {
+                gte: startDate,
+                lte: endDate,
+              },
+            }
+          : {
+              createdAt: {
+                gte: startDate,
+                lte: endDate,
+              },
+            },
+        select: {
+          shopId: true,
+          paymentMethod: true,
+          orderTotal: true,
+          orderPaidAmount: true,
+          orderDueAmount: true,
+        },
+      });
+    };
+
+    // Fetch all sales and group by shopId for different periods
+    const categorizeSales = (sales: any[]) => {
+      return {
+        sales: sales,
+        salesPaidInCash: sales.filter(
+          (sale) => sale.paymentMethod === "CASH" && sale.orderAmount !== 0
+        ),
+        salesByMobileMoney: sales.filter(
+          (sale) =>
+            sale.paymentMethod === "MOBILE_MONEY" && sale.orderAmount !== 0
+        ),
+        salesByCheque: sales.filter(
+          (sale) => sale.paymentMethod === "CHEQUE" && sale.orderAmount !== 0
+        ),
+        salesByBankTransfer: sales.filter(
+          (sale) =>
+            sale.paymentMethod === "BANK_TRANSFER" && sale.orderAmount !== 0
+        ),
+        salesByCredit: sales.filter(
+          (sale) => sale.paymentMethod === "CREDIT" && sale.orderAmount !== 0
+        ),
+        salesByCard: sales.filter(
+          (sale) => sale.paymentMethod === "CARD" && sale.orderAmount !== 0
+        ),
+      };
+    };
+
+    const getSalesForPeriod = async (startDate: Date, endDate?: Date) => {
+      return await fetchAllSales(startDate, endDate);
+    };
+
+    const [salesToday, salesThisWeek, salesThisMonth, salesAllTime] =
+      await Promise.all([
+        getSalesForPeriod(todayStart, todayEnd),
+        getSalesForPeriod(weekStart, weekEnd),
+        getSalesForPeriod(monthStart, monthEnd),
+        getSalesForPeriod(new Date(0)),
+      ]);
+
+    return {
+      today: categorizeSales(salesToday),
+      thisWeek: categorizeSales(salesThisWeek),
+      thisMonth: categorizeSales(salesThisMonth),
+      allTime: categorizeSales(salesAllTime),
+    };
+  } catch (error: any) {
+    console.error("Error fetching Shops Sales:", error);
+    throw new Error(error.message);
+  }
+};
+
 export const orderService = {
   createOrder,
   getOrders,
   getOrder,
   updateOrder,
   deleteOrder,
+  cancelOrder,
+  getShopSales,
+  getShopsSales,
 };
