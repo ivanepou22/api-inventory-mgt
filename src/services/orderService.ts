@@ -1,5 +1,4 @@
 import { db } from "@/db/db";
-import { Prisma } from "@prisma/client";
 import { PaymentMethod, Prisma } from "@prisma/client";
 import {
   CreateOrderInput,
@@ -300,11 +299,11 @@ const updateOrder = async (
         attendantId,
         salesLines: {
           deleteMany: {},
-          create: salesLines,
+          create: salesLines as any,
         },
         orderPayments: {
           deleteMany: {},
-          create: orderPayments,
+          create: orderPayments as any,
         },
       },
       include: {
@@ -330,7 +329,7 @@ const updateOrder = async (
 const deleteOrder = async (id: string) => {
   try {
     // Check if the order exists
-    const order = await db.order.findUnique({
+    const order = await db.salesHeader.findUnique({
       where: { id },
       select: { id: true },
     });
@@ -338,7 +337,7 @@ const deleteOrder = async (id: string) => {
       throw new Error("Order not found.");
     }
     // Delete the order
-    const deletedOrder = await db.order.delete({
+    const deletedOrder = await db.salesHeader.delete({
       where: { id },
     });
     return {
