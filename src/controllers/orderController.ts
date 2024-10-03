@@ -1,20 +1,4 @@
 import { Request, Response } from "express";
-import { db } from "@/db/db";
-import { PaymentMethod, Prisma } from "@prisma/client";
-import {
-  CreateOrderInput,
-  CreateOrderPaymentInput,
-  Order,
-  OrderItem,
-} from "@/utils/types";
-import {
-  startOfDay,
-  startOfWeek,
-  startOfMonth,
-  endOfDay,
-  endOfWeek,
-  endOfMonth,
-} from "date-fns";
 import { orderService } from "@/services/orderService";
 
 export const createOrder = async (req: Request, res: Response) => {
