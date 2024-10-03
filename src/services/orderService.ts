@@ -201,7 +201,7 @@ const createOrder = async (order: CreateOrderInput) => {
       }
     );
 
-    return { data: order };
+    return { data: order, message: "Order created successfully" };
   } catch (error: any) {
     console.error("Error creating Order:", error);
     throw new Error(error.message);
@@ -216,7 +216,7 @@ const getOrders = async () => {
         orderPayments: true,
       },
     });
-    return { data: orders };
+    return { data: orders, message: "Orders fetched successfully" };
   } catch (error: any) {
     console.log(error.message);
     throw new Error("An unexpected error occurred. Please try again later.");
@@ -237,7 +237,7 @@ const getOrder = async (id: string) => {
       throw new Error(`Order not found`);
     }
 
-    return { data: order };
+    return { data: order, message: "Order fetched successfully" };
   } catch (error: any) {
     console.log(error);
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -312,7 +312,7 @@ const updateOrder = async (
       },
     });
 
-    return { data: updatedOrder };
+    return { data: updatedOrder, message: "Order updated successfully" };
   } catch (error: any) {
     console.error("Error updating Order:", error);
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -344,6 +344,33 @@ const deleteOrder = async (id: string) => {
       data: deletedOrder,
       message: `Order deleted successfully`,
     };
+  } catch (error: any) {
+    console.error("Error deleting Order:", error);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      throw new Error(
+        `The provided ID "${id}" is invalid. It must be a 12-byte hexadecimal string, but it is 25 characters long.`
+      );
+    } else {
+      throw new Error(error.message);
+    }
+  }
+};
+
+const cancelOrder = async (id: string) => {
+  try {
+    // Check if the order exists
+    const cancelledOrder = await db.salesHeader.update({
+      where: { id },
+      data: {
+        orderStatus: "CANCELLED",
+      },
+      include: {
+        salesLines: true,
+        orderPayments: true,
+      },
+    });
+
+    return { data: cancelledOrder, message: "Order cancelled successfully" };
   } catch (error: any) {
     console.error("Error deleting Order:", error);
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
