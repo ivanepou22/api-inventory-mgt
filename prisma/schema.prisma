@@ -65,6 +65,8 @@ model SalesPerson {
   tenant      Tenant?       @relation(fields: [tenantId], references: [id])
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 enum CustomerType {
