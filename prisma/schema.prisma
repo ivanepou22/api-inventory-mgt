@@ -102,6 +102,8 @@ model User {
   tenant           Tenant?       @relation(fields: [tenantId], references: [id])
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 enum Gender {
@@ -140,6 +142,8 @@ model Shop {
   tenant                 Tenant?                 @relation(fields: [tenantId], references: [id])
   createdAt              DateTime                @default(now())
   updatedAt              DateTime                @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 model Supplier {
@@ -181,6 +185,8 @@ model Supplier {
   vatBusPostingGroup     VatBusPostingGroup?     @relation(fields: [vatBusPostingGroupId], references: [id])
   createdAt              DateTime                @default(now())
   updatedAt              DateTime                @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 enum SupplierType {
@@ -207,6 +213,8 @@ model Unit {
   tenant               Tenant?               @relation(fields: [tenantId], references: [id])
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 model Brand {
@@ -221,6 +229,8 @@ model Brand {
   tenant    Tenant    @relation(fields: [tenantId], references: [id])
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 model Category {
@@ -235,6 +245,8 @@ model Category {
   tenant    Tenant    @relation(fields: [tenantId], references: [id])
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 model Product {
@@ -291,6 +303,8 @@ model Product {
   Supplier                     Supplier?                   @relation(fields: [supplierId], references: [id])
   createdAt                    DateTime                    @default(now())
   updatedAt                    DateTime                    @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 model SeoMeta {
@@ -306,6 +320,8 @@ model SeoMeta {
   product         Product  @relation(fields: [productId], references: [id])
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 model ProductVariant {
@@ -324,6 +340,8 @@ model ProductVariant {
   product     Product  @relation(fields: [productId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 model StockHistory {
@@ -357,6 +375,8 @@ model StockHistory {
   location     Shop?                     @relation(fields: [locationId], references: [id])
   createdAt    DateTime                  @default(now())
   updatedAt    DateTime                  @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 enum StockEntryType {
@@ -405,6 +425,8 @@ model ProductRelation {
   product          Product  @relation(fields: [productId], references: [id])
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 model Discount {
@@ -421,6 +443,8 @@ model Discount {
   product            Product  @relation(fields: [productId], references: [id])
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 model ProductTag {
@@ -437,6 +461,7 @@ model ProductTag {
   updatedAt DateTime @updatedAt
 
   @@unique([productId, tagId])
+  @@unique([tenantId, companyId])
 }
 
 model Tag {
@@ -450,6 +475,8 @@ model Tag {
   tenant      Tenant       @relation(fields: [tenantId], references: [id])
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 model ProductVersion {
@@ -464,6 +491,8 @@ model ProductVersion {
   product   Product  @relation(fields: [productId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 enum ProductStatus {
@@ -508,6 +537,8 @@ model SalesHeader {
   customer        Customer?      @relation(fields: [customerId], references: [id])
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 model SalesLine {
@@ -531,6 +562,8 @@ model SalesLine {
   product       Product     @relation(fields: [productId], references: [id])
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 enum PaymentMethod {
@@ -555,6 +588,8 @@ model OrderPayment {
   salesHeader   SalesHeader   @relation(fields: [salesHeaderId], references: [id])
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 enum OrderStatus {
@@ -590,6 +625,8 @@ model Expense {
   Payee             Payee?           @relation(fields: [payeeId], references: [id])
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 model ExpenseCategory {
@@ -603,6 +640,8 @@ model ExpenseCategory {
   tenant    Tenant    @relation(fields: [tenantId], references: [id])
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 model Payee {
@@ -617,6 +656,8 @@ model Payee {
   tenant    Tenant    @relation(fields: [tenantId], references: [id])
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 enum NotificationType {
@@ -642,6 +683,8 @@ model Notification {
   tenant    Tenant             @relation(fields: [tenantId], references: [id])
   createdAt DateTime           @default(now())
   updatedAt DateTime           @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 model Adjustment {
@@ -657,6 +700,8 @@ model Adjustment {
   tenant          Tenant?            @relation(fields: [tenantId], references: [id])
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 model AdjustmentLine {
@@ -688,6 +733,8 @@ model AdjustmentLine {
   unit         Unit                    @relation(fields: [unitId], references: [id])
   createdAt    DateTime                @default(now())
   updatedAt    DateTime                @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 enum AdjustmentItemEntryType {
@@ -752,6 +799,8 @@ model PurchaseHeader {
   supplier            Supplier?              @relation(fields: [supplierId], references: [id])
   createdAt           DateTime               @default(now())
   updatedAt           DateTime               @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 model PurchaseLine {
@@ -806,6 +855,8 @@ model PurchaseLine {
   purchaseHeader      PurchaseHeader       @relation(fields: [purchaseHeaderId], references: [id])
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 enum PurchaseProcessStatus {
@@ -932,6 +983,8 @@ model SupplierLedgerEntry {
   vendorPostingGroup        VendorPostingGroup?      @relation(fields: [journalBatchId], references: [id])
   createdAt                 DateTime                 @default(now())
   updatedAt                 DateTime                 @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 model VendorPostingGroup {
@@ -948,6 +1001,8 @@ model VendorPostingGroup {
   tenant                Tenant?                 @relation(fields: [tenantId], references: [id])
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 model CustomerPostingGroup {
@@ -962,6 +1017,8 @@ model CustomerPostingGroup {
   tenant            Tenant?    @relation(fields: [tenantId], references: [id])
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 model JournalBatch {
@@ -980,6 +1037,7 @@ model JournalBatch {
   updatedAt         DateTime        @updatedAt
 
   @@unique([name, journalTemplateId])
+  @@unique([tenantId, companyId])
 }
 
 model JournalTemplate {
@@ -997,6 +1055,8 @@ model JournalTemplate {
   tenant       Tenant              @relation(fields: [tenantId], references: [id])
   createdAt    DateTime            @default(now())
   updatedAt    DateTime            @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 enum LedgerEntryDocumentType {
@@ -1079,6 +1139,8 @@ model PurchaseReceiptHeader {
   vendorPostingGroup     VendorPostingGroup?   @relation(fields: [vendorPostingGroupId], references: [id])
   createdAt              DateTime              @default(now())
   updatedAt              DateTime              @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 model PurchaseReceiptLine {
@@ -1166,6 +1228,8 @@ model PurchaseReceiptLine {
   PurchaseReceiptHeader      PurchaseReceiptHeader? @relation(fields: [purchaseReceiptHeaderId], references: [id])
   createdAt                  DateTime               @default(now())
   updatedAt                  DateTime               @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 model VatBusPostingGroup {
@@ -1182,6 +1246,8 @@ model VatBusPostingGroup {
   tenant             Tenant?              @relation(fields: [tenantId], references: [id])
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 model VatProductPostingGroup {
@@ -1197,6 +1263,8 @@ model VatProductPostingGroup {
   tenant                     Tenant?                      @relation(fields: [tenantId], references: [id])
   createdAt                  DateTime                     @default(now())
   updatedAt                  DateTime                     @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 model VatPostingSetup {
@@ -1219,6 +1287,7 @@ model VatPostingSetup {
   updatedAt                DateTime                @updatedAt
 
   @@unique([vatBusPostingGroupId, vatProductPostingGroupId])
+  @@unique([tenantId, companyId])
 }
 
 model GeneralProductPostingGroup {
@@ -1236,6 +1305,8 @@ model GeneralProductPostingGroup {
   vatProductPostingGroup      VatProductPostingGroup? @relation(fields: [defVatProductPostingGroupId], references: [id])
   createdAt                   DateTime                @default(now())
   updatedAt                   DateTime                @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 model GenBusPostingGroup {
@@ -1254,6 +1325,8 @@ model GenBusPostingGroup {
   vatBusPostingGroup      VatBusPostingGroup? @relation(fields: [defVatBusPostingGroupId], references: [id])
   createdAt               DateTime            @default(now())
   updatedAt               DateTime            @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 model GenPostingSetup {
@@ -1280,6 +1353,7 @@ model GenPostingSetup {
   updatedAt                  DateTime                    @updatedAt
 
   @@unique([genBusPostingGroupId, genProductPostingGroupId])
+  @@unique([tenantId, companyId])
 }
 
 model InventoryPostingGroup {
@@ -1294,6 +1368,8 @@ model InventoryPostingGroup {
   tenant                Tenant                  @relation(fields: [tenantId], references: [id])
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 model InventoryPostingSetup {
@@ -1313,6 +1389,7 @@ model InventoryPostingSetup {
   updatedAt               DateTime               @updatedAt
 
   @@unique([shopId, inventoryPostingGroupId])
+  @@unique([tenantId, companyId])
 }
 
 model NoSeries {
@@ -1329,6 +1406,8 @@ model NoSeries {
   tenant        Tenant         @relation(fields: [tenantId], references: [id])
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 model NoSeriesLine {
@@ -1350,6 +1429,8 @@ model NoSeriesLine {
   NoSeries      NoSeries  @relation(fields: [noSeriesId], references: [id], onDelete: Cascade)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 model NoSeriesSetup {
@@ -1362,6 +1443,8 @@ model NoSeriesSetup {
   tenant                      Tenant   @relation(fields: [tenantId], references: [id])
   createdAt                   DateTime @default(now())
   updatedAt                   DateTime @updatedAt
+
+  @@unique([tenantId, companyId])
 }
 
 model Tenant {
