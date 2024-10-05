@@ -331,6 +331,11 @@ export const deleteAdjustment = async (id: string) => {
       throw new Error("Adjustment not found.");
     }
 
+    // Delete all adjustment lines
+    await db.adjustmentLine.deleteMany({
+      where: { adjustmentId: id },
+    });
+
     const adjustmentDeleted = await db.adjustment.delete({
       where: { id },
     });
