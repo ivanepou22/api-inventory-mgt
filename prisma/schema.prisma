@@ -1501,6 +1501,7 @@ model Tenant {
   Customer                   Customer[]
   createdAt                  DateTime                     @default(now())
   updatedAt                  DateTime                     @updatedAt
+  ItemJournalTemplate        ItemJournalTemplate[]
 }
 
 model Company {
@@ -1560,6 +1561,7 @@ model Company {
   tenant                     Tenant                       @relation(fields: [tenantId], references: [id])
   createdAt                  DateTime                     @default(now())
   updatedAt                  DateTime                     @updatedAt
+  ItemJournalTemplate        ItemJournalTemplate[]
 
   @@unique([tenantId, code])
 }
@@ -1606,6 +1608,24 @@ model OnlineOrderSetup {
   company    Company  @relation(fields: [companyId], references: [id])
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+
+  @@unique([tenantId, companyId])
+}
+
+model ItemJournalTemplate {
+  id          String              @id @default(auto()) @map("_id") @db.ObjectId
+  name        String              @unique
+  description String?
+  type        journalTemplateType
+  recurring   Boolean             @default(false)
+  sourceCode  String?
+  reasonCode  String?
+  companyId   String              @db.ObjectId
+  tenantId    String              @db.ObjectId
+  company     Company             @relation(fields: [companyId], references: [id])
+  tenant      Tenant              @relation(fields: [tenantId], references: [id])
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
 
   @@unique([tenantId, companyId])
 }
