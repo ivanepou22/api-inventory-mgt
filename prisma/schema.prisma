@@ -1393,19 +1393,20 @@ model InventoryPostingSetup {
 }
 
 model NoSeries {
-  id            String         @id @default(auto()) @map("_id") @db.ObjectId
-  code          String         @unique
-  description   String
-  defaultSeries Boolean        @default(true)
-  manualSeries  Boolean        @default(false)
-  NoSeriesLine  NoSeriesLine[]
-  JournalBatch  JournalBatch[]
-  companyId     String         @db.ObjectId
-  tenantId      String         @db.ObjectId
-  company       Company        @relation(fields: [companyId], references: [id])
-  tenant        Tenant         @relation(fields: [tenantId], references: [id])
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  id               String             @id @default(auto()) @map("_id") @db.ObjectId
+  code             String             @unique
+  description      String
+  defaultSeries    Boolean            @default(true)
+  manualSeries     Boolean            @default(false)
+  NoSeriesLine     NoSeriesLine[]
+  JournalBatch     JournalBatch[]
+  companyId        String             @db.ObjectId
+  tenantId         String             @db.ObjectId
+  company          Company            @relation(fields: [companyId], references: [id])
+  tenant           Tenant             @relation(fields: [tenantId], references: [id])
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  ItemJournalBatch ItemJournalBatch[]
 
   @@unique([tenantId, companyId])
 }
@@ -1502,6 +1503,7 @@ model Tenant {
   createdAt                  DateTime                     @default(now())
   updatedAt                  DateTime                     @updatedAt
   ItemJournalTemplate        ItemJournalTemplate[]
+  ItemJournalBatch           ItemJournalBatch[]
 }
 
 model Company {
@@ -1562,6 +1564,7 @@ model Company {
   createdAt                  DateTime                     @default(now())
   updatedAt                  DateTime                     @updatedAt
   ItemJournalTemplate        ItemJournalTemplate[]
+  ItemJournalBatch           ItemJournalBatch[]
 
   @@unique([tenantId, code])
 }
@@ -1613,19 +1616,39 @@ model OnlineOrderSetup {
 }
 
 model ItemJournalTemplate {
-  id          String              @id @default(auto()) @map("_id") @db.ObjectId
-  name        String              @unique
-  description String?
-  type        journalTemplateType
-  recurring   Boolean             @default(false)
-  sourceCode  String?
-  reasonCode  String?
-  companyId   String              @db.ObjectId
-  tenantId    String              @db.ObjectId
-  company     Company             @relation(fields: [companyId], references: [id])
-  tenant      Tenant              @relation(fields: [tenantId], references: [id])
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
+  id               String              @id @default(auto()) @map("_id") @db.ObjectId
+  name             String              @unique
+  description      String?
+  type             journalTemplateType
+  recurring        Boolean             @default(false)
+  sourceCode       String?
+  reasonCode       String?
+  companyId        String              @db.ObjectId
+  tenantId         String              @db.ObjectId
+  ItemJournalBatch ItemJournalBatch[]
+  company          Company             @relation(fields: [companyId], references: [id])
+  tenant           Tenant              @relation(fields: [tenantId], references: [id])
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
 
+  @@unique([tenantId, companyId])
+}
+
+model ItemJournalBatch {
+  id                    String              @id @default(auto()) @map("_id") @db.ObjectId
+  name                  String
+  description           String?
+  itemJournalTemplateId String              @db.ObjectId
+  noSeriesId            String?             @db.ObjectId
+  companyId             String              @db.ObjectId
+  tenantId              String              @db.ObjectId
+  company               Company             @relation(fields: [companyId], references: [id])
+  tenant                Tenant              @relation(fields: [tenantId], references: [id])
+  itemJournalTemplate   ItemJournalTemplate @relation(fields: [itemJournalTemplateId], references: [id])
+  NoSeries              NoSeries?           @relation(fields: [noSeriesId], references: [id])
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  @@unique([name, itemJournalTemplateId])
   @@unique([tenantId, companyId])
 }
