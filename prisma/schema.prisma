@@ -142,6 +142,7 @@ model Shop {
   tenant                 Tenant?                 @relation(fields: [tenantId], references: [id])
   createdAt              DateTime                @default(now())
   updatedAt              DateTime                @updatedAt
+  ItemJournalLine        ItemJournalLine[]
 
   @@unique([tenantId, companyId])
 }
@@ -213,6 +214,7 @@ model Unit {
   tenant               Tenant?               @relation(fields: [tenantId], references: [id])
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @updatedAt
+  ItemJournalLine      ItemJournalLine[]
 
   @@unique([tenantId, companyId])
 }
@@ -303,6 +305,7 @@ model Product {
   Supplier                     Supplier?                   @relation(fields: [supplierId], references: [id])
   createdAt                    DateTime                    @default(now())
   updatedAt                    DateTime                    @updatedAt
+  ItemJournalLine              ItemJournalLine[]
 
   @@unique([tenantId, companyId])
 }
@@ -1246,6 +1249,7 @@ model VatBusPostingGroup {
   tenant             Tenant?              @relation(fields: [tenantId], references: [id])
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
+  ItemJournalLine    ItemJournalLine[]
 
   @@unique([tenantId, companyId])
 }
@@ -1263,6 +1267,7 @@ model VatProductPostingGroup {
   tenant                     Tenant?                      @relation(fields: [tenantId], references: [id])
   createdAt                  DateTime                     @default(now())
   updatedAt                  DateTime                     @updatedAt
+  ItemJournalLine            ItemJournalLine[]
 
   @@unique([tenantId, companyId])
 }
@@ -1305,6 +1310,7 @@ model GeneralProductPostingGroup {
   vatProductPostingGroup      VatProductPostingGroup? @relation(fields: [defVatProductPostingGroupId], references: [id])
   createdAt                   DateTime                @default(now())
   updatedAt                   DateTime                @updatedAt
+  ItemJournalLine             ItemJournalLine[]
 
   @@unique([tenantId, companyId])
 }
@@ -1325,6 +1331,7 @@ model GenBusPostingGroup {
   vatBusPostingGroup      VatBusPostingGroup? @relation(fields: [defVatBusPostingGroupId], references: [id])
   createdAt               DateTime            @default(now())
   updatedAt               DateTime            @updatedAt
+  ItemJournalLine         ItemJournalLine[]
 
   @@unique([tenantId, companyId])
 }
@@ -1368,6 +1375,7 @@ model InventoryPostingGroup {
   tenant                Tenant                  @relation(fields: [tenantId], references: [id])
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
+  ItemJournalLine       ItemJournalLine[]
 
   @@unique([tenantId, companyId])
 }
@@ -1504,6 +1512,7 @@ model Tenant {
   updatedAt                  DateTime                     @updatedAt
   ItemJournalTemplate        ItemJournalTemplate[]
   ItemJournalBatch           ItemJournalBatch[]
+  ItemJournalLine            ItemJournalLine[]
 }
 
 model Company {
@@ -1565,6 +1574,7 @@ model Company {
   updatedAt                  DateTime                     @updatedAt
   ItemJournalTemplate        ItemJournalTemplate[]
   ItemJournalBatch           ItemJournalBatch[]
+  ItemJournalLine            ItemJournalLine[]
 
   @@unique([tenantId, code])
 }
@@ -1626,6 +1636,7 @@ model ItemJournalTemplate {
   companyId        String                  @db.ObjectId
   tenantId         String                  @db.ObjectId
   ItemJournalBatch ItemJournalBatch[]
+  ItemJournalLine  ItemJournalLine[]
   company          Company                 @relation(fields: [companyId], references: [id])
   tenant           Tenant                  @relation(fields: [tenantId], references: [id])
   createdAt        DateTime                @default(now())
@@ -1642,6 +1653,7 @@ model ItemJournalBatch {
   noSeriesId            String?             @db.ObjectId
   companyId             String              @db.ObjectId
   tenantId              String              @db.ObjectId
+  ItemJournalLine       ItemJournalLine[]
   company               Company             @relation(fields: [companyId], references: [id])
   tenant                Tenant              @relation(fields: [tenantId], references: [id])
   itemJournalTemplate   ItemJournalTemplate @relation(fields: [itemJournalTemplateId], references: [id])
@@ -1665,22 +1677,59 @@ enum ItemJournalTemplateType {
 }
 
 model ItemJournalLine {
-  id          String               @id @default(auto()) @map("_id") @db.ObjectId
-  postingDate DateTime
-  entryType   ItemJournalEntryType
-  documentNo  String?
-  description String?
-  itemId      String               @db.ObjectId
-  quantity    Float
-  unitCost    Float?
-  totalCost   Float?
-  companyId   String               @db.ObjectId
-  tenantId    String               @db.ObjectId
-  company     Company              @relation(fields: [companyId], references: [id])
-  tenant      Tenant               @relation(fields: [tenantId], references: [id])
-  item        Product              @relation(fields: [itemId], references: [id])
-  createdAt   DateTime             @default(now())
-  updatedAt   DateTime             @updatedAt
+  id                       String                      @id @default(auto()) @map("_id") @db.ObjectId
+  itemJournalTemplateId    String                      @db.ObjectId
+  itemJournalBatchId       String                      @db.ObjectId
+  lineNo                   Int                         @default(0)
+  postingDate              DateTime
+  entryType                ItemJournalEntryType
+  documentNo               String?
+  itemId                   String                      @db.ObjectId
+  description              String?
+  inventoryPostingGroupId  String?                     @db.ObjectId
+  locationId               String?                     @db.ObjectId
+  quantity                 Float
+  unitId                   String?                     @db.ObjectId
+  unitAmount               Float?
+  totalAmount              Float?
+  unitCost                 Float?
+  totalCost                Float?
+  sourceCode               String?
+  sourceNo                 String?
+  sourceType               String?
+  reasonCode               String?
+  documentDate             DateTime?
+  qtyPerUnitOfMeasure      Float?
+  currencyCode             String?
+  currencyRate             Float?
+  currencyFactor           Float?
+  genBusPostingGroupId     String?                     @db.ObjectId
+  genProductPostingGroupId String?                     @db.ObjectId
+  vatBusPostingGroupId     String?                     @db.ObjectId
+  vatProductPostingGroupId String?                     @db.ObjectId
+  companyId                String                      @db.ObjectId
+  tenantId                 String                      @db.ObjectId
+  company                  Company                     @relation(fields: [companyId], references: [id])
+  tenant                   Tenant                      @relation(fields: [tenantId], references: [id])
+  item                     Product                     @relation(fields: [itemId], references: [id])
+  location                 Shop?                       @relation(fields: [locationId], references: [id])
+  inventoryPostingGroup    InventoryPostingGroup?      @relation(fields: [inventoryPostingGroupId], references: [id])
+  ItemJournalTemplate      ItemJournalTemplate         @relation(fields: [itemJournalTemplateId], references: [id])
+  ItemJournalBatch         ItemJournalBatch            @relation(fields: [itemJournalBatchId], references: [id])
+  unit                     Unit?                       @relation(fields: [unitId], references: [id])
+  genBusPostingGroup       GenBusPostingGroup?         @relation(fields: [genBusPostingGroupId], references: [id])
+  genProductPostingGroup   GeneralProductPostingGroup? @relation(fields: [genProductPostingGroupId], references: [id])
+  vatBusPostingGroup       VatBusPostingGroup?         @relation(fields: [vatBusPostingGroupId], references: [id])
+  vatProductPostingGroup   VatProductPostingGroup?     @relation(fields: [vatProductPostingGroupId], references: [id])
+  createdAt                DateTime                    @default(now())
+  updatedAt                DateTime                    @updatedAt
 
   @@unique([tenantId, companyId])
+}
+
+enum ItemJournalEntryType {
+  PURCHASE
+  SALE
+  POSITIVE_ADJUST
+  NEGATIVE_ADJUST
 }
