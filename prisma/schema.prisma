@@ -1663,3 +1663,24 @@ enum ItemJournalTemplateType {
   CAPACITY
   PROD_ORDER
 }
+
+model ItemJournalLine {
+  id          String               @id @default(auto()) @map("_id") @db.ObjectId
+  postingDate DateTime
+  entryType   ItemJournalEntryType
+  documentNo  String?
+  description String?
+  itemId      String               @db.ObjectId
+  quantity    Float
+  unitCost    Float?
+  totalCost   Float?
+  companyId   String               @db.ObjectId
+  tenantId    String               @db.ObjectId
+  company     Company              @relation(fields: [companyId], references: [id])
+  tenant      Tenant               @relation(fields: [tenantId], references: [id])
+  item        Product              @relation(fields: [itemId], references: [id])
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  @@unique([tenantId, companyId])
+}
