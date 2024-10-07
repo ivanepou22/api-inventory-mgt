@@ -1025,41 +1025,111 @@ model CustomerPostingGroup {
 }
 
 model JournalBatch {
-  id                String          @id @default(auto()) @map("_id") @db.ObjectId
-  name              String
-  description       String?
-  journalTemplateId String          @db.ObjectId
-  noSeriesId        String?         @db.ObjectId
-  companyId         String          @db.ObjectId
-  tenantId          String          @db.ObjectId
-  company           Company         @relation(fields: [companyId], references: [id])
-  tenant            Tenant          @relation(fields: [tenantId], references: [id])
-  journalTemplate   JournalTemplate @relation(fields: [journalTemplateId], references: [id])
-  NoSeries          NoSeries?       @relation(fields: [noSeriesId], references: [id])
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
+  id                 String               @id @default(auto()) @map("_id") @db.ObjectId
+  name               String
+  description        String?
+  journalTemplateId  String               @db.ObjectId
+  noSeriesId         String?              @db.ObjectId
+  companyId          String               @db.ObjectId
+  tenantId           String               @db.ObjectId
+  company            Company              @relation(fields: [companyId], references: [id])
+  tenant             Tenant               @relation(fields: [tenantId], references: [id])
+  journalTemplate    JournalTemplate      @relation(fields: [journalTemplateId], references: [id])
+  NoSeries           NoSeries?            @relation(fields: [noSeriesId], references: [id])
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  generalJournalLine generalJournalLine[]
 
   @@unique([name, journalTemplateId])
   @@unique([tenantId, companyId])
 }
 
 model JournalTemplate {
-  id           String              @id @default(auto()) @map("_id") @db.ObjectId
-  name         String              @unique
-  description  String?
-  type         journalTemplateType
-  recurring    Boolean             @default(false)
-  sourceCode   String?
-  reasonCode   String?
-  JournalBatch JournalBatch[]
-  companyId    String              @db.ObjectId
-  tenantId     String              @db.ObjectId
-  company      Company             @relation(fields: [companyId], references: [id])
-  tenant       Tenant              @relation(fields: [tenantId], references: [id])
-  createdAt    DateTime            @default(now())
-  updatedAt    DateTime            @updatedAt
+  id                 String               @id @default(auto()) @map("_id") @db.ObjectId
+  name               String               @unique
+  description        String?
+  type               journalTemplateType
+  recurring          Boolean              @default(false)
+  sourceCode         String?
+  reasonCode         String?
+  JournalBatch       JournalBatch[]
+  companyId          String               @db.ObjectId
+  tenantId           String               @db.ObjectId
+  company            Company              @relation(fields: [companyId], references: [id])
+  tenant             Tenant               @relation(fields: [tenantId], references: [id])
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  generalJournalLine generalJournalLine[]
 
   @@unique([tenantId, companyId])
+}
+
+model generalJournalLine {
+  id                       String                     @id @default(auto()) @map("_id") @db.ObjectId
+  journalTemplateId        String                     @db.ObjectId
+  journalBatchId           String                     @db.ObjectId
+  lineNo                   Int                        @default(0)
+  postingDate              DateTime
+  documentType             JournalLineType
+  documentNo               String?
+  accountType              AccountType
+  accountNo                String?
+  accountName              String?
+  accountCode              String?
+  description              String?
+  currencyCode             String?
+  currencyRate             Float?
+  currencyFactor           Float?
+  amount                   Float
+  amountLocal              Float?
+  balAccountType           AccountType?
+  balAccountNo             String?
+  balAccountName           String?
+  balAccountCode           String?
+  externalDocumentNo       String?
+  genPostingType           GeneralJournalLineType?
+  genBusPostingGroupId     String?                    @db.ObjectId
+  genProductPostingGroupId String?                    @db.ObjectId
+  vatBusPostingGroupId     String?                    @db.ObjectId
+  vatProductPostingGroupId String?                    @db.ObjectId
+  sourceCode               String?
+  sourceNo                 String?
+  sourceType               String?
+  reasonCode               String?
+  dimension1               String?
+  dimension2               String?
+  dimension3               String?
+  dimension4               String?
+  dimension5               String?
+  dimension6               String?
+  dimension7               String?
+  dimension8               String?
+  dimension9               String?
+  dimension10              String?
+  companyId                String                     @db.ObjectId
+  tenantId                 String                     @db.ObjectId
+  company                  Company                    @relation(fields: [companyId], references: [id])
+  tenant                   Tenant                     @relation(fields: [tenantId], references: [id])
+  JournalTemplate          JournalTemplate            @relation(fields: [journalTemplateId], references: [id])
+  JournalBatch             JournalBatch               @relation(fields: [journalBatchId], references: [id])
+  genBusPostingGroup       GenBusPostingGroup         @relation(fields: [genBusPostingGroupId], references: [id])
+  genProductPostingGroup   GeneralProductPostingGroup @relation(fields: [genProductPostingGroupId], references: [id])
+  vatBusPostingGroup       VatBusPostingGroup         @relation(fields: [vatBusPostingGroupId], references: [id])
+  vatProductPostingGroup   VatProductPostingGroup     @relation(fields: [vatProductPostingGroupId], references: [id])
+  createdAt                DateTime                   @default(now())
+  updatedAt                DateTime                   @updatedAt
+
+  @@unique([tenantId, companyId])
+}
+
+enum JournalLineType {
+  BLANK
+  PAYMENT
+  INVOICE
+  CREDIT_MEMO
+  REFUND
+  REMINDER
+  FINANCE_CHARGE_MEMO
 }
 
 enum LedgerEntryDocumentType {
@@ -1513,6 +1583,7 @@ model Tenant {
   ItemJournalTemplate        ItemJournalTemplate[]
   ItemJournalBatch           ItemJournalBatch[]
   ItemJournalLine            ItemJournalLine[]
+  generalJournalLine         generalJournalLine[]
 }
 
 model Company {
@@ -1575,6 +1646,7 @@ model Company {
   ItemJournalTemplate        ItemJournalTemplate[]
   ItemJournalBatch           ItemJournalBatch[]
   ItemJournalLine            ItemJournalLine[]
+  generalJournalLine         generalJournalLine[]
 
   @@unique([tenantId, code])
 }
