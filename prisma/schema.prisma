@@ -1332,6 +1332,7 @@ model VatBusPostingGroup {
   updatedAt          DateTime             @updatedAt
   ItemJournalLine    ItemJournalLine[]
   generalJournalLine generalJournalLine[]
+  GeneralLedgerEntry GeneralLedgerEntry[]
 
   @@unique([tenantId, companyId])
 }
@@ -1351,6 +1352,7 @@ model VatProductPostingGroup {
   updatedAt                  DateTime                     @updatedAt
   ItemJournalLine            ItemJournalLine[]
   generalJournalLine         generalJournalLine[]
+  GeneralLedgerEntry         GeneralLedgerEntry[]
 
   @@unique([tenantId, companyId])
 }
@@ -1395,6 +1397,7 @@ model GeneralProductPostingGroup {
   updatedAt                   DateTime                @updatedAt
   ItemJournalLine             ItemJournalLine[]
   generalJournalLine          generalJournalLine[]
+  GeneralLedgerEntry          GeneralLedgerEntry[]
 
   @@unique([tenantId, companyId])
 }
@@ -1417,6 +1420,7 @@ model GenBusPostingGroup {
   updatedAt               DateTime             @updatedAt
   ItemJournalLine         ItemJournalLine[]
   generalJournalLine      generalJournalLine[]
+  GeneralLedgerEntry      GeneralLedgerEntry[]
 
   @@unique([tenantId, companyId])
 }
@@ -1599,6 +1603,7 @@ model Tenant {
   ItemJournalBatch           ItemJournalBatch[]
   ItemJournalLine            ItemJournalLine[]
   generalJournalLine         generalJournalLine[]
+  GeneralLedgerEntry         GeneralLedgerEntry[]
 }
 
 model Company {
@@ -1662,6 +1667,7 @@ model Company {
   ItemJournalBatch           ItemJournalBatch[]
   ItemJournalLine            ItemJournalLine[]
   generalJournalLine         generalJournalLine[]
+  GeneralLedgerEntry         GeneralLedgerEntry[]
 
   @@unique([tenantId, code])
 }
@@ -1819,4 +1825,62 @@ enum ItemJournalEntryType {
   SALE
   POSITIVE_ADJUST
   NEGATIVE_ADJUST
+}
+
+model GeneralLedgerEntry {
+  id                       String                      @id @default(auto()) @map("_id") @db.ObjectId
+  postingDate              DateTime
+  documentType             LedgerEntryDocumentType
+  documentNo               String?
+  accountType              AccountType
+  accountNo                String?
+  accountName              String?
+  accountCode              String?
+  description              String?
+  currencyCode             String?
+  currencyRate             Float?
+  currencyFactor           Float?
+  amount                   Float
+  amountLocal              Float?
+  balAccountType           AccountType?
+  balAccountNo             String?
+  balAccountName           String?
+  balAccountCode           String?
+  externalDocumentNo       String?
+  genPostingType           GenPostingType?
+  genBusPostingGroupId     String?                     @db.ObjectId
+  genProductPostingGroupId String?                     @db.ObjectId
+  vatBusPostingGroupId     String?                     @db.ObjectId
+  vatProductPostingGroupId String?                     @db.ObjectId
+  sourceCode               String?
+  sourceNo                 String?
+  sourceType               String?
+  reasonCode               String?
+  comment                  String?
+  appliesToDocType         LedgerEntryDocumentType?
+  appliesToDocNo           String?
+  appliesToID              String?
+  dimension1               String?
+  dimension2               String?
+  dimension3               String?
+  dimension4               String?
+  dimension5               String?
+  dimension6               String?
+  dimension7               String?
+  dimension8               String?
+  dimension9               String?
+  dimension10              String?
+  entryNo                  Int                         @default(0)
+  companyId                String                      @db.ObjectId
+  tenantId                 String                      @db.ObjectId
+  company                  Company                     @relation(fields: [companyId], references: [id])
+  tenant                   Tenant                      @relation(fields: [tenantId], references: [id])
+  genBusPostingGroup       GenBusPostingGroup?         @relation(fields: [genBusPostingGroupId], references: [id])
+  genProductPostingGroup   GeneralProductPostingGroup? @relation(fields: [genProductPostingGroupId], references: [id])
+  vatBusPostingGroup       VatBusPostingGroup?         @relation(fields: [vatBusPostingGroupId], references: [id])
+  vatProductPostingGroup   VatProductPostingGroup?     @relation(fields: [vatProductPostingGroupId], references: [id])
+  createdAt                DateTime                    @default(now())
+  updatedAt                DateTime                    @updatedAt
+
+  @@unique([tenantId, companyId])
 }
