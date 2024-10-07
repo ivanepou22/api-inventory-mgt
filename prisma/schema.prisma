@@ -1065,10 +1065,10 @@ model JournalTemplate {
 }
 
 model generalJournalLine {
-  id                       String                     @id @default(auto()) @map("_id") @db.ObjectId
-  journalTemplateId        String                     @db.ObjectId
-  journalBatchId           String                     @db.ObjectId
-  lineNo                   Int                        @default(0)
+  id                       String                      @id @default(auto()) @map("_id") @db.ObjectId
+  journalTemplateId        String                      @db.ObjectId
+  journalBatchId           String                      @db.ObjectId
+  lineNo                   Int                         @default(0)
   postingDate              DateTime
   documentType             JournalLineType
   documentNo               String?
@@ -1087,15 +1087,19 @@ model generalJournalLine {
   balAccountName           String?
   balAccountCode           String?
   externalDocumentNo       String?
-  genPostingType           GeneralJournalLineType?
-  genBusPostingGroupId     String?                    @db.ObjectId
-  genProductPostingGroupId String?                    @db.ObjectId
-  vatBusPostingGroupId     String?                    @db.ObjectId
-  vatProductPostingGroupId String?                    @db.ObjectId
+  genPostingType           GenPostingType?
+  genBusPostingGroupId     String?                     @db.ObjectId
+  genProductPostingGroupId String?                     @db.ObjectId
+  vatBusPostingGroupId     String?                     @db.ObjectId
+  vatProductPostingGroupId String?                     @db.ObjectId
   sourceCode               String?
   sourceNo                 String?
   sourceType               String?
   reasonCode               String?
+  comment                  String?
+  appliesToDocType         LedgerEntryDocumentType?
+  appliesToDocNo           String?
+  appliesToID              String?
   dimension1               String?
   dimension2               String?
   dimension3               String?
@@ -1106,20 +1110,27 @@ model generalJournalLine {
   dimension8               String?
   dimension9               String?
   dimension10              String?
-  companyId                String                     @db.ObjectId
-  tenantId                 String                     @db.ObjectId
-  company                  Company                    @relation(fields: [companyId], references: [id])
-  tenant                   Tenant                     @relation(fields: [tenantId], references: [id])
-  JournalTemplate          JournalTemplate            @relation(fields: [journalTemplateId], references: [id])
-  JournalBatch             JournalBatch               @relation(fields: [journalBatchId], references: [id])
-  genBusPostingGroup       GenBusPostingGroup         @relation(fields: [genBusPostingGroupId], references: [id])
-  genProductPostingGroup   GeneralProductPostingGroup @relation(fields: [genProductPostingGroupId], references: [id])
-  vatBusPostingGroup       VatBusPostingGroup         @relation(fields: [vatBusPostingGroupId], references: [id])
-  vatProductPostingGroup   VatProductPostingGroup     @relation(fields: [vatProductPostingGroupId], references: [id])
-  createdAt                DateTime                   @default(now())
-  updatedAt                DateTime                   @updatedAt
+  companyId                String                      @db.ObjectId
+  tenantId                 String                      @db.ObjectId
+  company                  Company                     @relation(fields: [companyId], references: [id])
+  tenant                   Tenant                      @relation(fields: [tenantId], references: [id])
+  JournalTemplate          JournalTemplate             @relation(fields: [journalTemplateId], references: [id])
+  JournalBatch             JournalBatch                @relation(fields: [journalBatchId], references: [id])
+  genBusPostingGroup       GenBusPostingGroup?         @relation(fields: [genBusPostingGroupId], references: [id])
+  genProductPostingGroup   GeneralProductPostingGroup? @relation(fields: [genProductPostingGroupId], references: [id])
+  vatBusPostingGroup       VatBusPostingGroup?         @relation(fields: [vatBusPostingGroupId], references: [id])
+  vatProductPostingGroup   VatProductPostingGroup?     @relation(fields: [vatProductPostingGroupId], references: [id])
+  createdAt                DateTime                    @default(now())
+  updatedAt                DateTime                    @updatedAt
 
   @@unique([tenantId, companyId])
+}
+
+enum GenPostingType {
+  BLANK
+  PURCHASE
+  SALE
+  SETTLEMENT
 }
 
 enum JournalLineType {
@@ -1320,6 +1331,7 @@ model VatBusPostingGroup {
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   ItemJournalLine    ItemJournalLine[]
+  generalJournalLine generalJournalLine[]
 
   @@unique([tenantId, companyId])
 }
@@ -1338,6 +1350,7 @@ model VatProductPostingGroup {
   createdAt                  DateTime                     @default(now())
   updatedAt                  DateTime                     @updatedAt
   ItemJournalLine            ItemJournalLine[]
+  generalJournalLine         generalJournalLine[]
 
   @@unique([tenantId, companyId])
 }
@@ -1381,27 +1394,29 @@ model GeneralProductPostingGroup {
   createdAt                   DateTime                @default(now())
   updatedAt                   DateTime                @updatedAt
   ItemJournalLine             ItemJournalLine[]
+  generalJournalLine          generalJournalLine[]
 
   @@unique([tenantId, companyId])
 }
 
 model GenBusPostingGroup {
-  id                      String              @id @default(auto()) @map("_id") @db.ObjectId
-  code                    String              @unique
+  id                      String               @id @default(auto()) @map("_id") @db.ObjectId
+  code                    String               @unique
   name                    String
-  defVatBusPostingGroupId String?             @db.ObjectId
+  defVatBusPostingGroupId String?              @db.ObjectId
   autoInsertDefault       Boolean?
   genPostingSetup         GenPostingSetup[]
   Supplier                Supplier[]
   Customer                Customer[]
-  companyId               String?             @db.ObjectId
-  tenantId                String?             @db.ObjectId
-  company                 Company?            @relation(fields: [companyId], references: [id])
-  tenant                  Tenant?             @relation(fields: [tenantId], references: [id])
-  vatBusPostingGroup      VatBusPostingGroup? @relation(fields: [defVatBusPostingGroupId], references: [id])
-  createdAt               DateTime            @default(now())
-  updatedAt               DateTime            @updatedAt
+  companyId               String?              @db.ObjectId
+  tenantId                String?              @db.ObjectId
+  company                 Company?             @relation(fields: [companyId], references: [id])
+  tenant                  Tenant?              @relation(fields: [tenantId], references: [id])
+  vatBusPostingGroup      VatBusPostingGroup?  @relation(fields: [defVatBusPostingGroupId], references: [id])
+  createdAt               DateTime             @default(now())
+  updatedAt               DateTime             @updatedAt
   ItemJournalLine         ItemJournalLine[]
+  generalJournalLine      generalJournalLine[]
 
   @@unique([tenantId, companyId])
 }
