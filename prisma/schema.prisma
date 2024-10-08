@@ -1605,6 +1605,7 @@ model Tenant {
   generalJournalLine         generalJournalLine[]
   GeneralLedgerEntry         GeneralLedgerEntry[]
   BankAccount                BankAccount[]
+  BankAccountPostingGroup    BankAccountPostingGroup[]
 }
 
 model Company {
@@ -1670,6 +1671,7 @@ model Company {
   generalJournalLine         generalJournalLine[]
   GeneralLedgerEntry         GeneralLedgerEntry[]
   BankAccount                BankAccount[]
+  BankAccountPostingGroup    BankAccountPostingGroup[]
 
   @@unique([tenantId, code])
 }
@@ -1922,13 +1924,23 @@ model BankAccount {
   createdAt                 DateTime                 @default(now())
   updatedAt                 DateTime                 @updatedAt
 
+  @@unique([tenantId, companyId])
   @@unique([tenantId, companyId, bankCode])
 }
 
 model BankAccountPostingGroup {
-  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
   code        String
   description String
-
+  GLAccount   String?
   BankAccount BankAccount[]
+  companyId   String        @db.ObjectId
+  tenantId    String        @db.ObjectId
+  company     Company       @relation(fields: [companyId], references: [id])
+  tenant      Tenant        @relation(fields: [tenantId], references: [id])
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId, code])
 }
