@@ -1891,17 +1891,29 @@ model BankAccount {
   id                        String                   @id @default(auto()) @map("_id") @db.ObjectId
   bankCode                  String
   name                      String
-  iban                      String
-  bic                       String
-  accountNumber             String
-  bankBrankNo               String
-  blocked                   Boolean
-  bankAddress               String
-  bankCountry               String
-  bankCountryCode           String
-  bankPostalCode            String
-  bankCity                  String
-  banKAccountPostingGroupId String                   @db.ObjectId
+  iban                      String?
+  bic                       String?
+  swiftCode                 String?
+  accountNumber             String?
+  bankBrankNo               String?
+  blocked                   Boolean?
+  bankAddress               String?
+  bankAddress2              String?
+  bankCountry               String?
+  bankCountryCode           String?
+  bankPostalCode            String?
+  bankCity                  String?
+  email                     String?
+  phone                     String?
+  contactPerson             String?
+  contactEmail              String?
+  contactPhone              String?
+  homePage                  String?
+  currencyCode              String?
+  lastStatementNumber       String?
+  lastStatementDate         DateTime?
+  lastStatementBalance      Float?
+  banKAccountPostingGroupId String?                  @db.ObjectId
   tenantId                  String                   @db.ObjectId
   companyId                 String                   @db.ObjectId
   company                   Company                  @relation(fields: [companyId], references: [id])
@@ -1910,12 +1922,13 @@ model BankAccount {
   createdAt                 DateTime                 @default(now())
   updatedAt                 DateTime                 @updatedAt
 
-  @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId, bankCode])
 }
 
 model BankAccountPostingGroup {
-  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
   code        String
   description String
+
   BankAccount BankAccount[]
 }
