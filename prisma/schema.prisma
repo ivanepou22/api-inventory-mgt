@@ -1606,6 +1606,7 @@ model Tenant {
   GeneralLedgerEntry         GeneralLedgerEntry[]
   BankAccount                BankAccount[]
   BankAccountPostingGroup    BankAccountPostingGroup[]
+  BankAccountLedgerEntry     BankAccountLedgerEntry[]
 }
 
 model Company {
@@ -1672,6 +1673,7 @@ model Company {
   GeneralLedgerEntry         GeneralLedgerEntry[]
   BankAccount                BankAccount[]
   BankAccountPostingGroup    BankAccountPostingGroup[]
+  BankAccountLedgerEntry     BankAccountLedgerEntry[]
 
   @@unique([tenantId, code])
 }
@@ -1943,4 +1945,46 @@ model BankAccountPostingGroup {
 
   @@unique([tenantId, companyId])
   @@unique([tenantId, companyId, code])
+}
+
+model BankAccountLedgerEntry {
+  id                 String                  @id @default(auto()) @map("_id") @db.ObjectId
+  postingDate        DateTime
+  documentType       LedgerEntryDocumentType
+  documentNo         String?
+  bankAccountId      String                  @db.ObjectId
+  description        String?
+  currencyCode       String?
+  currencyRate       Float?
+  currencyFactor     Float?
+  amount             Float
+  amountLocal        Float?
+  runningAmount      Float?
+  runningAmountLocal Float?
+  entryNo            Int                     @default(0)
+  open               Boolean                 @default(true)
+  externalDocumentNo String?
+  sourceCode         String?
+  sourceNo           String?
+  sourceType         String?
+  reasonCode         String?
+  comment            String?
+  dimension1         String?
+  dimension2         String?
+  dimension3         String?
+  dimension4         String?
+  dimension5         String?
+  dimension6         String?
+  dimension7         String?
+  dimension8         String?
+  dimension9         String?
+  dimension10        String?
+  companyId          String                  @db.ObjectId
+  tenantId           String                  @db.ObjectId
+  company            Company                 @relation(fields: [companyId], references: [id])
+  tenant             Tenant                  @relation(fields: [tenantId], references: [id])
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+
+  @@unique([tenantId, companyId])
 }
