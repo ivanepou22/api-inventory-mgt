@@ -1992,26 +1992,67 @@ model BankAccountLedgerEntry {
 }
 
 model GLAccount {
-  id              String            @id @default(auto()) @map("_id") @db.ObjectId
-  no              String            @unique
-  name            String?
-  searchName      String?
-  accountType     GLAccountType
-  accountCategory GLAccountCategory
-  dimension1      String?
-  dimension2      String?
-  dimension3      String?
-  dimension4      String?
-  dimension5      String?
-  dimension6      String?
-  dimension7      String?
-  dimension8      String?
-  dimension9      String?
-  dimension10     String?
-  companyId       String            @db.ObjectId
-  tenantId        String            @db.ObjectId
-  tenant          Tenant            @relation(fields: [tenantId], references: [id])
-  company         Company           @relation(fields: [companyId], references: [id])
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  id                       String            @id @default(auto()) @map("_id") @db.ObjectId
+  no                       String            @unique
+  name                     String?
+  searchName               String?
+  accountType              GLAccountType
+  accountCategory          GLAccountCategory
+  incomeBalance            IncomeBalanceType
+  debit_credit             DebitCreditType
+  no_2                     String?
+  blocked                  Boolean?
+  directPosting            Boolean?
+  reconciliationAccount    Boolean?
+  indentation              Int?
+  totaling                 String?
+  genPostingType           GenPostingType?
+  genBusPostingGroupId     String?           @db.ObjectId
+  genProductPostingGroupId String?           @db.ObjectId
+  vatBusPostingGroupId     String?           @db.ObjectId
+  vatProductPostingGroupId String?           @db.ObjectId
+  picture                  String?
+  exchangeRateAdjustment   String?
+  balanceAtDate            Float?            @default(0)
+  newPage                  Boolean?
+  balance                  Float?
+  balanceLocal             Float?
+  dimension1               String?
+  dimension2               String?
+  dimension3               String?
+  dimension4               String?
+  dimension5               String?
+  dimension6               String?
+  dimension7               String?
+  dimension8               String?
+  dimension9               String?
+  dimension10              String?
+  companyId                String            @db.ObjectId
+  tenantId                 String            @db.ObjectId
+  tenant                   Tenant            @relation(fields: [tenantId], references: [id])
+  company                  Company           @relation(fields: [companyId], references: [id])
+  createdAt                DateTime          @default(now())
+  updatedAt                DateTime          @updatedAt
+}
+
+enum GLAccountType {
+  POSTING
+  HEADING
+  BEGIN_TOTAL
+  END_TOTAL
+  TOTAL
+}
+
+enum GLAccountCategory {
+  ASSET
+  LIABILITY
+  EQUITY
+  INCOME
+  COST_OF_GOODS_SOLD
+  EXPENSE
+}
+
+enum IncomeBalanceType {
+  INCOME_STATEMENT
+  BALANCE_SHEET
 }
