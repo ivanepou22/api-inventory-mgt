@@ -2056,3 +2056,9 @@ enum IncomeBalanceType {
   INCOME_STATEMENT
   BALANCE_SHEET
 }
+
+enum DebitCreditType {
+  DEBIT
+  CREDIT
+  BOTH
+}
