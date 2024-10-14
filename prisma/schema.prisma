@@ -47,7 +47,7 @@ model Customer {
   createdAt              DateTime              @default(now())
   updatedAt              DateTime              @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model SalesPerson {
@@ -103,7 +103,7 @@ model User {
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 enum Gender {
@@ -144,7 +144,7 @@ model Shop {
   updatedAt              DateTime                @updatedAt
   ItemJournalLine        ItemJournalLine[]
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model Supplier {
@@ -187,7 +187,7 @@ model Supplier {
   createdAt              DateTime                @default(now())
   updatedAt              DateTime                @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 enum SupplierType {
@@ -216,7 +216,7 @@ model Unit {
   updatedAt            DateTime              @updatedAt
   ItemJournalLine      ItemJournalLine[]
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model Brand {
@@ -232,7 +232,7 @@ model Brand {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model Category {
@@ -248,7 +248,7 @@ model Category {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model Product {
@@ -307,7 +307,7 @@ model Product {
   updatedAt                    DateTime                    @updatedAt
   ItemJournalLine              ItemJournalLine[]
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model SeoMeta {
@@ -324,7 +324,7 @@ model SeoMeta {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model ProductVariant {
@@ -344,7 +344,7 @@ model ProductVariant {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model StockHistory {
@@ -379,7 +379,7 @@ model StockHistory {
   createdAt    DateTime                  @default(now())
   updatedAt    DateTime                  @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 enum StockEntryType {
@@ -429,7 +429,7 @@ model ProductRelation {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model Discount {
@@ -447,7 +447,7 @@ model Discount {
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model ProductTag {
@@ -462,8 +462,8 @@ model ProductTag {
   product   Product  @relation(fields: [productId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  // @@unique([tenantId, companyId])
 
+  @@unique([tenantId, companyId])
   @@unique([productId, tagId])
 }
 
@@ -479,7 +479,7 @@ model Tag {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model ProductVersion {
@@ -495,7 +495,7 @@ model ProductVersion {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 enum ProductStatus {
@@ -541,7 +541,7 @@ model SalesHeader {
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model SalesLine {
@@ -566,7 +566,7 @@ model SalesLine {
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 enum PaymentMethod {
@@ -592,7 +592,7 @@ model OrderPayment {
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 enum OrderStatus {
@@ -629,7 +629,7 @@ model Expense {
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model ExpenseCategory {
@@ -644,7 +644,7 @@ model ExpenseCategory {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model Payee {
@@ -660,7 +660,7 @@ model Payee {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 enum NotificationType {
@@ -687,7 +687,7 @@ model Notification {
   createdAt DateTime           @default(now())
   updatedAt DateTime           @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model Adjustment {
@@ -704,7 +704,7 @@ model Adjustment {
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model AdjustmentLine {
@@ -737,7 +737,7 @@ model AdjustmentLine {
   createdAt    DateTime                @default(now())
   updatedAt    DateTime                @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 enum AdjustmentItemEntryType {
@@ -803,7 +803,7 @@ model PurchaseHeader {
   createdAt           DateTime               @default(now())
   updatedAt           DateTime               @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model PurchaseLine {
@@ -859,7 +859,7 @@ model PurchaseLine {
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 enum PurchaseProcessStatus {
@@ -987,7 +987,7 @@ model SupplierLedgerEntry {
   createdAt                 DateTime                 @default(now())
   updatedAt                 DateTime                 @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model VendorPostingGroup {
@@ -1005,7 +1005,7 @@ model VendorPostingGroup {
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model CustomerPostingGroup {
@@ -1021,7 +1021,7 @@ model CustomerPostingGroup {
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model JournalBatch {
@@ -1039,8 +1039,8 @@ model JournalBatch {
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   generalJournalLine generalJournalLine[]
-  // @@unique([tenantId, companyId])
 
+  @@unique([tenantId, companyId])
   @@unique([name, journalTemplateId])
 }
 
@@ -1061,7 +1061,7 @@ model JournalTemplate {
   updatedAt          DateTime             @updatedAt
   generalJournalLine generalJournalLine[]
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model generalJournalLine {
@@ -1123,7 +1123,7 @@ model generalJournalLine {
   createdAt                DateTime                    @default(now())
   updatedAt                DateTime                    @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 enum GenPostingType {
@@ -1224,7 +1224,7 @@ model PurchaseReceiptHeader {
   createdAt              DateTime              @default(now())
   updatedAt              DateTime              @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model PurchaseReceiptLine {
@@ -1313,7 +1313,7 @@ model PurchaseReceiptLine {
   createdAt                  DateTime               @default(now())
   updatedAt                  DateTime               @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model VatBusPostingGroup {
@@ -1334,7 +1334,7 @@ model VatBusPostingGroup {
   generalJournalLine generalJournalLine[]
   GeneralLedgerEntry GeneralLedgerEntry[]
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model VatProductPostingGroup {
@@ -1354,7 +1354,7 @@ model VatProductPostingGroup {
   generalJournalLine         generalJournalLine[]
   GeneralLedgerEntry         GeneralLedgerEntry[]
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model VatPostingSetup {
@@ -1375,8 +1375,8 @@ model VatPostingSetup {
   vatBusPostingGroup       VatBusPostingGroup?     @relation(fields: [vatBusPostingGroupId], references: [id])
   createdAt                DateTime                @default(now())
   updatedAt                DateTime                @updatedAt
-  // @@unique([tenantId, companyId])
 
+  @@unique([tenantId, companyId])
   @@unique([vatBusPostingGroupId, vatProductPostingGroupId])
 }
 
@@ -1399,7 +1399,7 @@ model GeneralProductPostingGroup {
   generalJournalLine          generalJournalLine[]
   GeneralLedgerEntry          GeneralLedgerEntry[]
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model GenBusPostingGroup {
@@ -1422,7 +1422,7 @@ model GenBusPostingGroup {
   generalJournalLine      generalJournalLine[]
   GeneralLedgerEntry      GeneralLedgerEntry[]
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model GenPostingSetup {
@@ -1447,8 +1447,8 @@ model GenPostingSetup {
   genBusPostingGroup         GenBusPostingGroup?         @relation(fields: [genBusPostingGroupId], references: [id])
   createdAt                  DateTime                    @default(now())
   updatedAt                  DateTime                    @updatedAt
-  // @@unique([tenantId, companyId])
 
+  @@unique([tenantId, companyId])
   @@unique([genBusPostingGroupId, genProductPostingGroupId])
 }
 
@@ -1466,7 +1466,7 @@ model InventoryPostingGroup {
   updatedAt             DateTime                @updatedAt
   ItemJournalLine       ItemJournalLine[]
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model InventoryPostingSetup {
@@ -1484,8 +1484,8 @@ model InventoryPostingSetup {
   inventoryPostingGroup   InventoryPostingGroup? @relation(fields: [inventoryPostingGroupId], references: [id])
   createdAt               DateTime               @default(now())
   updatedAt               DateTime               @updatedAt
-  // @@unique([tenantId, companyId])
 
+  @@unique([tenantId, companyId])
   @@unique([shopId, inventoryPostingGroupId])
 }
 
@@ -1505,7 +1505,7 @@ model NoSeries {
   updatedAt        DateTime           @updatedAt
   ItemJournalBatch ItemJournalBatch[]
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model NoSeriesLine {
@@ -1528,7 +1528,7 @@ model NoSeriesLine {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model NoSeriesSetup {
@@ -1542,7 +1542,7 @@ model NoSeriesSetup {
   createdAt                   DateTime @default(now())
   updatedAt                   DateTime @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model Tenant {
@@ -1709,7 +1709,7 @@ model companyInformation {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model OnlineOrderSetup {
@@ -1723,7 +1723,7 @@ model OnlineOrderSetup {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model ItemJournalTemplate {
@@ -1743,7 +1743,7 @@ model ItemJournalTemplate {
   createdAt        DateTime                @default(now())
   updatedAt        DateTime                @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model ItemJournalBatch {
@@ -1761,8 +1761,8 @@ model ItemJournalBatch {
   NoSeries              NoSeries?           @relation(fields: [noSeriesId], references: [id])
   createdAt             DateTime            @default(now())
   updatedAt             DateTime            @updatedAt
-  // @@unique([tenantId, companyId])
 
+  @@unique([tenantId, companyId])
   @@unique([name, itemJournalTemplateId])
 }
 
@@ -1825,7 +1825,7 @@ model ItemJournalLine {
   createdAt                DateTime                    @default(now())
   updatedAt                DateTime                    @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 enum ItemJournalEntryType {
@@ -1890,7 +1890,7 @@ model GeneralLedgerEntry {
   createdAt                DateTime                    @default(now())
   updatedAt                DateTime                    @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model BankAccount {
@@ -1928,13 +1928,13 @@ model BankAccount {
   createdAt                 DateTime                 @default(now())
   updatedAt                 DateTime                 @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
   @@unique([tenantId, companyId, bankCode])
 }
 
 model BankAccountPostingGroup {
   id          String        @id @default(auto()) @map("_id") @db.ObjectId
-  code        String
+  code        String        @unique
   description String
   GLAccount   String?
   BankAccount BankAccount[]
@@ -1945,7 +1945,7 @@ model BankAccountPostingGroup {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
   @@unique([tenantId, companyId, code])
 }
 
@@ -1988,7 +1988,7 @@ model BankAccountLedgerEntry {
   createdAt          DateTime                @default(now())
   updatedAt          DateTime                @updatedAt
 
-  // @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId])
 }
 
 model GLAccount {
