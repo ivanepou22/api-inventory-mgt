@@ -2,7 +2,9 @@ import { db } from "@/db/db";
 import { Prisma } from "@prisma/client";
 
 //create a service to create a customer
-export const createCustomer = async (customer: Prisma.CustomerCreateInput) => {
+export const createCustomer = async (
+  customer: Prisma.CustomerUncheckedCreateInput
+) => {
   const {
     customerType,
     name,
@@ -22,11 +24,17 @@ export const createCustomer = async (customer: Prisma.CustomerCreateInput) => {
     regNumber,
     paymentTerms,
     NIN,
+    tenantId,
+    companyId,
   } = customer;
 
   const customerExists = await db.customer.findUnique({
     where: {
       phone,
+      tenantId_companyId: {
+        tenantId,
+        companyId,
+      },
     },
   });
   if (customerExists) {
@@ -39,6 +47,8 @@ export const createCustomer = async (customer: Prisma.CustomerCreateInput) => {
     const customerByEmail = await db.customer.findUnique({
       where: {
         email,
+        tenantId,
+        companyId,
       },
     });
     if (customerByEmail) {
@@ -69,6 +79,8 @@ export const createCustomer = async (customer: Prisma.CustomerCreateInput) => {
         image: image
           ? image
           : "https://utfs.io/f/276c9ec4-bff3-40fc-8759-6b4c362c1e59-o0u7dg.png",
+        companyId,
+        tenantId,
       },
       include: {
         salesPerson: true,
@@ -93,11 +105,15 @@ export const createCustomer = async (customer: Prisma.CustomerCreateInput) => {
 };
 
 //Get all customers
-export const getCustomers = async () => {
+export const getCustomers = async (tenantId: string, companyId: string) => {
   try {
     const customers = await db.customer.findMany({
       orderBy: {
         createdAt: "desc",
+      },
+      where: {
+        tenantId,
+        companyId,
       },
       include: {
         salesPerson: true,
@@ -122,11 +138,17 @@ export const getCustomers = async () => {
 };
 
 //Get a customer by id
-export const getCustomer = async (id: string) => {
+export const getCustomer = async (
+  id: string,
+  tenantId: string,
+  companyId: string
+) => {
   try {
     const customer = await db.customer.findUnique({
       where: {
         id,
+        tenantId,
+        companyId,
       },
       include: {
         salesPerson: true,
@@ -160,7 +182,9 @@ export const getCustomer = async (id: string) => {
 //Update a customer
 export const updateCustomer = async (
   id: string,
-  customer: Prisma.CustomerCreateInput
+  customer: Prisma.CustomerCreateInput,
+  tenantId: string,
+  companyId: string
 ) => {
   const {
     customerType,
@@ -185,7 +209,7 @@ export const updateCustomer = async (
 
   try {
     const customerExists = await db.customer.findUnique({
-      where: { id },
+      where: { id, tenantId, companyId },
       select: { id: true, name: true, phone: true, email: true },
     });
     if (!customerExists) {
@@ -195,6 +219,8 @@ export const updateCustomer = async (
       const customerByPhone = await db.customer.findUnique({
         where: {
           phone,
+          tenantId,
+          companyId,
         },
       });
       if (customerByPhone) {
@@ -208,6 +234,8 @@ export const updateCustomer = async (
       const customerByEmail = await db.customer.findUnique({
         where: {
           email,
+          tenantId,
+          companyId,
         },
       });
       if (customerByEmail) {
@@ -218,7 +246,7 @@ export const updateCustomer = async (
     }
     // Perform the update
     const updatedCustomer = await db.customer.update({
-      where: { id },
+      where: { id, tenantId, companyId },
       data: {
         customerType,
         name,
@@ -265,11 +293,15 @@ export const updateCustomer = async (
 };
 
 //delete
-export const deleteCustomer = async (id: string) => {
+export const deleteCustomer = async (
+  id: string,
+  tenantId: string,
+  companyId: string
+) => {
   try {
     // Check if the customer exists
     const customer = await db.customer.findUnique({
-      where: { id },
+      where: { id, tenantId, companyId },
       select: { id: true },
     });
     if (!customer) {
@@ -277,7 +309,7 @@ export const deleteCustomer = async (id: string) => {
     }
     // Delete the customer
     const deletedCustomer = await db.customer.delete({
-      where: { id },
+      where: { id, tenantId, companyId },
     });
     return {
       data: deletedCustomer,

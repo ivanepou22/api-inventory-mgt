@@ -36,10 +36,10 @@ model Customer {
   genBusPostingGroupId   String?               @db.ObjectId
   vatBusPostingGroupId   String?               @db.ObjectId
   salesPersonId          String?               @db.ObjectId
-  companyId              String?               @db.ObjectId
-  tenantId               String?               @db.ObjectId
-  company                Company?              @relation(fields: [companyId], references: [id])
-  tenant                 Tenant?               @relation(fields: [tenantId], references: [id])
+  companyId              String               @db.ObjectId
+  tenantId               String               @db.ObjectId
+  company                Company              @relation(fields: [companyId], references: [id])
+  tenant                 Tenant               @relation(fields: [tenantId], references: [id])
   salesPerson            SalesPerson?          @relation(fields: [salesPersonId], references: [id])
   customerPostingGroup   CustomerPostingGroup? @relation(fields: [customerPostingGroupId], references: [id])
   genBusPostingGroup     GenBusPostingGroup?   @relation(fields: [genBusPostingGroupId], references: [id])
