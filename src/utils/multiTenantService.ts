@@ -24,58 +24,58 @@ export class MultiTenantService {
     };
   }
 
-  protected async findMany<T>(
-    model: any,
-    args: Prisma.Args<T, "findMany">
+  protected async findMany<T, A>(
+    operation: (args: Prisma.Args<A, "findMany">) => Promise<T[]>,
+    args: Prisma.Args<A, "findMany">
   ): Promise<T[]> {
     const filteredArgs = {
       ...args,
       where: this.applyTenantFilter(args.where || {}),
     };
-    return this.db[model].findMany(filteredArgs);
+    return operation(filteredArgs);
   }
 
-  protected async findUnique<T>(
-    model: any,
-    args: Prisma.Args<T, "findUnique">
+  protected async findUnique<T, A>(
+    operation: (args: Prisma.Args<A, "findUnique">) => Promise<T | null>,
+    args: Prisma.Args<A, "findUnique">
   ): Promise<T | null> {
     const filteredArgs = {
       ...args,
       where: this.applyTenantFilter(args.where),
     };
-    return this.db[model].findUnique(filteredArgs);
+    return operation(filteredArgs);
   }
 
-  protected async create<T>(
-    model: any,
-    args: Prisma.Args<T, "create">
+  protected async create<T, A>(
+    operation: (args: Prisma.Args<A, "create">) => Promise<T>,
+    args: Prisma.Args<A, "create">
   ): Promise<T> {
     const filteredArgs = {
       ...args,
       data: this.applyTenantFilter(args.data),
     };
-    return this.db[model].create(filteredArgs);
+    return operation(filteredArgs);
   }
 
-  protected async update<T>(
-    model: any,
-    args: Prisma.Args<T, "update">
+  protected async update<T, A>(
+    operation: (args: Prisma.Args<A, "update">) => Promise<T>,
+    args: Prisma.Args<A, "update">
   ): Promise<T> {
     const filteredArgs = {
       ...args,
       where: this.applyTenantFilter(args.where),
     };
-    return this.db[model].update(filteredArgs);
+    return operation(filteredArgs);
   }
 
-  protected async delete<T>(
-    model: any,
-    args: Prisma.Args<T, "delete">
+  protected async delete<T, A>(
+    operation: (args: Prisma.Args<A, "delete">) => Promise<T>,
+    args: Prisma.Args<A, "delete">
   ): Promise<T> {
     const filteredArgs = {
       ...args,
       where: this.applyTenantFilter(args.where),
     };
-    return this.db[model].delete(filteredArgs);
+    return operation(filteredArgs);
   }
 }
