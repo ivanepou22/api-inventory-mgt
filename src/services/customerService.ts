@@ -1,336 +1,212 @@
 import { db } from "@/db/db";
-import { Prisma } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
+import { MultiTenantService } from "@/utils/multiTenantService";
 
-//create a service to create a customer
-export const createCustomer = async (
-  customer: Prisma.CustomerUncheckedCreateInput
-) => {
-  const {
-    customerType,
-    name,
-    phone,
-    email,
-    image,
-    country,
-    address,
-    address_2,
-    website,
-    maxCreditLimit,
-    maxCreditDays,
-    contactPerson,
-    contact_phone,
-    contact_email,
-    taxPin,
-    regNumber,
-    paymentTerms,
-    NIN,
-    tenantId,
-    companyId,
-  } = customer;
+class CustomerService extends MultiTenantService {
+  constructor(db: PrismaClient) {
+    super(db);
+  }
 
-  const customerExists = await db.customer.findUnique({
-    where: {
-      phone,
-      tenantId_companyId: {
-        tenantId,
-        companyId,
-      },
-    },
-  });
-  if (customerExists) {
-    throw new Error(
-      `Phone Number: ${phone} is Already in use by another Customer`
+  async createCustomer(customer: Prisma.CustomerUncheckedCreateInput) {
+    const { phone, email } = customer;
+
+    const customerExists = await this.findUnique(
+      (args) => this.db.customer.findUnique(args),
+      { where: { phone } }
     );
-  }
-
-  if (email) {
-    const customerByEmail = await db.customer.findUnique({
-      where: {
-        email,
-        tenantId,
-        companyId,
-      },
-    });
-    if (customerByEmail) {
-      throw new Error(`Email: ${email} is Already in use by another Customer`);
-    }
-  }
-
-  try {
-    const newCustomer = await db.customer.create({
-      data: {
-        customerType,
-        name,
-        phone,
-        email,
-        country,
-        address,
-        address_2,
-        website,
-        maxCreditLimit,
-        maxCreditDays,
-        contactPerson,
-        contact_phone,
-        contact_email,
-        taxPin,
-        regNumber,
-        paymentTerms,
-        NIN,
-        image: image
-          ? image
-          : "https://utfs.io/f/276c9ec4-bff3-40fc-8759-6b4c362c1e59-o0u7dg.png",
-        companyId,
-        tenantId,
-      },
-      include: {
-        salesPerson: true,
-        customerPostingGroup: true,
-        genBusPostingGroup: true,
-        vatBusPostingGroup: true,
-        salesHeaders: true,
-      },
-    });
-    return {
-      data: newCustomer,
-      message: "Customer created successfully",
-    };
-  } catch (error: any) {
-    console.error("Error creating Customer:", error);
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      throw new Error(`An unexpected error occurred. Please try again later.`);
-    } else {
-      throw new Error(error.message);
-    }
-  }
-};
-
-//Get all customers
-export const getCustomers = async (tenantId: string, companyId: string) => {
-  try {
-    const customers = await db.customer.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
-      where: {
-        tenantId,
-        companyId,
-      },
-      include: {
-        salesPerson: true,
-        customerPostingGroup: true,
-        genBusPostingGroup: true,
-        vatBusPostingGroup: true,
-        salesHeaders: true,
-      },
-    });
-    return {
-      data: customers,
-      message: "Customers fetched successfully",
-    };
-  } catch (error: any) {
-    console.log(error.message);
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      throw new Error(`An unexpected error occurred. Please try again later.`);
-    } else {
-      throw new Error(`An unexpected error occurred. Please try again later.`);
-    }
-  }
-};
-
-//Get a customer by id
-export const getCustomer = async (
-  id: string,
-  tenantId: string,
-  companyId: string
-) => {
-  try {
-    const customer = await db.customer.findUnique({
-      where: {
-        id,
-        tenantId,
-        companyId,
-      },
-      include: {
-        salesPerson: true,
-        customerPostingGroup: true,
-        genBusPostingGroup: true,
-        vatBusPostingGroup: true,
-        salesHeaders: true,
-      },
-    });
-
-    if (!customer) {
-      throw new Error("Customer not found.");
-    }
-
-    return {
-      data: customer,
-      message: "Customer fetched successfully",
-    };
-  } catch (error: any) {
-    console.log(error);
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    if (customerExists) {
       throw new Error(
-        `The provided ID "${id}" is invalid. It must be a 12-byte hexadecimal string, but it is 25 characters long.`
+        `Phone Number: ${phone} is already in use by another Customer`
       );
-    } else {
-      throw new Error(error.message);
-    }
-  }
-};
-
-//Update a customer
-export const updateCustomer = async (
-  id: string,
-  customer: Prisma.CustomerCreateInput,
-  tenantId: string,
-  companyId: string
-) => {
-  const {
-    customerType,
-    name,
-    phone,
-    email,
-    image,
-    country,
-    address,
-    address_2,
-    website,
-    maxCreditLimit,
-    maxCreditDays,
-    contactPerson,
-    contact_phone,
-    contact_email,
-    taxPin,
-    regNumber,
-    paymentTerms,
-    NIN,
-  } = customer;
-
-  try {
-    const customerExists = await db.customer.findUnique({
-      where: { id, tenantId, companyId },
-      select: { id: true, name: true, phone: true, email: true },
-    });
-    if (!customerExists) {
-      throw new Error("Customer not found.");
-    }
-    if (phone && phone !== customerExists.phone) {
-      const customerByPhone = await db.customer.findUnique({
-        where: {
-          phone,
-          tenantId,
-          companyId,
-        },
-      });
-      if (customerByPhone) {
-        throw new Error(
-          `Phone Number: ${phone} is Already in use by another Customer`
-        );
-      }
     }
 
-    if (email && email !== customerExists.email) {
-      const customerByEmail = await db.customer.findUnique({
-        where: {
-          email,
-          tenantId,
-          companyId,
-        },
-      });
+    if (email) {
+      const customerByEmail = await this.findUnique(
+        (args) => this.db.customer.findUnique(args),
+        { where: { email } }
+      );
       if (customerByEmail) {
         throw new Error(
-          `Email: ${email} is Already in use by another Customer`
+          `Email: ${email} is already in use by another Customer`
         );
       }
     }
-    // Perform the update
-    const updatedCustomer = await db.customer.update({
-      where: { id, tenantId, companyId },
-      data: {
-        customerType,
-        name,
-        phone,
-        email,
-        image,
-        country,
-        address,
-        address_2,
-        website,
-        maxCreditLimit,
-        maxCreditDays,
-        contactPerson,
-        contact_phone,
-        contact_email,
-        taxPin,
-        regNumber,
-        paymentTerms,
-        NIN,
-      },
-      include: {
-        salesPerson: true,
-        customerPostingGroup: true,
-        genBusPostingGroup: true,
-        vatBusPostingGroup: true,
-        salesHeaders: true,
-      },
-    });
 
-    return {
-      data: updatedCustomer,
-      message: "Customer created Successfully.",
-    };
-  } catch (error: any) {
-    console.error(error);
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      throw new Error(
-        `The provided ID "${id}" is invalid. It must be a 12-byte hexadecimal string, but it is 25 characters long.`
+    try {
+      const newCustomer = await this.create(
+        (args) => this.db.customer.create(args),
+        {
+          data: {
+            ...customer,
+            image:
+              customer.image ||
+              "https://utfs.io/f/276c9ec4-bff3-40fc-8759-6b4c362c1e59-o0u7dg.png",
+          },
+          include: {
+            salesPerson: true,
+            customerPostingGroup: true,
+            genBusPostingGroup: true,
+            vatBusPostingGroup: true,
+            salesHeaders: true,
+          },
+        }
       );
-    } else {
+      return {
+        data: newCustomer,
+        message: "Customer created successfully",
+      };
+    } catch (error: any) {
+      console.error("Error creating Customer:", error);
+      throw new Error(`An unexpected error occurred. Please try again later.`);
+    }
+  }
+
+  async getCustomers() {
+    try {
+      const customers = await this.findMany(
+        (args) => this.db.customer.findMany(args),
+        {
+          orderBy: {
+            createdAt: "desc",
+          },
+          include: {
+            salesPerson: true,
+            customerPostingGroup: true,
+            genBusPostingGroup: true,
+            vatBusPostingGroup: true,
+            salesHeaders: true,
+          },
+        }
+      );
+      return {
+        data: customers,
+        message: "Customers fetched successfully",
+      };
+    } catch (error: any) {
+      console.log(error.message);
+      throw new Error(`An unexpected error occurred. Please try again later.`);
+    }
+  }
+
+  async getCustomer(id: string) {
+    try {
+      const customer = await this.findUnique(
+        (args) => this.db.customer.findUnique(args),
+        {
+          where: { id },
+          include: {
+            salesPerson: true,
+            customerPostingGroup: true,
+            genBusPostingGroup: true,
+            vatBusPostingGroup: true,
+            salesHeaders: true,
+          },
+        }
+      );
+
+      if (!customer) {
+        throw new Error("Customer not found.");
+      }
+
+      return {
+        data: customer,
+        message: "Customer fetched successfully",
+      };
+    } catch (error: any) {
+      console.log(error);
       throw new Error(error.message);
     }
   }
-};
 
-//delete
-export const deleteCustomer = async (
-  id: string,
-  tenantId: string,
-  companyId: string
-) => {
-  try {
-    // Check if the customer exists
-    const customer = await db.customer.findUnique({
-      where: { id, tenantId, companyId },
-      select: { id: true },
-    });
-    if (!customer) {
-      throw new Error("Customer not found.");
-    }
-    // Delete the customer
-    const deletedCustomer = await db.customer.delete({
-      where: { id, tenantId, companyId },
-    });
-    return {
-      data: deletedCustomer,
-      message: `Customer deleted successfully`,
-    };
-  } catch (error: any) {
-    console.error(error);
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      throw new Error(
-        `The provided ID "${id}" is invalid. It must be a 12-byte hexadecimal string, but it is 25 characters long.`
+  async updateCustomer(id: string, customerData: Prisma.CustomerCreateInput) {
+    const { phone, email } = customerData;
+
+    try {
+      const customerExists = await this.findUnique(
+        (args) => this.db.customer.findUnique(args),
+        {
+          where: { id },
+          select: { id: true, name: true, phone: true, email: true },
+        }
       );
-    } else {
+      if (!customerExists) {
+        throw new Error("Customer not found.");
+      }
+      if (phone && phone !== customerExists.phone) {
+        const customerByPhone = await this.findUnique(
+          (args) => this.db.customer.findUnique(args),
+          { where: { phone } }
+        );
+        if (customerByPhone) {
+          throw new Error(
+            `Phone Number: ${phone} is already in use by another Customer`
+          );
+        }
+      }
+
+      if (email && email !== customerExists.email) {
+        const customerByEmail = await this.findUnique(
+          (args) => this.db.customer.findUnique(args),
+          { where: { email } }
+        );
+        if (customerByEmail) {
+          throw new Error(
+            `Email: ${email} is already in use by another Customer`
+          );
+        }
+      }
+
+      const updatedCustomer = await this.update(
+        (args) => this.db.customer.update(args),
+        {
+          where: { id },
+          data: customerData,
+          include: {
+            salesPerson: true,
+            customerPostingGroup: true,
+            genBusPostingGroup: true,
+            vatBusPostingGroup: true,
+            salesHeaders: true,
+          },
+        }
+      );
+
+      return {
+        data: updatedCustomer,
+        message: "Customer updated successfully.",
+      };
+    } catch (error: any) {
+      console.error(error);
       throw new Error(error.message);
     }
   }
-};
 
-export const customerService = {
-  createCustomer,
-  getCustomers,
-  getCustomer,
-  updateCustomer,
-  deleteCustomer,
-};
+  async deleteCustomer(id: string) {
+    try {
+      const customer = await this.findUnique(
+        (args) => this.db.customer.findUnique(args),
+        {
+          where: { id },
+          select: { id: true },
+        }
+      );
+      if (!customer) {
+        throw new Error("Customer not found.");
+      }
+      const deletedCustomer = await this.delete(
+        (args) => this.db.customer.delete(args),
+        { where: { id } }
+      );
+      return {
+        data: deletedCustomer,
+        message: `Customer deleted successfully`,
+      };
+    } catch (error: any) {
+      console.error(error);
+      throw new Error(error.message);
+    }
+  }
+}
+
+// Export the service
+export const customerService = new CustomerService(db);
