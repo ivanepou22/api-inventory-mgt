@@ -1,10 +1,10 @@
 import express from "express";
 import {
   createCustomer,
-  deleteCustomer,
-  getCustomer,
   getCustomers,
+  getCustomer,
   updateCustomer,
+  deleteCustomer,
 } from "@/controllers/customerController";
 const customerRouter = express.Router();
 
