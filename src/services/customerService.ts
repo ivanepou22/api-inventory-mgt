@@ -1,6 +1,9 @@
 import { db } from "@/db/db";
 import { Prisma, PrismaClient } from "@prisma/client";
-import { MultiTenantService } from "@/utils/multiTenantService";
+import {
+  MultiTenantService,
+  createMultiTenantService,
+} from "../utils/multiTenantService";
 
 class CustomerService extends MultiTenantService {
   constructor(db: PrismaClient) {
@@ -209,4 +212,6 @@ class CustomerService extends MultiTenantService {
 }
 
 // Export the service
-export const customerService = new CustomerService(db);
+export const createCustomerService = (): CustomerService => {
+  return new CustomerService(db);
+};

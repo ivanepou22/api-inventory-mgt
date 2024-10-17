@@ -6,10 +6,12 @@ export class MultiTenantService {
   protected tenantId: string;
   protected companyId: string;
 
-  constructor(db: PrismaClient, tenantId: string, companyId: string) {
+  constructor(db: PrismaClient) {
     this.db = db;
-    this.tenantId = tenantId;
-    this.companyId = companyId;
+    const context = TenantContextManager.getInstance().getContext();
+    if (!context) throw new Error("Tenant context not set");
+    this.tenantId = context.tenantId;
+    this.companyId = context.companyId;
   }
 
   protected applyTenantFilter<T extends Record<string, any>>(
@@ -81,7 +83,5 @@ export class MultiTenantService {
 export const createMultiTenantService = (
   db: PrismaClient
 ): MultiTenantService => {
-  const context = TenantContextManager.getInstance().getContext();
-  if (!context) throw new Error("Tenant context not set");
-  return new MultiTenantService(db, context.tenantId, context.companyId);
+  return new MultiTenantService(db);
 };
