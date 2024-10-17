@@ -36,10 +36,12 @@ model Customer {
   genBusPostingGroupId   String?               @db.ObjectId
   vatBusPostingGroupId   String?               @db.ObjectId
   salesPersonId          String?               @db.ObjectId
-  companyId              String               @db.ObjectId
-  tenantId               String               @db.ObjectId
-  company                Company              @relation(fields: [companyId], references: [id])
-  tenant                 Tenant               @relation(fields: [tenantId], references: [id])
+  companyId              String                @db.ObjectId
+  tenantId               String                @db.ObjectId
+  userId                 String                @db.ObjectId
+  user                   User                  @relation(fields: [userId], references: [id])
+  company                Company               @relation(fields: [companyId], references: [id])
+  tenant                 Tenant                @relation(fields: [tenantId], references: [id])
   salesPerson            SalesPerson?          @relation(fields: [salesPersonId], references: [id])
   customerPostingGroup   CustomerPostingGroup? @relation(fields: [customerPostingGroupId], references: [id])
   genBusPostingGroup     GenBusPostingGroup?   @relation(fields: [genBusPostingGroupId], references: [id])
@@ -61,6 +63,8 @@ model SalesPerson {
   SalesHeader SalesHeader[]
   companyId   String?       @db.ObjectId
   tenantId    String?       @db.ObjectId
+  userId      String        @db.ObjectId
+  user        User          @relation(fields: [userId], references: [id])
   company     Company?      @relation(fields: [companyId], references: [id])
   tenant      Tenant?       @relation(fields: [tenantId], references: [id])
   createdAt   DateTime      @default(now())
@@ -79,29 +83,83 @@ enum CustomerType {
 }
 
 model User {
-  id               String        @id @default(auto()) @map("_id") @db.ObjectId
-  email            String        @unique
-  username         String        @unique
-  password         String
-  firstName        String
-  lastName         String
-  phone            String        @unique
-  dob              DateTime?
-  gender           Gender
-  image            String?
-  role             Role          @default(ATTENDANT)
-  isVerfied        Boolean       @default(false)
-  resetToken       String?
-  resetTokenExpiry DateTime?
-  salesHeaders     SalesHeader[]
-  ShopAdmins       Shop[]        @relation("ShopAdmins")
-  ShopAttendants   Shop[]        @relation("ShopAttendants")
-  companyId        String?       @db.ObjectId
-  tenantId         String?       @db.ObjectId
-  company          Company?      @relation(fields: [companyId], references: [id])
-  tenant           Tenant?       @relation(fields: [tenantId], references: [id])
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
+  id                         String                       @id @default(auto()) @map("_id") @db.ObjectId
+  email                      String                       @unique
+  username                   String                       @unique
+  password                   String
+  firstName                  String
+  lastName                   String
+  phone                      String                       @unique
+  dob                        DateTime?
+  gender                     Gender
+  image                      String?
+  role                       Role                         @default(ATTENDANT)
+  isVerfied                  Boolean                      @default(false)
+  resetToken                 String?
+  resetTokenExpiry           DateTime?
+  salesHeaders               SalesHeader[]
+  ShopAdmins                 Shop[]                       @relation("ShopAdmins")
+  ShopAttendants             Shop[]                       @relation("ShopAttendants")
+  companyId                  String?                      @db.ObjectId
+  tenantId                   String?                      @db.ObjectId
+  company                    Company?                     @relation(fields: [companyId], references: [id])
+  tenant                     Tenant?                      @relation(fields: [tenantId], references: [id])
+  createdAt                  DateTime                     @default(now())
+  updatedAt                  DateTime                     @updatedAt
+  Customer                   Customer[]
+  SalesPerson                SalesPerson[]
+  Supplier                   Supplier[]
+  Unit                       Unit[]
+  Brand                      Brand[]
+  Category                   Category[]
+  Product                    Product[]
+  SeoMeta                    SeoMeta[]
+  ProductVariant             ProductVariant[]
+  StockHistory               StockHistory[]
+  ProductRelation            ProductRelation[]
+  Discount                   Discount[]
+  ProductTag                 ProductTag[]
+  Tag                        Tag[]
+  ProductVersion             ProductVersion[]
+  SalesLine                  SalesLine[]
+  OrderPayment               OrderPayment[]
+  Expense                    Expense[]
+  ExpenseCategory            ExpenseCategory[]
+  Payee                      Payee[]
+  Notification               Notification[]
+  Adjustment                 Adjustment[]
+  AdjustmentLine             AdjustmentLine[]
+  PurchaseHeader             PurchaseHeader[]
+  PurchaseLine               PurchaseLine[]
+  SupplierLedgerEntry        SupplierLedgerEntry[]
+  VendorPostingGroup         VendorPostingGroup[]
+  CustomerPostingGroup       CustomerPostingGroup[]
+  JournalBatch               JournalBatch[]
+  JournalTemplate            JournalTemplate[]
+  generalJournalLine         generalJournalLine[]
+  PurchaseReceiptHeader      PurchaseReceiptHeader[]
+  PurchaseReceiptLine        PurchaseReceiptLine[]
+  VatBusPostingGroup         VatBusPostingGroup[]
+  VatProductPostingGroup     VatProductPostingGroup[]
+  VatPostingSetup            VatPostingSetup[]
+  GeneralProductPostingGroup GeneralProductPostingGroup[]
+  GenBusPostingGroup         GenBusPostingGroup[]
+  GenPostingSetup            GenPostingSetup[]
+  InventoryPostingGroup      InventoryPostingGroup[]
+  InventoryPostingSetup      InventoryPostingSetup[]
+  NoSeries                   NoSeries[]
+  NoSeriesLine               NoSeriesLine[]
+  NoSeriesSetup              NoSeriesSetup[]
+  companyInformation         companyInformation[]
+  OnlineOrderSetup           OnlineOrderSetup[]
+  ItemJournalTemplate        ItemJournalTemplate[]
+  ItemJournalBatch           ItemJournalBatch[]
+  ItemJournalLine            ItemJournalLine[]
+  GeneralLedgerEntry         GeneralLedgerEntry[]
+  BankAccount                BankAccount[]
+  BankAccountPostingGroup    BankAccountPostingGroup[]
+  BankAccountLedgerEntry     BankAccountLedgerEntry[]
+  GLAccount                  GLAccount[]
 
   @@unique([tenantId, companyId])
 }
@@ -179,6 +237,8 @@ model Supplier {
   vatBusPostingGroupId   String?                 @db.ObjectId
   companyId              String?                 @db.ObjectId
   tenantId               String?                 @db.ObjectId
+  userId                 String                  @db.ObjectId
+  user                   User                    @relation(fields: [userId], references: [id])
   company                Company?                @relation(fields: [companyId], references: [id])
   tenant                 Tenant?                 @relation(fields: [tenantId], references: [id])
   vendorPostingGroup     VendorPostingGroup?     @relation(fields: [vendorPostingGroupId], references: [id])
@@ -210,6 +270,8 @@ model Unit {
   PurchaseReceiptLines PurchaseReceiptLine[]
   companyId            String?               @db.ObjectId
   tenantId             String?               @db.ObjectId
+  userId               String                @db.ObjectId
+  user                 User                  @relation(fields: [userId], references: [id])
   company              Company?              @relation(fields: [companyId], references: [id])
   tenant               Tenant?               @relation(fields: [tenantId], references: [id])
   createdAt            DateTime              @default(now())
@@ -227,6 +289,8 @@ model Brand {
   products  Product[]
   companyId String    @db.ObjectId
   tenantId  String    @db.ObjectId
+  userId    String    @db.ObjectId
+  user      User      @relation(fields: [userId], references: [id])
   company   Company   @relation(fields: [companyId], references: [id])
   tenant    Tenant    @relation(fields: [tenantId], references: [id])
   createdAt DateTime  @default(now())
@@ -243,6 +307,8 @@ model Category {
   products  Product[]
   companyId String    @db.ObjectId
   tenantId  String    @db.ObjectId
+  userId    String    @db.ObjectId
+  user      User      @relation(fields: [userId], references: [id])
   company   Company   @relation(fields: [companyId], references: [id])
   tenant    Tenant    @relation(fields: [tenantId], references: [id])
   createdAt DateTime  @default(now())
@@ -293,6 +359,8 @@ model Product {
   PurchaseLines                PurchaseLine[]
   companyId                    String?                     @db.ObjectId
   tenantId                     String?                     @db.ObjectId
+  userId                       String                      @db.ObjectId
+  user                         User                        @relation(fields: [userId], references: [id])
   company                      Company?                    @relation(fields: [companyId], references: [id])
   tenant                       Tenant?                     @relation(fields: [tenantId], references: [id])
   InventoryPostingGroup        InventoryPostingGroup?      @relation(fields: [inventoryPostingGroupId], references: [id])
@@ -318,6 +386,8 @@ model SeoMeta {
   metaKeywords    String?
   companyId       String   @db.ObjectId
   tenantId        String   @db.ObjectId
+  userId          String   @db.ObjectId
+  user            User     @relation(fields: [userId], references: [id])
   company         Company  @relation(fields: [companyId], references: [id])
   tenant          Tenant   @relation(fields: [tenantId], references: [id])
   product         Product  @relation(fields: [productId], references: [id])
@@ -338,6 +408,8 @@ model ProductVariant {
   barCode     String?  @unique
   companyId   String?  @db.ObjectId
   tenantId    String?  @db.ObjectId
+  userId      String   @db.ObjectId
+  user        User     @relation(fields: [userId], references: [id])
   company     Company? @relation(fields: [companyId], references: [id])
   tenant      Tenant?  @relation(fields: [tenantId], references: [id])
   product     Product  @relation(fields: [productId], references: [id])
@@ -371,6 +443,8 @@ model StockHistory {
   referenceNo  String?
   companyId    String?                   @db.ObjectId
   tenantId     String?                   @db.ObjectId
+  userId       String                    @db.ObjectId
+  user         User                      @relation(fields: [userId], references: [id])
   company      Company?                  @relation(fields: [companyId], references: [id])
   tenant       Tenant?                   @relation(fields: [tenantId], references: [id])
   product      Product                   @relation(fields: [productId], references: [id])
@@ -423,6 +497,8 @@ model ProductRelation {
   relationType     String // Upsell, Cross-sell, etc.
   companyId        String   @db.ObjectId
   tenantId         String   @db.ObjectId
+  userId           String   @db.ObjectId
+  user             User     @relation(fields: [userId], references: [id])
   company          Company  @relation(fields: [companyId], references: [id])
   tenant           Tenant   @relation(fields: [tenantId], references: [id])
   product          Product  @relation(fields: [productId], references: [id])
@@ -441,6 +517,8 @@ model Discount {
   active             Boolean  @default(true)
   companyId          String   @db.ObjectId
   tenantId           String   @db.ObjectId
+  userId             String   @db.ObjectId
+  user               User     @relation(fields: [userId], references: [id])
   company            Company  @relation(fields: [companyId], references: [id])
   tenant             Tenant   @relation(fields: [tenantId], references: [id])
   product            Product  @relation(fields: [productId], references: [id])
@@ -456,6 +534,8 @@ model ProductTag {
   tagId     String   @db.ObjectId
   companyId String   @db.ObjectId
   tenantId  String   @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
   company   Company  @relation(fields: [companyId], references: [id])
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
   tag       Tag      @relation(fields: [tagId], references: [id])
@@ -474,6 +554,8 @@ model Tag {
   productTags ProductTag[]
   companyId   String       @db.ObjectId
   tenantId    String       @db.ObjectId
+  userId      String       @db.ObjectId
+  user        User         @relation(fields: [userId], references: [id])
   company     Company      @relation(fields: [companyId], references: [id])
   tenant      Tenant       @relation(fields: [tenantId], references: [id])
   createdAt   DateTime     @default(now())
@@ -489,6 +571,8 @@ model ProductVersion {
   changes   Json
   companyId String   @db.ObjectId
   tenantId  String   @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
   company   Company  @relation(fields: [companyId], references: [id])
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
   product   Product  @relation(fields: [productId], references: [id])
@@ -559,6 +643,8 @@ model SalesLine {
   total         Float
   companyId     String?     @db.ObjectId
   tenantId      String?     @db.ObjectId
+  userId        String      @db.ObjectId
+  user          User        @relation(fields: [userId], references: [id])
   company       Company?    @relation(fields: [companyId], references: [id])
   tenant        Tenant?     @relation(fields: [tenantId], references: [id])
   salesHeader   SalesHeader @relation(fields: [salesHeaderId], references: [id])
@@ -586,6 +672,8 @@ model OrderPayment {
   paymentDate   DateTime?
   companyId     String?       @db.ObjectId
   tenantId      String?       @db.ObjectId
+  userId        String        @db.ObjectId
+  user          User          @relation(fields: [userId], references: [id])
   company       Company?      @relation(fields: [companyId], references: [id])
   tenant        Tenant?       @relation(fields: [tenantId], references: [id])
   salesHeader   SalesHeader   @relation(fields: [salesHeaderId], references: [id])
@@ -621,6 +709,8 @@ model Expense {
   payeeId           String?          @db.ObjectId
   companyId         String?          @db.ObjectId
   tenantId          String?          @db.ObjectId
+  userId            String           @db.ObjectId
+  user              User             @relation(fields: [userId], references: [id])
   company           Company?         @relation(fields: [companyId], references: [id])
   tenant            Tenant?          @relation(fields: [tenantId], references: [id])
   shop              Shop             @relation(fields: [shopId], references: [id])
@@ -639,6 +729,8 @@ model ExpenseCategory {
   expenses  Expense[]
   companyId String    @db.ObjectId
   tenantId  String    @db.ObjectId
+  userId    String    @db.ObjectId
+  user      User      @relation(fields: [userId], references: [id])
   company   Company   @relation(fields: [companyId], references: [id])
   tenant    Tenant    @relation(fields: [tenantId], references: [id])
   createdAt DateTime  @default(now())
@@ -655,6 +747,8 @@ model Payee {
   expenses  Expense[]
   companyId String    @db.ObjectId
   tenantId  String    @db.ObjectId
+  userId    String    @db.ObjectId
+  user      User      @relation(fields: [userId], references: [id])
   company   Company   @relation(fields: [companyId], references: [id])
   tenant    Tenant    @relation(fields: [tenantId], references: [id])
   createdAt DateTime  @default(now())
@@ -682,6 +776,8 @@ model Notification {
   status    NotificationStatus @default(UNREAD)
   companyId String             @db.ObjectId
   tenantId  String             @db.ObjectId
+  userId    String             @db.ObjectId
+  user      User               @relation(fields: [userId], references: [id])
   company   Company            @relation(fields: [companyId], references: [id])
   tenant    Tenant             @relation(fields: [tenantId], references: [id])
   createdAt DateTime           @default(now())
@@ -699,6 +795,8 @@ model Adjustment {
   adjustmentLines AdjustmentLine[]
   companyId       String?            @db.ObjectId
   tenantId        String?            @db.ObjectId
+  userId          String             @db.ObjectId
+  user            User               @relation(fields: [userId], references: [id])
   company         Company?           @relation(fields: [companyId], references: [id])
   tenant          Tenant?            @relation(fields: [tenantId], references: [id])
   createdAt       DateTime           @default(now())
@@ -728,6 +826,8 @@ model AdjustmentLine {
   entryNo      Int                     @default(0)
   companyId    String                  @db.ObjectId
   tenantId     String                  @db.ObjectId
+  userId       String                  @db.ObjectId
+  user         User                    @relation(fields: [userId], references: [id])
   company      Company                 @relation(fields: [companyId], references: [id])
   tenant       Tenant                  @relation(fields: [tenantId], references: [id])
   adjustment   Adjustment              @relation(fields: [adjustmentId], references: [id])
@@ -796,6 +896,8 @@ model PurchaseHeader {
   locationCode        String?                @db.ObjectId
   companyId           String?                @db.ObjectId
   tenantId            String?                @db.ObjectId
+  userId              String                 @db.ObjectId
+  user                User                   @relation(fields: [userId], references: [id])
   company             Company?               @relation(fields: [companyId], references: [id])
   tenant              Tenant?                @relation(fields: [tenantId], references: [id])
   Shop                Shop?                  @relation(fields: [locationCode], references: [id])
@@ -849,6 +951,8 @@ model PurchaseLine {
   productSlug         String?
   companyId           String?              @db.ObjectId
   tenantId            String?              @db.ObjectId
+  userId              String               @db.ObjectId
+  user                User                 @relation(fields: [userId], references: [id])
   company             Company?             @relation(fields: [companyId], references: [id])
   tenant              Tenant?              @relation(fields: [tenantId], references: [id])
   Product             Product?             @relation(fields: [productId], references: [id])
@@ -979,6 +1083,8 @@ model SupplierLedgerEntry {
   positive                  Boolean
   companyId                 String?                  @db.ObjectId
   tenantId                  String?                  @db.ObjectId
+  userId                    String                   @db.ObjectId
+  user                      User                     @relation(fields: [userId], references: [id])
   company                   Company?                 @relation(fields: [companyId], references: [id])
   tenant                    Tenant?                  @relation(fields: [tenantId], references: [id])
   purchaseHeader            PurchaseHeader?          @relation(fields: [purchaseHeaderId], references: [id])
@@ -1000,6 +1106,8 @@ model VendorPostingGroup {
   Supplier              Supplier[]
   companyId             String?                 @db.ObjectId
   tenantId              String?                 @db.ObjectId
+  userId                String                  @db.ObjectId
+  user                  User                    @relation(fields: [userId], references: [id])
   company               Company?                @relation(fields: [companyId], references: [id])
   tenant                Tenant?                 @relation(fields: [tenantId], references: [id])
   createdAt             DateTime                @default(now())
@@ -1016,6 +1124,8 @@ model CustomerPostingGroup {
   Customer          Customer[]
   companyId         String?    @db.ObjectId
   tenantId          String?    @db.ObjectId
+  userId            String     @db.ObjectId
+  user              User       @relation(fields: [userId], references: [id])
   company           Company?   @relation(fields: [companyId], references: [id])
   tenant            Tenant?    @relation(fields: [tenantId], references: [id])
   createdAt         DateTime   @default(now())
@@ -1032,6 +1142,8 @@ model JournalBatch {
   noSeriesId         String?              @db.ObjectId
   companyId          String               @db.ObjectId
   tenantId           String               @db.ObjectId
+  userId             String               @db.ObjectId
+  user               User                 @relation(fields: [userId], references: [id])
   company            Company              @relation(fields: [companyId], references: [id])
   tenant             Tenant               @relation(fields: [tenantId], references: [id])
   journalTemplate    JournalTemplate      @relation(fields: [journalTemplateId], references: [id])
@@ -1055,6 +1167,8 @@ model JournalTemplate {
   JournalBatch       JournalBatch[]
   companyId          String               @db.ObjectId
   tenantId           String               @db.ObjectId
+  userId             String               @db.ObjectId
+  user               User                 @relation(fields: [userId], references: [id])
   company            Company              @relation(fields: [companyId], references: [id])
   tenant             Tenant               @relation(fields: [tenantId], references: [id])
   createdAt          DateTime             @default(now())
@@ -1112,6 +1226,8 @@ model generalJournalLine {
   dimension10              String?
   companyId                String                      @db.ObjectId
   tenantId                 String                      @db.ObjectId
+  userId                   String                      @db.ObjectId
+  user                     User                        @relation(fields: [userId], references: [id])
   company                  Company                     @relation(fields: [companyId], references: [id])
   tenant                   Tenant                      @relation(fields: [tenantId], references: [id])
   JournalTemplate          JournalTemplate             @relation(fields: [journalTemplateId], references: [id])
@@ -1216,6 +1332,8 @@ model PurchaseReceiptHeader {
   purchaseReceiptLines   PurchaseReceiptLine[]
   companyId              String?               @db.ObjectId
   tenantId               String?               @db.ObjectId
+  userId                 String                @db.ObjectId
+  user                   User                  @relation(fields: [userId], references: [id])
   company                Company?              @relation(fields: [companyId], references: [id])
   tenant                 Tenant?               @relation(fields: [tenantId], references: [id])
   Shop                   Shop?                 @relation(fields: [locationCode], references: [id])
@@ -1303,6 +1421,8 @@ model PurchaseReceiptLine {
   productSlug                String?
   companyId                  String?                @db.ObjectId
   tenantId                   String?                @db.ObjectId
+  userId                     String                 @db.ObjectId
+  user                       User                   @relation(fields: [userId], references: [id])
   company                    Company?               @relation(fields: [companyId], references: [id])
   tenant                     Tenant?                @relation(fields: [tenantId], references: [id])
   Product                    Product?               @relation(fields: [productId], references: [id])
@@ -1326,6 +1446,8 @@ model VatBusPostingGroup {
   GenBusPostingGroup GenBusPostingGroup[]
   companyId          String?              @db.ObjectId
   tenantId           String?              @db.ObjectId
+  userId             String               @db.ObjectId
+  user               User                 @relation(fields: [userId], references: [id])
   company            Company?             @relation(fields: [companyId], references: [id])
   tenant             Tenant?              @relation(fields: [tenantId], references: [id])
   createdAt          DateTime             @default(now())
@@ -1346,6 +1468,8 @@ model VatProductPostingGroup {
   GeneralProductPostingGroup GeneralProductPostingGroup[]
   companyId                  String?                      @db.ObjectId
   tenantId                   String?                      @db.ObjectId
+  userId                     String                       @db.ObjectId
+  user                       User                         @relation(fields: [userId], references: [id])
   company                    Company?                     @relation(fields: [companyId], references: [id])
   tenant                     Tenant?                      @relation(fields: [tenantId], references: [id])
   createdAt                  DateTime                     @default(now())
@@ -1369,6 +1493,8 @@ model VatPostingSetup {
   blocked                  Boolean?                @default(false)
   companyId                String?                 @db.ObjectId
   tenantId                 String?                 @db.ObjectId
+  userId                   String                  @db.ObjectId
+  user                     User                    @relation(fields: [userId], references: [id])
   company                  Company?                @relation(fields: [companyId], references: [id])
   tenant                   Tenant?                 @relation(fields: [tenantId], references: [id])
   vatProductPostingGroup   VatProductPostingGroup? @relation(fields: [vatProductPostingGroupId], references: [id])
@@ -1390,6 +1516,8 @@ model GeneralProductPostingGroup {
   Product                     Product[]
   companyId                   String?                 @db.ObjectId
   tenantId                    String?                 @db.ObjectId
+  userId                      String                  @db.ObjectId
+  user                        User                    @relation(fields: [userId], references: [id])
   company                     Company?                @relation(fields: [companyId], references: [id])
   tenant                      Tenant?                 @relation(fields: [tenantId], references: [id])
   vatProductPostingGroup      VatProductPostingGroup? @relation(fields: [defVatProductPostingGroupId], references: [id])
@@ -1413,6 +1541,8 @@ model GenBusPostingGroup {
   Customer                Customer[]
   companyId               String?              @db.ObjectId
   tenantId                String?              @db.ObjectId
+  userId                  String               @db.ObjectId
+  user                    User                 @relation(fields: [userId], references: [id])
   company                 Company?             @relation(fields: [companyId], references: [id])
   tenant                  Tenant?              @relation(fields: [tenantId], references: [id])
   vatBusPostingGroup      VatBusPostingGroup?  @relation(fields: [defVatBusPostingGroupId], references: [id])
@@ -1441,6 +1571,8 @@ model GenPostingSetup {
   inventoryAdjustmentAccount String?
   companyId                  String?                     @db.ObjectId
   tenantId                   String?                     @db.ObjectId
+  userId                     String                      @db.ObjectId
+  user                       User                        @relation(fields: [userId], references: [id])
   company                    Company?                    @relation(fields: [companyId], references: [id])
   tenant                     Tenant?                     @relation(fields: [tenantId], references: [id])
   genProductPostingGroup     GeneralProductPostingGroup? @relation(fields: [genProductPostingGroupId], references: [id])
@@ -1460,6 +1592,8 @@ model InventoryPostingGroup {
   Product               Product[]
   companyId             String                  @db.ObjectId
   tenantId              String                  @db.ObjectId
+  userId                String                  @db.ObjectId
+  user                  User                    @relation(fields: [userId], references: [id])
   company               Company                 @relation(fields: [companyId], references: [id])
   tenant                Tenant                  @relation(fields: [tenantId], references: [id])
   createdAt             DateTime                @default(now())
@@ -1478,6 +1612,8 @@ model InventoryPostingSetup {
   inventoryAccount        String?
   companyId               String?                @db.ObjectId
   tenantId                String?                @db.ObjectId
+  userId                  String                 @db.ObjectId
+  user                    User                   @relation(fields: [userId], references: [id])
   company                 Company?               @relation(fields: [companyId], references: [id])
   tenant                  Tenant?                @relation(fields: [tenantId], references: [id])
   shop                    Shop?                  @relation(fields: [shopId], references: [id])
@@ -1499,6 +1635,8 @@ model NoSeries {
   JournalBatch     JournalBatch[]
   companyId        String             @db.ObjectId
   tenantId         String             @db.ObjectId
+  userId           String             @db.ObjectId
+  user             User               @relation(fields: [userId], references: [id])
   company          Company            @relation(fields: [companyId], references: [id])
   tenant           Tenant             @relation(fields: [tenantId], references: [id])
   createdAt        DateTime           @default(now())
@@ -1522,6 +1660,8 @@ model NoSeriesLine {
   increment     Int?      @default(1)
   companyId     String    @db.ObjectId
   tenantId      String    @db.ObjectId
+  userId        String    @db.ObjectId
+  user          User      @relation(fields: [userId], references: [id])
   company       Company   @relation(fields: [companyId], references: [id])
   tenant        Tenant    @relation(fields: [tenantId], references: [id])
   NoSeries      NoSeries  @relation(fields: [noSeriesId], references: [id], onDelete: Cascade)
@@ -1537,6 +1677,8 @@ model NoSeriesSetup {
   journalTemplateNoSeriesCode String?
   companyId                   String   @db.ObjectId
   tenantId                    String   @db.ObjectId
+  userId                      String   @db.ObjectId
+  user                        User     @relation(fields: [userId], references: [id])
   company                     Company  @relation(fields: [companyId], references: [id])
   tenant                      Tenant   @relation(fields: [tenantId], references: [id])
   createdAt                   DateTime @default(now())
@@ -1704,6 +1846,8 @@ model companyInformation {
   swiftCode         String?
   companyId         String   @db.ObjectId
   tenantId          String   @db.ObjectId
+  userId            String   @db.ObjectId
+  user              User     @relation(fields: [userId], references: [id])
   company           Company  @relation(fields: [companyId], references: [id])
   tenant            Tenant   @relation(fields: [tenantId], references: [id])
   createdAt         DateTime @default(now())
@@ -1717,6 +1861,8 @@ model OnlineOrderSetup {
   customerId String   @db.ObjectId
   tenantId   String   @db.ObjectId
   companyId  String   @db.ObjectId
+  userId     String   @db.ObjectId
+  user       User     @relation(fields: [userId], references: [id])
   customer   Customer @relation(fields: [customerId], references: [id])
   tenant     Tenant   @relation(fields: [tenantId], references: [id])
   company    Company  @relation(fields: [companyId], references: [id])
@@ -1738,6 +1884,8 @@ model ItemJournalTemplate {
   tenantId         String                  @db.ObjectId
   ItemJournalBatch ItemJournalBatch[]
   ItemJournalLine  ItemJournalLine[]
+  userId           String                  @db.ObjectId
+  user             User                    @relation(fields: [userId], references: [id])
   company          Company                 @relation(fields: [companyId], references: [id])
   tenant           Tenant                  @relation(fields: [tenantId], references: [id])
   createdAt        DateTime                @default(now())
@@ -1755,6 +1903,8 @@ model ItemJournalBatch {
   companyId             String              @db.ObjectId
   tenantId              String              @db.ObjectId
   ItemJournalLine       ItemJournalLine[]
+  userId                String              @db.ObjectId
+  user                  User                @relation(fields: [userId], references: [id])
   company               Company             @relation(fields: [companyId], references: [id])
   tenant                Tenant              @relation(fields: [tenantId], references: [id])
   itemJournalTemplate   ItemJournalTemplate @relation(fields: [itemJournalTemplateId], references: [id])
@@ -1810,6 +1960,8 @@ model ItemJournalLine {
   vatProductPostingGroupId String?                     @db.ObjectId
   companyId                String                      @db.ObjectId
   tenantId                 String                      @db.ObjectId
+  userId                   String                      @db.ObjectId
+  user                     User                        @relation(fields: [userId], references: [id])
   company                  Company                     @relation(fields: [companyId], references: [id])
   tenant                   Tenant                      @relation(fields: [tenantId], references: [id])
   item                     Product                     @relation(fields: [itemId], references: [id])
@@ -1881,6 +2033,8 @@ model GeneralLedgerEntry {
   entryNo                  Int                         @default(0)
   companyId                String                      @db.ObjectId
   tenantId                 String                      @db.ObjectId
+  userId                   String                      @db.ObjectId
+  user                     User                        @relation(fields: [userId], references: [id])
   company                  Company                     @relation(fields: [companyId], references: [id])
   tenant                   Tenant                      @relation(fields: [tenantId], references: [id])
   genBusPostingGroup       GenBusPostingGroup?         @relation(fields: [genBusPostingGroupId], references: [id])
@@ -1922,6 +2076,8 @@ model BankAccount {
   banKAccountPostingGroupId String?                  @db.ObjectId
   tenantId                  String                   @db.ObjectId
   companyId                 String                   @db.ObjectId
+  userId                    String                   @db.ObjectId
+  user                      User                     @relation(fields: [userId], references: [id])
   company                   Company                  @relation(fields: [companyId], references: [id])
   tenant                    Tenant                   @relation(fields: [tenantId], references: [id])
   banKAccountPostingGroup   BankAccountPostingGroup? @relation(fields: [banKAccountPostingGroupId], references: [id])
@@ -1940,6 +2096,8 @@ model BankAccountPostingGroup {
   BankAccount BankAccount[]
   companyId   String        @db.ObjectId
   tenantId    String        @db.ObjectId
+  userId      String        @db.ObjectId
+  user        User          @relation(fields: [userId], references: [id])
   company     Company       @relation(fields: [companyId], references: [id])
   tenant      Tenant        @relation(fields: [tenantId], references: [id])
   createdAt   DateTime      @default(now())
@@ -1983,6 +2141,8 @@ model BankAccountLedgerEntry {
   dimension10        String?
   companyId          String                  @db.ObjectId
   tenantId           String                  @db.ObjectId
+  userId             String                  @db.ObjectId
+  user               User                    @relation(fields: [userId], references: [id])
   company            Company                 @relation(fields: [companyId], references: [id])
   tenant             Tenant                  @relation(fields: [tenantId], references: [id])
   createdAt          DateTime                @default(now())
@@ -2029,6 +2189,8 @@ model GLAccount {
   dimension10              String?
   companyId                String            @db.ObjectId
   tenantId                 String            @db.ObjectId
+  userId                   String            @db.ObjectId
+  user                     User              @relation(fields: [userId], references: [id])
   tenant                   Tenant            @relation(fields: [tenantId], references: [id])
   company                  Company           @relation(fields: [companyId], references: [id])
   createdAt                DateTime          @default(now())
