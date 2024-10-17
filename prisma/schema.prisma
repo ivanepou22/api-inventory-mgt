@@ -1643,6 +1643,9 @@ model NoSeries {
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
   ItemJournalBatch ItemJournalBatch[]
+  bankAccount      NoSeriesSetup[]    @relation("NoSeriesSetupBankAccount")
+  vendor           NoSeriesSetup[]    @relation("NoSeriesSetupVendor")
+  customer         NoSeriesSetup[]    @relation("NoSeriesSetupCustomer")
 
   @@unique([tenantId, companyId, code])
   @@unique([tenantId, companyId])
@@ -1674,17 +1677,21 @@ model NoSeriesLine {
 }
 
 model NoSeriesSetup {
-  id                          String   @id @default(auto()) @map("_id") @db.ObjectId
-  journalTemplateNoSeriesId   String?  @db.ObjectId
-  journalTemplateNoSeriesCode String?
-  companyId                   String   @db.ObjectId
-  tenantId                    String   @db.ObjectId
-  userId                      String   @db.ObjectId
-  user                        User     @relation(fields: [userId], references: [id])
-  company                     Company  @relation(fields: [companyId], references: [id])
-  tenant                      Tenant   @relation(fields: [tenantId], references: [id])
-  createdAt                   DateTime @default(now())
-  updatedAt                   DateTime @updatedAt
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  customerNos    String?   @db.ObjectId
+  vendorNos      String?   @db.ObjectId
+  bankAccountNos String?   @db.ObjectId
+  companyId      String    @db.ObjectId
+  tenantId       String    @db.ObjectId
+  userId         String    @db.ObjectId
+  bankAccount    NoSeries? @relation(name: "NoSeriesSetupBankAccount", fields: [bankAccountNos], references: [id])
+  vendor         NoSeries? @relation(name: "NoSeriesSetupVendor", fields: [vendorNos], references: [id])
+  customer       NoSeries? @relation(name: "NoSeriesSetupCustomer", fields: [customerNos], references: [id])
+  user           User      @relation(fields: [userId], references: [id])
+  company        Company   @relation(fields: [companyId], references: [id])
+  tenant         Tenant    @relation(fields: [tenantId], references: [id])
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   @@unique([tenantId, companyId])
 }
