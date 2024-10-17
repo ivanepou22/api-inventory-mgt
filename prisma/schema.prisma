@@ -1644,6 +1644,7 @@ model NoSeries {
   updatedAt        DateTime           @updatedAt
   ItemJournalBatch ItemJournalBatch[]
 
+  @@unique([tenantId, companyId, code])
   @@unique([tenantId, companyId])
 }
 
