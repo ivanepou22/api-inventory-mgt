@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import { tenantMiddleware } from "./middleware/tenantMiddleware";
 import customerRouter from "./routes/customerRoutes";
 import userRouter from "./routes/userRoutes";
 import shopRouter from "./routes/shopRoutes";
@@ -88,6 +89,7 @@ const PORT = process.env.PORT || 8000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(tenantMiddleware);
 
 // API routes
 const apiRoutes = [
