@@ -33,6 +33,9 @@ export const createCompany = async (
         tenantId,
         tenantName: tenantExists.name,
       },
+      include: {
+        tenant: true,
+      },
     });
     return {
       data: newCompany,
@@ -55,6 +58,9 @@ export const getCompanies = async () => {
       orderBy: {
         createdAt: "desc",
       },
+      include: {
+        tenant: true,
+      },
     });
     return {
       data: companies,
@@ -72,6 +78,9 @@ export const getCompany = async (id: string) => {
     const company = await db.company.findUnique({
       where: {
         id,
+      },
+      include: {
+        tenant: true,
       },
     });
     if (!company) {

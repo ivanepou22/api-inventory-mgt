@@ -126,21 +126,15 @@ const apiRoutes = [
   { router: inventoryPostingSetupRouter, useTenantMiddleware: true },
   { router: noSeriesRouter, useTenantMiddleware: true },
   { router: noSeriesLineRouter, useTenantMiddleware: true },
-  { router: tenantRouter, useTenantMiddleware: false },
-  { router: companyRouter, useTenantMiddleware: false },
+  { router: tenantRouter },
+  { router: companyRouter },
   { router: companyInformationRouter, useTenantMiddleware: true },
   { router: tagRouter, useTenantMiddleware: true },
   { router: onlineOrderSetupRouter, useTenantMiddleware: true },
 ];
 
-apiRoutes.forEach(({ router, useRouteLimiter, useTenantMiddleware }) => {
-  const middlewares = [];
-  if (useRouteLimiter) {
-    middlewares.push(routeLimiter);
-  }
-  if (useTenantMiddleware) {
-    middlewares.push(tenantMiddleware);
-  }
+apiRoutes.forEach(({ router, useRouteLimiter }) => {
+  const middlewares = useRouteLimiter ? [routeLimiter] : [];
   app.use("/api/v1", ...middlewares, router);
 });
 
