@@ -51,6 +51,7 @@ model Customer {
   updatedAt              DateTime              @updatedAt
 
   @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId, No])
 }
 
 model SalesPerson {
@@ -1869,13 +1870,14 @@ model companyInformation {
 }
 
 model UserCompany {
-  id        String  @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String  @db.ObjectId
-  companyId String  @db.ObjectId
-  tenantId  String  @db.ObjectId
-  user      User    @relation(fields: [userId], references: [id])
-  company   Company @relation(fields: [companyId], references: [id])
-  tenant    Tenant  @relation(fields: [tenantId], references: [id])
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  companyId String   @db.ObjectId
+  tenantId  String   @db.ObjectId
+  active    Boolean?
+  user      User     @relation(fields: [userId], references: [id])
+  company   Company  @relation(fields: [companyId], references: [id])
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
 
   @@unique([userId, companyId])
   @@unique([tenantId, companyId])
