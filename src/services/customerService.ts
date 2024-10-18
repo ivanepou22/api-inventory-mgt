@@ -1,9 +1,6 @@
 import { db } from "@/db/db";
 import { Prisma, PrismaClient } from "@prisma/client";
-import {
-  MultiTenantService,
-  createMultiTenantService,
-} from "../utils/multiTenantService";
+import { MultiTenantService } from "../utils/multiTenantService";
 
 class CustomerService extends MultiTenantService {
   constructor(db: PrismaClient) {
@@ -11,7 +8,28 @@ class CustomerService extends MultiTenantService {
   }
 
   async createCustomer(customer: Prisma.CustomerUncheckedCreateInput) {
-    const { phone, email } = customer;
+    const {
+      customerType,
+      name,
+      phone,
+      email,
+      image,
+      country,
+      address,
+      address_2,
+      website,
+      maxCreditLimit,
+      maxCreditDays,
+      contactPerson,
+      contact_phone,
+      contact_email,
+      taxPin,
+      regNumber,
+      paymentTerms,
+      NIN,
+      tenantId,
+      companyId,
+    } = customer;
 
     const customerExists = await this.findUnique(
       (args) => this.db.customer.findUnique(args),
@@ -41,9 +59,28 @@ class CustomerService extends MultiTenantService {
         {
           data: {
             ...customer,
-            image:
-              customer.image ||
-              "https://utfs.io/f/276c9ec4-bff3-40fc-8759-6b4c362c1e59-o0u7dg.png",
+            customerType,
+            name,
+            phone,
+            email,
+            country,
+            address,
+            address_2,
+            website,
+            maxCreditLimit,
+            maxCreditDays,
+            contactPerson,
+            contact_phone,
+            contact_email,
+            taxPin,
+            regNumber,
+            paymentTerms,
+            NIN,
+            image: image
+              ? image
+              : "https://utfs.io/f/276c9ec4-bff3-40fc-8759-6b4c362c1e59-o0u7dg.png",
+            companyId,
+            tenantId,
           },
           include: {
             salesPerson: true,
@@ -212,6 +249,6 @@ class CustomerService extends MultiTenantService {
 }
 
 // Export the service
-export const createCustomerService = (): CustomerService => {
+export const customerService = (): CustomerService => {
   return new CustomerService(db);
 };
