@@ -7,7 +7,12 @@ class NoSeriesService extends MultiTenantService {
   constructor(db: PrismaClient) {
     super(db);
   }
-  createNoSeries = async (noSeries: Prisma.NoSeriesUncheckedCreateInput) => {
+  createNoSeries = async (
+    noSeries: Omit<
+      Prisma.NoSeriesUncheckedCreateInput,
+      "tenantId" | "companyId"
+    >
+  ) => {
     const { code, description, defaultSeries, manualSeries } = noSeries;
     try {
       const codeUpperCase = await slugify(code);

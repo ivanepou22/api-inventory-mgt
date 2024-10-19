@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import { noSeriesService } from "@/services/noSeriesService";
 
+const noSeriesServiceInstance = noSeriesService();
 export const createNoSeries = async (req: Request, res: Response) => {
   try {
-    const newNoSeries = await noSeriesService.createNoSeries(req.body);
+    const newNoSeries = await noSeriesServiceInstance.createNoSeries(req.body);
     return res.status(201).json(newNoSeries);
   } catch (error: any) {
     console.error("Error creating No Series:", error);
@@ -15,7 +16,7 @@ export const createNoSeries = async (req: Request, res: Response) => {
 
 export const getNoSeries = async (_req: Request, res: Response) => {
   try {
-    const noSeries = await noSeriesService.getNoSeries();
+    const noSeries = await noSeriesServiceInstance.getNoSeries();
     return res.status(200).json(noSeries);
   } catch (error: any) {
     console.error("Error fetching No Series:", error);
@@ -28,7 +29,7 @@ export const getNoSeries = async (_req: Request, res: Response) => {
 export const getNoSeriesById = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
-    const noSeries = await noSeriesService.getNoSeriesById(id);
+    const noSeries = await noSeriesServiceInstance.getNoSeriesById(id);
     return res.status(200).json(noSeries);
   } catch (error: any) {
     console.error("Error fetching No Series:", error);
@@ -41,7 +42,10 @@ export const getNoSeriesById = async (req: Request, res: Response) => {
 export const updateNoSeries = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
-    const updateNoSeries = await noSeriesService.updateNoSeries(id, req.body);
+    const updateNoSeries = await noSeriesServiceInstance.updateNoSeries(
+      id,
+      req.body
+    );
     return res.status(200).json(updateNoSeries);
   } catch (error: any) {
     console.error("Error updating No Series:", error);
@@ -54,7 +58,7 @@ export const updateNoSeries = async (req: Request, res: Response) => {
 export const deleteNoSeries = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
-    const deletedNoSeries = await noSeriesService.deleteNoSeries(id);
+    const deletedNoSeries = await noSeriesServiceInstance.deleteNoSeries(id);
     return res.status(200).json(deletedNoSeries);
   } catch (error: any) {
     console.error("Error deleting No Series:", error);
