@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { noSeriesService } from "@/services/noSeriesService";
+import { createNoSeriesService } from "@/services/noSeriesService";
 
-const noSeriesServiceInstance = noSeriesService();
 export const createNoSeries = async (req: Request, res: Response) => {
   try {
+    const noSeriesServiceInstance = createNoSeriesService();
     const newNoSeries = await noSeriesServiceInstance.createNoSeries(req.body);
     return res.status(201).json(newNoSeries);
   } catch (error: any) {
@@ -16,6 +16,7 @@ export const createNoSeries = async (req: Request, res: Response) => {
 
 export const getNoSeries = async (_req: Request, res: Response) => {
   try {
+    const noSeriesServiceInstance = createNoSeriesService();
     const noSeries = await noSeriesServiceInstance.getNoSeries();
     return res.status(200).json(noSeries);
   } catch (error: any) {
@@ -29,6 +30,7 @@ export const getNoSeries = async (_req: Request, res: Response) => {
 export const getNoSeriesById = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
+    const noSeriesServiceInstance = createNoSeriesService();
     const noSeries = await noSeriesServiceInstance.getNoSeriesById(id);
     return res.status(200).json(noSeries);
   } catch (error: any) {
@@ -42,6 +44,7 @@ export const getNoSeriesById = async (req: Request, res: Response) => {
 export const updateNoSeries = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
+    const noSeriesServiceInstance = createNoSeriesService();
     const updateNoSeries = await noSeriesServiceInstance.updateNoSeries(
       id,
       req.body
@@ -58,6 +61,7 @@ export const updateNoSeries = async (req: Request, res: Response) => {
 export const deleteNoSeries = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
+    const noSeriesServiceInstance = createNoSeriesService();
     const deletedNoSeries = await noSeriesServiceInstance.deleteNoSeries(id);
     return res.status(200).json(deletedNoSeries);
   } catch (error: any) {

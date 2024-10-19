@@ -3,16 +3,11 @@ import { slugify } from "@/utils/functions";
 import { MultiTenantService } from "@/utils/multiTenantService";
 import { Prisma, PrismaClient } from "@prisma/client";
 
-class NoSeriesService extends MultiTenantService {
+export class NoSeriesService extends MultiTenantService {
   constructor(db: PrismaClient) {
     super(db);
   }
-  createNoSeries = async (
-    noSeries: Omit<
-      Prisma.NoSeriesUncheckedCreateInput,
-      "tenantId" | "companyId"
-    >
-  ) => {
+  createNoSeries = async (noSeries: Prisma.NoSeriesUncheckedCreateInput) => {
     const { code, description, defaultSeries, manualSeries } = noSeries;
     try {
       const codeUpperCase = await slugify(code);
@@ -168,6 +163,6 @@ class NoSeriesService extends MultiTenantService {
   };
 }
 
-export const noSeriesService = (): NoSeriesService => {
+export const createNoSeriesService = (): NoSeriesService => {
   return new NoSeriesService(db);
 };
