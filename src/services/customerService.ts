@@ -79,8 +79,8 @@ class CustomerService extends MultiTenantService {
             image: image
               ? image
               : "https://utfs.io/f/276c9ec4-bff3-40fc-8759-6b4c362c1e59-o0u7dg.png",
-            companyId,
-            tenantId,
+            companyId: this.getCompanyId(),
+            tenantId: this.getTenantId(),
           },
           include: {
             salesPerson: true,
