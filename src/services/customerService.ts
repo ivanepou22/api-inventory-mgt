@@ -27,8 +27,6 @@ class CustomerService extends MultiTenantService {
       regNumber,
       paymentTerms,
       NIN,
-      tenantId,
-      companyId,
     } = customer;
 
     const customerExists = await this.findUnique(
