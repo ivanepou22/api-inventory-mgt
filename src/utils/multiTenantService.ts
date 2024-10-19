@@ -78,6 +78,15 @@ export class MultiTenantService {
     };
     return operation(filteredArgs);
   }
+
+  // Add getter methods
+  protected getTenantId(): string {
+    return this.tenantId;
+  }
+
+  protected getCompanyId(): string {
+    return this.companyId;
+  }
 }
 
 export const createMultiTenantService = (
