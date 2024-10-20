@@ -75,7 +75,25 @@ export class UserService extends MultiTenantService {
       };
     } catch (error: any) {
       console.error(error);
-      throw new Error(error.message);
+      if (error instanceof Error) {
+        const errorMessage = error.message;
+
+        // Check if the error message contains the word "Argument"
+        const argumentIndex = errorMessage.toLowerCase().indexOf("argument");
+        if (argumentIndex !== -1) {
+          // Extract the message after "Argument"
+          const relevantError = errorMessage.slice(argumentIndex);
+          throw new Error(relevantError);
+        } else {
+          // For other types of errors, you might want to log the full error
+          // and throw a generic message to the user
+          console.error("Full error:", error);
+          throw new Error(error.message);
+        }
+      } else {
+        // Handle case where error is not an Error object
+        throw new Error("An unexpected error occurred.");
+      }
     }
   };
 
@@ -84,6 +102,10 @@ export class UserService extends MultiTenantService {
       const users = await this.findMany((args) => this.db.user.findMany(args), {
         orderBy: {
           createdAt: "desc",
+        },
+        include: {
+          company: true,
+          tenant: true,
         },
       });
 
@@ -107,6 +129,10 @@ export class UserService extends MultiTenantService {
         (args) => this.db.user.findUnique(args),
         {
           where: { id },
+          include: {
+            company: true,
+            tenant: true,
+          },
         }
       );
       if (!user) {
@@ -147,6 +173,10 @@ export class UserService extends MultiTenantService {
             dob: true,
             gender: true,
             image: true,
+          },
+          include: {
+            company: true,
+            tenant: true,
           },
         }
       );

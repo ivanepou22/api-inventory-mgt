@@ -42,7 +42,7 @@ export class NoSeriesService extends MultiTenantService {
         const errorMessage = error.message;
 
         // Check if the error message contains the word "Argument"
-        const argumentIndex = errorMessage.indexOf("Argument");
+        const argumentIndex = errorMessage.toLowerCase().indexOf("argument");
         if (argumentIndex !== -1) {
           // Extract the message after "Argument"
           const relevantError = errorMessage.slice(argumentIndex);
@@ -51,7 +51,7 @@ export class NoSeriesService extends MultiTenantService {
           // For other types of errors, you might want to log the full error
           // and throw a generic message to the user
           console.error("Full error:", error);
-          throw new Error("An error occurred while creating the No Series.");
+          throw new Error(error.message);
         }
       } else {
         // Handle case where error is not an Error object
