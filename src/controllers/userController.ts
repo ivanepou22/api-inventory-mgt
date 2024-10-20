@@ -3,7 +3,8 @@ import { userService } from "@/services/userService";
 
 export const createUser = async (req: Request, res: Response) => {
   try {
-    const newUser = await userService.createUser(req.body);
+    const userServiceInstance = userService();
+    const newUser = await userServiceInstance.createUser(req.body);
     return res.status(201).json(newUser);
   } catch (error: any) {
     console.error("Error creating User:", error);
@@ -15,7 +16,8 @@ export const createUser = async (req: Request, res: Response) => {
 
 export const getUsers = async (_req: Request, res: Response) => {
   try {
-    const users = await userService.getUsers();
+    const userServiceInstance = userService();
+    const users = await userServiceInstance.getUsers();
     return res.status(200).json(users);
   } catch (error: any) {
     console.error("Error fetching users:", error);
@@ -28,7 +30,8 @@ export const getUsers = async (_req: Request, res: Response) => {
 export const getUser = async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
-    const user = await userService.getUser(id);
+    const userServiceInstance = userService();
+    const user = await userServiceInstance.getUser(id);
     return res.status(200).json(user);
   } catch (error: any) {
     console.error("Error fetching user:", error);
@@ -41,7 +44,8 @@ export const getUser = async (req: Request, res: Response) => {
 export const updateUser = async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
-    const user = await userService.updateUser(id, req.body);
+    const userServiceInstance = userService();
+    const user = await userServiceInstance.updateUser(id, req.body);
     return res.status(200).json(user);
   } catch (error: any) {
     console.error("Error updating User:", error);
@@ -53,10 +57,11 @@ export const updateUser = async (req: Request, res: Response) => {
 
 // Update User Password
 export const updateUserPassword = async (req: Request, res: Response) => {
+  const userServiceInstance = userService();
   const id = req.params.id;
   const { oldPassword, newPassword } = req.body;
   try {
-    const user = await userService.updateUserPassword(
+    const user = await userServiceInstance.updateUserPassword(
       id,
       oldPassword,
       newPassword
@@ -72,10 +77,10 @@ export const updateUserPassword = async (req: Request, res: Response) => {
 
 // Delete User
 export const deleteUser = async (req: Request, res: Response) => {
+  const userServiceInstance = userService();
   const id = req.params.id;
-
   try {
-    const user = await userService.deleteUser(id);
+    const user = await userServiceInstance.deleteUser(id);
     return res.status(200).json(user);
   } catch (error: any) {
     console.error("Error deleting User:", error);
@@ -87,7 +92,8 @@ export const deleteUser = async (req: Request, res: Response) => {
 
 export const getAttendants = async (_req: Request, res: Response) => {
   try {
-    const attendants = await userService.getAttendants();
+    const userServiceInstance = userService();
+    const attendants = await userServiceInstance.getAttendants();
     return res.status(200).json(attendants);
   } catch (error: any) {
     console.error("Error fetching attendants:", error);
@@ -99,7 +105,8 @@ export const getAttendants = async (_req: Request, res: Response) => {
 
 export const getAdmins = async (_req: Request, res: Response) => {
   try {
-    const admins = await userService.getAdmins();
+    const userServiceInstance = userService();
+    const admins = await userServiceInstance.getAdmins();
     return res.status(200).json(admins);
   } catch (err: any) {
     console.log(err);
