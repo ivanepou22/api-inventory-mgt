@@ -23,7 +23,15 @@ export class UserService extends MultiTenantService {
     try {
       const userByEmail = await this.findUnique(
         (args) => this.db.user.findUnique(args),
-        { where: { email } }
+        {
+          where: {
+            tenantId_companyId_email: {
+              tenantId: this.getTenantId(),
+              companyId: this.getCompanyId(),
+              email,
+            },
+          },
+        }
       );
 
       if (userByEmail) {
@@ -31,7 +39,15 @@ export class UserService extends MultiTenantService {
       }
       const userByUsername = await this.findUnique(
         (args) => this.db.user.findUnique(args),
-        { where: { username } }
+        {
+          where: {
+            tenantId_companyId_username: {
+              tenantId: this.getTenantId(),
+              companyId: this.getCompanyId(),
+              username,
+            },
+          },
+        }
       );
 
       if (userByUsername) {
@@ -40,7 +56,15 @@ export class UserService extends MultiTenantService {
 
       const userByPhone = await this.findUnique(
         (args) => this.db.user.findUnique(args),
-        { where: { phone } }
+        {
+          where: {
+            tenantId_companyId_phone: {
+              tenantId: this.getTenantId(),
+              companyId: this.getCompanyId(),
+              phone,
+            },
+          },
+        }
       );
       if (userByPhone) {
         throw new Error(`Phone Number: ${phone} is Already taken`);
