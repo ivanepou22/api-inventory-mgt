@@ -38,7 +38,25 @@ export class NoSeriesService extends MultiTenantService {
       };
     } catch (error: any) {
       console.error("Error creating No Series:", error);
-      throw new Error(error.message);
+      if (error instanceof Error) {
+        const errorMessage = error.message;
+
+        // Check if the error message contains the word "Argument"
+        const argumentIndex = errorMessage.indexOf("Argument");
+        if (argumentIndex !== -1) {
+          // Extract the message after "Argument"
+          const relevantError = errorMessage.slice(argumentIndex);
+          throw new Error(relevantError);
+        } else {
+          // For other types of errors, you might want to log the full error
+          // and throw a generic message to the user
+          console.error("Full error:", error);
+          throw new Error("An error occurred while creating the No Series.");
+        }
+      } else {
+        // Handle case where error is not an Error object
+        throw new Error("An unexpected error occurred.");
+      }
     }
   };
 
