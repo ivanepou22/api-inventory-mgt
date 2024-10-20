@@ -22,6 +22,24 @@ export const tenantMiddleware = async (
       .json({ error: "Tenant and Company ID are required" });
   }
 
+  // Check if the tenant and company exist
+  const tenantManager = TenantContextManager.getInstance();
+
+  const tenantExists = await tenantManager.tenantExists(tenantId);
+  if (!tenantExists) {
+    return res.status(404).json({ error: "Tenant not found" });
+  }
+
+  const companyExists = await tenantManager.companyExistsUnderTenant(
+    tenantId,
+    companyId
+  );
+  if (!companyExists) {
+    return res
+      .status(404)
+      .json({ error: "Company not found under this tenant" });
+  }
+
   await TenantContextManager.getInstance().run(
     { tenantId, companyId },
     async () => {
