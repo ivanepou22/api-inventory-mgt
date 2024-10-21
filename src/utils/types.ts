@@ -150,5 +150,7 @@ export type JournalTemplateInput = {
 };
 
 export interface RequestWithTenant extends Request {
-  tenantId?: string;
+  tenantId: string;
+  body: any;
+  params: any;
 }

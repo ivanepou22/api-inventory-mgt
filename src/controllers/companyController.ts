@@ -1,9 +1,14 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { companyService } from "@/services/companyService";
+import { RequestWithTenant } from "@/utils/types";
 
-export const createCompany = async (req: Request, res: Response) => {
+export const createCompany = async (req: RequestWithTenant, res: Response) => {
   try {
-    const company = await companyService.createCompany(req.body);
+    const companyServiceInstance = companyService();
+    const company = await companyServiceInstance.createCompany(
+      req.body,
+      req.tenantId
+    );
     return res.status(201).json(company);
   } catch (error: any) {
     return res
@@ -12,9 +17,10 @@ export const createCompany = async (req: Request, res: Response) => {
   }
 };
 
-export const getCompanies = async (_req: Request, res: Response) => {
+export const getCompanies = async (req: RequestWithTenant, res: Response) => {
   try {
-    const companies = await companyService.getCompanies();
+    const companyServiceInstance = companyService();
+    const companies = await companyServiceInstance.getCompanies(req.tenantId);
     return res.status(200).json(companies);
   } catch (error: any) {
     return res
@@ -23,10 +29,11 @@ export const getCompanies = async (_req: Request, res: Response) => {
   }
 };
 
-export const getCompany = async (req: Request, res: Response) => {
+export const getCompany = async (req: RequestWithTenant, res: Response) => {
   const id = req.params.id;
   try {
-    const company = await companyService.getCompany(id);
+    const companyServiceInstance = companyService();
+    const company = await companyServiceInstance.getCompany(id, req.tenantId);
     return res.status(200).json(company);
   } catch (error: any) {
     return res
@@ -35,10 +42,15 @@ export const getCompany = async (req: Request, res: Response) => {
   }
 };
 
-export const updateCompany = async (req: Request, res: Response) => {
+export const updateCompany = async (req: RequestWithTenant, res: Response) => {
   try {
+    const companyServiceInstance = companyService();
     const { id } = req.params;
-    const company = await companyService.updateCompany(id, req.body);
+    const company = await companyServiceInstance.updateCompany(
+      id,
+      req.body,
+      req.tenantId
+    );
     return res.status(200).json(company);
   } catch (error: any) {
     return res
@@ -47,10 +59,14 @@ export const updateCompany = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteCompany = async (req: Request, res: Response) => {
+export const deleteCompany = async (req: RequestWithTenant, res: Response) => {
   const id = req.params.id;
   try {
-    const company = await companyService.deleteCompany(id);
+    const companyServiceInstance = companyService();
+    const company = await companyServiceInstance.deleteCompany(
+      id,
+      req.tenantId
+    );
     return res.status(200).json(company);
   } catch (error: any) {
     return res

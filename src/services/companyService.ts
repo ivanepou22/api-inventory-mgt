@@ -200,6 +200,6 @@ export class CompanyService {
     }
   };
 }
-export const createCompanyService = (): CompanyService => {
+export const companyService = (): CompanyService => {
   return new CompanyService(db);
 };
