@@ -148,9 +148,3 @@ export type JournalTemplateInput = {
   sourceCode: string;
   reasonCode: string;
 };
-
-export interface RequestWithTenant extends Request {
-  tenantId: string;
-  body: any;
-  params: any;
-}
