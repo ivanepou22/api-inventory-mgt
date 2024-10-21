@@ -1771,7 +1771,6 @@ model Company {
   code                       String
   name                       String
   tenantId                   String                       @db.ObjectId
-  tenantName                 String?
   companyInformation         companyInformation[]
   OnlineOrderSetup           OnlineOrderSetup[]
   NoSeriesSetup              NoSeriesSetup[]
