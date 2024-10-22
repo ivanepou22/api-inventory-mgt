@@ -3,7 +3,8 @@ import { companyService } from "@/services/companyService";
 
 export const createCompany = async (req: Request, res: Response) => {
   try {
-    const company = await companyService.createCompany(req.body);
+    const companyServiceInstance = companyService();
+    const company = await companyServiceInstance.createCompany(req.body);
     return res.status(201).json(company);
   } catch (error: any) {
     return res
@@ -14,7 +15,8 @@ export const createCompany = async (req: Request, res: Response) => {
 
 export const getCompanies = async (_req: Request, res: Response) => {
   try {
-    const companies = await companyService.getCompanies();
+    const companyServiceInstance = companyService();
+    const companies = await companyServiceInstance.getCompanies();
     return res.status(200).json(companies);
   } catch (error: any) {
     return res
@@ -26,7 +28,8 @@ export const getCompanies = async (_req: Request, res: Response) => {
 export const getCompany = async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
-    const company = await companyService.getCompany(id);
+    const companyServiceInstance = companyService();
+    const company = await companyServiceInstance.getCompany(id);
     return res.status(200).json(company);
   } catch (error: any) {
     return res
@@ -36,9 +39,10 @@ export const getCompany = async (req: Request, res: Response) => {
 };
 
 export const updateCompany = async (req: Request, res: Response) => {
+  const { id } = req.params;
   try {
-    const { id } = req.params;
-    const company = await companyService.updateCompany(id, req.body);
+    const companyServiceInstance = companyService();
+    const company = await companyServiceInstance.updateCompany(id, req.body);
     return res.status(200).json(company);
   } catch (error: any) {
     return res
@@ -50,7 +54,8 @@ export const updateCompany = async (req: Request, res: Response) => {
 export const deleteCompany = async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
-    const company = await companyService.deleteCompany(id);
+    const companyServiceInstance = companyService();
+    const company = await companyServiceInstance.deleteCompany(id);
     return res.status(200).json(company);
   } catch (error: any) {
     return res

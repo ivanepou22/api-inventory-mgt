@@ -1,12 +1,13 @@
-import { db } from "@/db/db";
-import { TenantManagementService } from "./tenantManagementService";
 import { Prisma, PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
+import { db } from "@/db/db";
+import { TenantManagementService } from "./tenantManagementService";
 
 export class UserService extends TenantManagementService {
   constructor(db: PrismaClient) {
     super(db);
   }
+
   createUser = async (user: Prisma.UserCreateInput) => {
     const { fullName, email, username, password, phone, gender, image, role } =
       user;
