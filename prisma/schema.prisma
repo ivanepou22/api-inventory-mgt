@@ -86,13 +86,11 @@ enum CustomerType {
 
 model User {
   id                         String                       @id @default(auto()) @map("_id") @db.ObjectId
+  fullName                   String
   email                      String
   username                   String
   password                   String
-  firstName                  String
-  lastName                   String
   phone                      String
-  dob                        DateTime?
   gender                     Gender
   image                      String?
   role                       Role                         @default(ATTENDANT)
@@ -102,9 +100,7 @@ model User {
   salesHeaders               SalesHeader[]
   ShopAdmins                 Shop[]                       @relation("ShopAdmins")
   ShopAttendants             Shop[]                       @relation("ShopAttendants")
-  companyId                  String?                      @db.ObjectId
   tenantId                   String?                      @db.ObjectId
-  company                    Company?                     @relation(fields: [companyId], references: [id])
   tenant                     Tenant?                      @relation(fields: [tenantId], references: [id])
   createdAt                  DateTime                     @default(now())
   updatedAt                  DateTime                     @updatedAt
@@ -164,9 +160,9 @@ model User {
   GLAccount                  GLAccount[]
   UserCompany                UserCompany[]
 
-  @@unique([tenantId, companyId, email])
-  @@unique([tenantId, companyId, username])
-  @@unique([tenantId, companyId, phone])
+  @@unique([tenantId, email])
+  @@unique([tenantId, username])
+  @@unique([tenantId, phone])
 }
 
 enum Gender {
@@ -1816,7 +1812,6 @@ model Company {
   Unit                       Unit[]
   Supplier                   Supplier[]
   Shop                       Shop[]
-  User                       User[]
   SalesPerson                SalesPerson[]
   Customer                   Customer[]
   tenant                     Tenant                       @relation(fields: [tenantId], references: [id])
