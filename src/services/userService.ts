@@ -1,9 +1,9 @@
 import { db } from "@/db/db";
-import { MultiTenantService } from "@/services/multiTenantService";
+import { TenantManagementService } from "./tenantManagementService";
 import { Prisma, PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 
-export class UserService extends MultiTenantService {
+export class UserService extends TenantManagementService {
   constructor(db: PrismaClient) {
     super(db);
   }
