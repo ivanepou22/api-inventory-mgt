@@ -11,7 +11,6 @@ import {
   updateUserPassword,
 } from "@/controllers/userController";
 const userRouter = express.Router();
-// userRouter.use(companyUserMiddleware);
 
 userRouter.post("/users", companyUserMiddleware, createUser);
 userRouter.get("/users", companyUserMiddleware, getUsers);
