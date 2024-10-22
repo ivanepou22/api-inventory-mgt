@@ -1,4 +1,5 @@
 import express from "express";
+import { companyUserMiddleware } from "@/middleware/companyUserMiddleware";
 import {
   createUser,
   deleteUser,
@@ -10,14 +11,19 @@ import {
   updateUserPassword,
 } from "@/controllers/userController";
 const userRouter = express.Router();
+// userRouter.use(companyUserMiddleware);
 
-userRouter.post("/users", createUser);
-userRouter.get("/users", getUsers);
-userRouter.get("/users/attendants", getAttendants);
-userRouter.get("/users/admins", getAdmins);
-userRouter.get("/users/:id", getUser);
-userRouter.put("/users/:id", updateUser);
-userRouter.put("/users/update-password/:id", updateUserPassword);
-userRouter.delete("/users/:id", deleteUser);
+userRouter.post("/users", companyUserMiddleware, createUser);
+userRouter.get("/users", companyUserMiddleware, getUsers);
+userRouter.get("/users/attendants", companyUserMiddleware, getAttendants);
+userRouter.get("/users/admins", companyUserMiddleware, getAdmins);
+userRouter.get("/users/:id", companyUserMiddleware, getUser);
+userRouter.put("/users/:id", companyUserMiddleware, updateUser);
+userRouter.put(
+  "/users/update-password/:id",
+  companyUserMiddleware,
+  updateUserPassword
+);
+userRouter.delete("/users/:id", companyUserMiddleware, deleteUser);
 
 export default userRouter;

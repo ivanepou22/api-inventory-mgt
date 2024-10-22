@@ -93,7 +93,7 @@ app.use(tenantMiddleware);
 
 // API routes
 const apiRoutes = [
-  { router: userRouter, useTenantMiddleware: true },
+  { router: userRouter },
   { router: shopRouter, useTenantMiddleware: true },
   { router: supplierRouter, useTenantMiddleware: true },
   { router: customerRouter, useTenantMiddleware: true },

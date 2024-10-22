@@ -1,7 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import { TenantContextManager } from "@/utils/tenantContextManager";
 
-const excludedPaths = ["/api/v1/tenants", "/api/v1/companies", "/api/v1/login"];
+const excludedPaths = [
+  "/api/v1/tenants",
+  "/api/v1/companies",
+  "/api/v1/login",
+  "/api/v1/users",
+];
 
 export const tenantMiddleware = async (
   req: Request,
