@@ -10,34 +10,26 @@ export class CompanyService extends TenantManagementService {
 
   createCompany = async (company: Prisma.CompanyUncheckedCreateInput) => {
     const { code, name } = company;
-
-    const codeUpperCase = await slugify(code);
-    //check if the tenant exists
-    const tenantId = this.getTenantId();
-    const tenantExists = await this.findUnique(
-      (args) => this.db.tenant.findUnique(args),
-      { where: { id: tenantId } }
-    );
-    if (!tenantExists) {
-      throw new Error("Tenant not found");
-    }
-
-    const companyCodeExists = await this.findUnique(
-      (args) => this.db.company.findUnique(args),
-      {
-        where: {
-          tenantId_code: {
-            code: codeUpperCase,
-            tenantId,
-          },
-        },
-      }
-    );
-    if (companyCodeExists) {
-      throw new Error("Company code already exists");
-    }
-
     try {
+      const codeUpperCase = await slugify(code);
+      //check if the tenant exists
+      const tenantId = this.getTenantId();
+
+      const companyCodeExists = await this.findUnique(
+        (args) => this.db.company.findUnique(args),
+        {
+          where: {
+            tenantId_code: {
+              code: codeUpperCase,
+              tenantId,
+            },
+          },
+        }
+      );
+      if (companyCodeExists) {
+        throw new Error("Company code already exists");
+      }
+
       const newCompany = await this.create(
         (args) => this.db.company.create(args),
         {
@@ -143,23 +135,30 @@ export class CompanyService extends TenantManagementService {
       let codeUpperCase = code ? await slugify(code) : companyExists.code;
 
       if (codeUpperCase && codeUpperCase !== companyExists.code) {
-        const companyCodeExists = await this.db.company.findUnique({
-          where: {
-            tenantId_code: {
-              code: codeUpperCase,
-              tenantId: companyExists.tenantId,
+        const companyCodeExists = await this.findUnique(
+          (args) => this.db.company.findUnique(args),
+          {
+            where: {
+              tenantId_code: {
+                code: codeUpperCase,
+                tenantId: companyExists.tenantId,
+              },
             },
-          },
-        });
+          }
+        );
         if (companyCodeExists) {
           throw new Error("Company code already exists");
         }
       }
+
       // Perform the update
-      const updatedCompany = await this.db.company.update({
-        where: { id },
-        data: { name, code: codeUpperCase },
-      });
+      const updatedCompany = await this.update(
+        (args) => this.db.company.update(args),
+        {
+          where: { id },
+          data: { name, code: codeUpperCase },
+        }
+      );
       return { data: updatedCompany, message: "Company updated successfully" };
     } catch (error: any) {
       console.error("Error updating Company:", error);
@@ -173,21 +172,27 @@ export class CompanyService extends TenantManagementService {
     }
   };
 
-  //create a service to delete a company
+  // Delete a company
   deleteCompany = async (id: string) => {
     try {
       // Check if the company exists
-      const company = await this.db.company.findUnique({
-        where: { id },
-        select: { id: true },
-      });
+      const company = await this.findUnique(
+        (args) => this.db.company.findUnique(args),
+        {
+          where: { id },
+          select: { id: true },
+        }
+      );
       if (!company) {
         throw new Error("Company not found.");
       }
       // Delete the company
-      const deletedCompany = await this.db.company.delete({
-        where: { id },
-      });
+      const deletedCompany = await this.delete(
+        (args) => this.db.company.delete(args),
+        {
+          where: { id },
+        }
+      );
       return {
         data: deletedCompany,
         message: `Company deleted successfully`,
