@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { companyUserMiddleware } from "@/middleware/companyUserMiddleware";
 import {
   createCompany,
   getCompanies,
@@ -9,10 +10,10 @@ import {
 
 const companyRouter = Router();
 
-companyRouter.post("/companies", createCompany);
-companyRouter.get("/companies", getCompanies);
-companyRouter.get("/companies/:id", getCompany);
-companyRouter.put("/companies/:id", updateCompany);
-companyRouter.delete("/companies/:id", deleteCompany);
+companyRouter.post("/companies", companyUserMiddleware, createCompany);
+companyRouter.get("/companies", companyUserMiddleware, getCompanies);
+companyRouter.get("/companies/:id", companyUserMiddleware, getCompany);
+companyRouter.put("/companies/:id", companyUserMiddleware, updateCompany);
+companyRouter.delete("/companies/:id", companyUserMiddleware, deleteCompany);
 
 export default companyRouter;
