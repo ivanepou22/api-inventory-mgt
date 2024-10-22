@@ -8,7 +8,7 @@ export class NoSeriesService extends MultiTenantService {
     super(db);
   }
   createNoSeries = async (noSeries: Prisma.NoSeriesUncheckedCreateInput) => {
-    const { code, description, defaultSeries, manualSeries } = noSeries;
+    const { code, description, defaultSeries, manualSeries, userId } = noSeries;
     try {
       const codeUpperCase = await slugify(code);
       //check if the noSeries already exists
@@ -17,7 +17,7 @@ export class NoSeriesService extends MultiTenantService {
         { where: { code: codeUpperCase } }
       );
       if (noSeriesExists) {
-        throw new Error(`No Series with code: ${code} already exists`);
+        throw new Error(`No Series with code: ${codeUpperCase} already exists`);
       }
       const newNoSeries = await this.create(
         (args) => this.db.noSeries.create(args),
@@ -27,8 +27,32 @@ export class NoSeriesService extends MultiTenantService {
             description,
             defaultSeries,
             manualSeries,
+            userId,
             companyId: this.getCompanyId(),
             tenantId: this.getTenantId(),
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+                phone: true,
+              },
+            },
+            company: {
+              select: {
+                id: true,
+                code: true,
+                name: true,
+              },
+            },
+            tenant: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
           },
         }
       );
@@ -68,6 +92,29 @@ export class NoSeriesService extends MultiTenantService {
           orderBy: {
             createdAt: "desc",
           },
+          include: {
+            user: {
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+                phone: true,
+              },
+            },
+            company: {
+              select: {
+                id: true,
+                code: true,
+                name: true,
+              },
+            },
+            tenant: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
         }
       );
       return {
@@ -86,6 +133,29 @@ export class NoSeriesService extends MultiTenantService {
         (args) => this.db.noSeries.findUnique(args),
         {
           where: { id },
+          include: {
+            user: {
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+                phone: true,
+              },
+            },
+            company: {
+              select: {
+                id: true,
+                code: true,
+                name: true,
+              },
+            },
+            tenant: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
         }
       );
       if (!noSeries) {
