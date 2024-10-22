@@ -1,5 +1,5 @@
 import { Prisma, PrismaClient } from "@prisma/client";
-import { TenantContextManager } from "./tenantContextManager";
+import { TenantContextManager } from "../utils/tenantContextManager";
 
 export class MultiTenantService {
   protected db: PrismaClient;

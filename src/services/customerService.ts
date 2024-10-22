@@ -1,6 +1,6 @@
 import { db } from "@/db/db";
 import { Prisma, PrismaClient } from "@prisma/client";
-import { MultiTenantService } from "../utils/multiTenantService";
+import { MultiTenantService } from "./multiTenantService";
 
 class CustomerService extends MultiTenantService {
   constructor(db: PrismaClient) {

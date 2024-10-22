@@ -1,6 +1,6 @@
 import { db } from "@/db/db";
 import { slugify } from "@/utils/functions";
-import { MultiTenantService } from "@/utils/multiTenantService";
+import { MultiTenantService } from "@/services/multiTenantService";
 import { Prisma, PrismaClient } from "@prisma/client";
 
 export class NoSeriesService extends MultiTenantService {

@@ -1,5 +1,5 @@
 import { db } from "@/db/db";
-import { MultiTenantService } from "@/utils/multiTenantService";
+import { MultiTenantService } from "@/services/multiTenantService";
 import { Prisma, PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 
@@ -8,26 +8,15 @@ export class UserService extends MultiTenantService {
     super(db);
   }
   createUser = async (user: Prisma.UserCreateInput) => {
-    const {
-      email,
-      username,
-      password,
-      firstName,
-      lastName,
-      phone,
-      dob,
-      gender,
-      image,
-      role,
-    } = user;
+    const { fullName, email, username, password, phone, gender, image, role } =
+      user;
     try {
       const userByEmail = await this.findUnique(
         (args) => this.db.user.findUnique(args),
         {
           where: {
-            tenantId_companyId_email: {
+            tenantId_email: {
               tenantId: this.getTenantId(),
-              companyId: this.getCompanyId(),
               email,
             },
           },
@@ -41,9 +30,8 @@ export class UserService extends MultiTenantService {
         (args) => this.db.user.findUnique(args),
         {
           where: {
-            tenantId_companyId_username: {
+            tenantId_username: {
               tenantId: this.getTenantId(),
-              companyId: this.getCompanyId(),
               username,
             },
           },
@@ -58,9 +46,8 @@ export class UserService extends MultiTenantService {
         (args) => this.db.user.findUnique(args),
         {
           where: {
-            tenantId_companyId_phone: {
+            tenantId_phone: {
               tenantId: this.getTenantId(),
-              companyId: this.getCompanyId(),
               phone,
             },
           },
@@ -74,20 +61,20 @@ export class UserService extends MultiTenantService {
       //create the user
       const newUser = await this.create((args) => this.db.user.create(args), {
         data: {
+          fullName,
           email,
           username,
           password: hashedPassword,
-          firstName,
-          lastName,
           phone,
-          dob,
           gender,
           image: image
             ? image
             : "https://utfs.io/f/276c9ec4-bff3-40fc-8759-6b4c362c1e59-o0u7dg.png",
           role,
-          companyId: this.getCompanyId(),
           tenantId: this.getTenantId(),
+        },
+        include: {
+          tenant: true,
         },
       });
       //send verification code
@@ -128,7 +115,6 @@ export class UserService extends MultiTenantService {
           createdAt: "desc",
         },
         include: {
-          company: true,
           tenant: true,
         },
       });
@@ -154,7 +140,6 @@ export class UserService extends MultiTenantService {
         {
           where: { id },
           include: {
-            company: true,
             tenant: true,
           },
         }
@@ -179,8 +164,7 @@ export class UserService extends MultiTenantService {
   };
 
   updateUser = async (id: string, user: Prisma.UserCreateInput) => {
-    const { email, username, firstName, lastName, phone, dob, gender, image } =
-      user;
+    const { fullName, email, username, phone, gender, image } = user;
     try {
       // Find the user first
       const userExists = await this.findUnique(
@@ -199,7 +183,6 @@ export class UserService extends MultiTenantService {
             image: true,
           },
           include: {
-            company: true,
             tenant: true,
           },
         }
@@ -244,12 +227,10 @@ export class UserService extends MultiTenantService {
         {
           where: { id },
           data: {
+            fullName,
             email,
             username,
-            firstName,
-            lastName,
             phone,
-            dob,
             gender,
             image,
           },
