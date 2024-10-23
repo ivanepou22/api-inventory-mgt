@@ -1648,7 +1648,6 @@ model NoSeries {
   customer         NoSeriesSetup[]    @relation("NoSeriesSetupCustomer")
 
   @@unique([tenantId, companyId, code])
-  @@unique([tenantId, companyId])
 }
 
 model NoSeriesLine {
