@@ -1653,7 +1653,6 @@ model NoSeries {
 model NoSeriesLine {
   id            String    @id @default(auto()) @map("_id") @db.ObjectId
   noSeriesId    String    @db.ObjectId
-  noSeriesCode  String
   startingDate  DateTime?
   endingDate    DateTime?
   startingNo    String
@@ -1668,7 +1667,7 @@ model NoSeriesLine {
   user          User      @relation(fields: [userId], references: [id])
   company       Company   @relation(fields: [companyId], references: [id])
   tenant        Tenant    @relation(fields: [tenantId], references: [id])
-  NoSeries      NoSeries  @relation(fields: [noSeriesId], references: [id], onDelete: Cascade)
+  noSeries      NoSeries  @relation(fields: [noSeriesId], references: [id], onDelete: Cascade)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
