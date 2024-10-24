@@ -1672,7 +1672,7 @@ model NoSeriesLine {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId, noSeriesId, startingNo])
 }
 
 model NoSeriesSetup {
