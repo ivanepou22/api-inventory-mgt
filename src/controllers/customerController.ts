@@ -1,10 +1,11 @@
-import { customerService } from "@/services/customerService";
 import { Request, Response } from "express";
+import { customerService } from "@/services/customerService";
 
 // Create a new customer
 export const createCustomer = async (req: Request, res: Response) => {
   try {
-    const customer = await customerService.createCustomer(req.body);
+    const customerServiceInstance = customerService();
+    const customer = await customerServiceInstance.createCustomer(req.body);
     return res.status(201).json(customer);
   } catch (error: any) {
     return res
@@ -16,7 +17,8 @@ export const createCustomer = async (req: Request, res: Response) => {
 // Get all customers
 export const getCustomers = async (_req: Request, res: Response) => {
   try {
-    const customers = await customerService.getCustomers();
+    const customerServiceInstance = customerService();
+    const customers = await customerServiceInstance.getCustomers();
     return res.status(200).json(customers);
   } catch (error: any) {
     return res
@@ -29,7 +31,8 @@ export const getCustomers = async (_req: Request, res: Response) => {
 export const getCustomer = async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
-    const customer = await customerService.getCustomer(id);
+    const customerServiceInstance = customerService();
+    const customer = await customerServiceInstance.getCustomer(id);
     return res.status(200).json(customer);
   } catch (error: any) {
     return res
@@ -42,7 +45,8 @@ export const getCustomer = async (req: Request, res: Response) => {
 export const updateCustomer = async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
-    const customer = await customerService.updateCustomer(id, req.body);
+    const customerServiceInstance = customerService();
+    const customer = await customerServiceInstance.updateCustomer(id, req.body);
     return res.status(200).json(customer);
   } catch (error: any) {
     return res
@@ -55,7 +59,8 @@ export const updateCustomer = async (req: Request, res: Response) => {
 export const deleteCustomer = async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
-    const customer = await customerService.deleteCustomer(id);
+    const customerServiceInstance = customerService();
+    const customer = await customerServiceInstance.deleteCustomer(id);
     return res.status(200).json(customer);
   } catch (error: any) {
     return res
