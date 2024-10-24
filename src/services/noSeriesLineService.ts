@@ -20,6 +20,7 @@ export class NoSeriesLineService extends MultiTenantService {
       lastNoUsed,
       lastDigitUsed,
       increment,
+      userId,
     } = noSeriesLine;
     try {
       //get the noSeries
@@ -32,7 +33,6 @@ export class NoSeriesLineService extends MultiTenantService {
       if (!noSeries) {
         throw new Error("No Series not found");
       }
-      const noSeriesCode = noSeries.code;
 
       const noSeriesLineExists = await this.findUnique(
         (args) => this.db.noSeriesLine.findUnique(args),
@@ -69,15 +69,15 @@ export class NoSeriesLineService extends MultiTenantService {
         {
           data: {
             noSeriesId,
-            noSeriesCode,
+            startingNo: await slugify(startingNo),
             startingDate,
             endingDate,
-            startingNo: await slugify(startingNo),
             endingNo,
             lastDateUsed,
             lastNoUsed,
             lastDigitUsed,
             increment,
+            userId,
             tenantId: this.getTenantId(),
             companyId: this.getCompanyId(),
           },
@@ -107,7 +107,7 @@ export class NoSeriesLineService extends MultiTenantService {
               select: {
                 id: true,
                 code: true,
-                name: true,
+                description: true,
               },
             },
             company: {
@@ -121,6 +121,14 @@ export class NoSeriesLineService extends MultiTenantService {
               select: {
                 id: true,
                 name: true,
+              },
+            },
+            user: {
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+                phone: true,
               },
             },
           },
@@ -147,7 +155,7 @@ export class NoSeriesLineService extends MultiTenantService {
               select: {
                 id: true,
                 code: true,
-                name: true,
+                description: true,
               },
             },
             company: {
@@ -269,9 +277,9 @@ export class NoSeriesLineService extends MultiTenantService {
         {
           where: { id },
           data: {
+            startingNo: startingNoUpper,
             startingDate,
             endingDate,
-            startingNo: startingNoUpper,
             endingNo,
             lastDateUsed,
             lastNoUsed,
