@@ -9,10 +9,10 @@ datasource db {
 
 model Customer {
   id                     String                @id @default(auto()) @map("_id") @db.ObjectId
-  No                     String                @unique
+  No                     String
   name                   String
-  phone                  String                @unique
-  email                  String                @unique
+  phone                  String
+  email                  String
   image                  String?
   country                String?
   address                String?
@@ -49,6 +49,8 @@ model Customer {
   updatedAt              DateTime              @updatedAt
 
   @@unique([tenantId, companyId, No])
+  @@unique([tenantId, companyId, phone])
+  @@unique([tenantId, companyId, email])
 }
 
 model SalesPerson {
