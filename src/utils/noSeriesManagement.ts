@@ -38,17 +38,6 @@ const getNoSeriesSetup = async (tenantId: string, companyId: string) => {
   return noSeriesSetup;
 };
 
-//get customer series
-const getCustomerSeriesNo = async (tenantId: string, companyId: string) => {
-  try {
-    const noSeriesSetup = await getNoSeriesSetup(tenantId, companyId);
-    return noSeriesSetup.customerNos;
-  } catch (error: any) {
-    console.error("Error getting customer series:", error);
-    throw new Error(error.message);
-  }
-};
-
 //get the noSeries from the table
 const getNoSeries = async (
   tenantId: string,
@@ -138,8 +127,22 @@ const getNextNoSeriesLine = async (
   }
 };
 
+//get customer series
+const getCustomerSeriesNo = async (tenantId: string, companyId: string) => {
+  try {
+    const noSeriesSetup = await getNoSeriesSetup(tenantId, companyId);
+    return noSeriesSetup.customerNos;
+  } catch (error: any) {
+    console.error("Error getting customer series:", error);
+    throw new Error(error.message);
+  }
+};
+
 //setCustomer Series
-const setCustomerNoSeries = async (tenantId: string, companyId: string) => {
+export const setCustomerNoSeries = async (
+  tenantId: string,
+  companyId: string
+) => {
   try {
     const customerSeriesNo = await getCustomerSeriesNo(tenantId, companyId);
     if (!customerSeriesNo) {
