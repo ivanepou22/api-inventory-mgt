@@ -1698,7 +1698,7 @@ model NoSeriesLine {
   endingDate    DateTime?
   startingNo    String
   endingNo      String?
-  lastDateUsed  DateTime?
+  lastDateUsed  DateTime  @default(now())
   lastNoUsed    String?
   lastDigitUsed Int?
   increment     Int?      @default(1)
