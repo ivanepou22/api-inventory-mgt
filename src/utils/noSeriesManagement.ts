@@ -161,7 +161,6 @@ export const setNoSeries = async (
       throw new Error("NoSeriesLine not found");
     }
     const nextNoSeriesLine = await getNextNoSeriesLine(noSeriesLine);
-    console.log(nextNoSeriesLine);
     if (!nextNoSeriesLine) {
       throw new Error("NextNoSeriesLine not found");
     }
