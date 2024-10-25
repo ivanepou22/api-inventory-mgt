@@ -10,7 +10,7 @@ import {
 const noSeriesSetupRouter = Router();
 
 noSeriesSetupRouter.post("/noSeriesSetup", createNoSeriesSetup);
-noSeriesSetupRouter.get("/noSeriesSetups", getNoSeriesSetups);
+noSeriesSetupRouter.get("/noSeriesSetup", getNoSeriesSetups);
 noSeriesSetupRouter.get("/noSeriesSetup/:id", getNoSeriesSetup);
 noSeriesSetupRouter.put("/noSeriesSetup/:id", updateNoSeriesSetup);
 noSeriesSetupRouter.delete("/noSeriesSetup/:id", deleteNoSeriesSetup);
