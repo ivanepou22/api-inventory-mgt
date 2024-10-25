@@ -1721,9 +1721,9 @@ model NoSeriesSetup {
   companyId      String    @db.ObjectId
   tenantId       String    @db.ObjectId
   userId         String    @db.ObjectId
-  bankAccount    NoSeries? @relation(name: "NoSeriesSetupBankAccount", fields: [bankAccountNos], references: [id])
-  vendor         NoSeries? @relation(name: "NoSeriesSetupVendor", fields: [vendorNos], references: [id])
-  customer       NoSeries? @relation(name: "NoSeriesSetupCustomer", fields: [customerNos], references: [id])
+  bankAccountNo  NoSeries? @relation(name: "NoSeriesSetupBankAccount", fields: [bankAccountNos], references: [id])
+  vendorNo       NoSeries? @relation(name: "NoSeriesSetupVendor", fields: [vendorNos], references: [id])
+  customerNo     NoSeries? @relation(name: "NoSeriesSetupCustomer", fields: [customerNos], references: [id])
   user           User      @relation(fields: [userId], references: [id])
   company        Company   @relation(fields: [companyId], references: [id])
   tenant         Tenant    @relation(fields: [tenantId], references: [id])
