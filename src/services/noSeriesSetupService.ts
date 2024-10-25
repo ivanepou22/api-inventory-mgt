@@ -26,6 +26,16 @@ export class NoSeriesSetupService extends MultiTenantService {
           include: {
             tenant: true,
             company: true,
+            bankAccountNo: true,
+            vendorNo: true,
+            customerNo: true,
+            user: {
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+              },
+            },
           },
         }
       );
@@ -50,6 +60,16 @@ export class NoSeriesSetupService extends MultiTenantService {
           include: {
             tenant: true,
             company: true,
+            bankAccountNo: true,
+            vendorNo: true,
+            customerNo: true,
+            user: {
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+              },
+            },
           },
         }
       );
@@ -72,6 +92,16 @@ export class NoSeriesSetupService extends MultiTenantService {
           include: {
             tenant: true,
             company: true,
+            bankAccountNo: true,
+            vendorNo: true,
+            customerNo: true,
+            user: {
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+              },
+            },
           },
         }
       );
