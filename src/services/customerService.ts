@@ -20,13 +20,15 @@ class CustomerService extends MultiTenantService {
       website,
       maxCreditLimit,
       maxCreditDays,
-      contactPerson,
-      contact_phone,
-      contact_email,
       taxPin,
       regNumber,
       paymentTerms,
       NIN,
+      customerPostingGroupId,
+      genBusPostingGroupId,
+      vatBusPostingGroupId,
+      salesPersonId,
+      userId,
     } = customer;
 
     const customerExists = await this.findUnique(
@@ -56,7 +58,6 @@ class CustomerService extends MultiTenantService {
         (args) => this.db.customer.create(args),
         {
           data: {
-            ...customer,
             customerType,
             name,
             phone,
@@ -67,13 +68,15 @@ class CustomerService extends MultiTenantService {
             website,
             maxCreditLimit,
             maxCreditDays,
-            contactPerson,
-            contact_phone,
-            contact_email,
             taxPin,
             regNumber,
             paymentTerms,
             NIN,
+            customerPostingGroupId,
+            genBusPostingGroupId,
+            vatBusPostingGroupId,
+            salesPersonId,
+            userId,
             image: image
               ? image
               : "https://utfs.io/f/276c9ec4-bff3-40fc-8759-6b4c362c1e59-o0u7dg.png",
