@@ -123,6 +123,7 @@ export class NoSeriesLineService extends MultiTenantService {
             user: {
               select: {
                 fullName: true,
+                email: true,
               },
             },
           },
@@ -165,6 +166,7 @@ export class NoSeriesLineService extends MultiTenantService {
             user: {
               select: {
                 fullName: true,
+                email: true,
               },
             },
           },

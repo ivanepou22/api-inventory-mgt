@@ -24,16 +24,24 @@ export class NoSeriesSetupService extends MultiTenantService {
             userId,
           },
           include: {
-            tenant: true,
-            company: true,
             bankAccountNo: true,
             vendorNo: true,
             customerNo: true,
             user: {
               select: {
-                id: true,
                 fullName: true,
                 email: true,
+              },
+            },
+            company: {
+              select: {
+                code: true,
+                name: true,
+              },
+            },
+            tenant: {
+              select: {
+                name: true,
               },
             },
           },
@@ -58,16 +66,24 @@ export class NoSeriesSetupService extends MultiTenantService {
             createdAt: "desc",
           },
           include: {
-            tenant: true,
-            company: true,
             bankAccountNo: true,
             vendorNo: true,
             customerNo: true,
             user: {
               select: {
-                id: true,
                 fullName: true,
                 email: true,
+              },
+            },
+            company: {
+              select: {
+                code: true,
+                name: true,
+              },
+            },
+            tenant: {
+              select: {
+                name: true,
               },
             },
           },
@@ -90,16 +106,24 @@ export class NoSeriesSetupService extends MultiTenantService {
         {
           where: { id },
           include: {
-            tenant: true,
-            company: true,
             bankAccountNo: true,
             vendorNo: true,
             customerNo: true,
             user: {
               select: {
-                id: true,
                 fullName: true,
                 email: true,
+              },
+            },
+            company: {
+              select: {
+                code: true,
+                name: true,
+              },
+            },
+            tenant: {
+              select: {
+                name: true,
               },
             },
           },
@@ -131,12 +155,6 @@ export class NoSeriesSetupService extends MultiTenantService {
         (args) => this.db.noSeriesSetup.findUnique(args),
         {
           where: { id },
-          select: {
-            id: true,
-            customerNos: true,
-            vendorNos: true,
-            bankAccountNos: true,
-          },
         }
       );
       if (!noSeriesSetupExists) {
@@ -152,8 +170,26 @@ export class NoSeriesSetupService extends MultiTenantService {
             bankAccountNos,
           },
           include: {
-            tenant: true,
-            company: true,
+            bankAccountNo: true,
+            vendorNo: true,
+            customerNo: true,
+            user: {
+              select: {
+                fullName: true,
+                email: true,
+              },
+            },
+            company: {
+              select: {
+                code: true,
+                name: true,
+              },
+            },
+            tenant: {
+              select: {
+                name: true,
+              },
+            },
           },
         }
       );
