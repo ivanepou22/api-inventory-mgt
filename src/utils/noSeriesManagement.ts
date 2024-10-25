@@ -160,6 +160,7 @@ export const setCustomerNoSeries = async (
     if (!nextNoSeriesLine) {
       throw new Error("NextNoSeriesLine not found");
     }
+    return nextNoSeriesLine;
   } catch (error: any) {
     console.error("Error setting customer noSeries:", error);
     throw new Error(error.message);

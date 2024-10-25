@@ -1,6 +1,7 @@
 import { db } from "@/db/db";
 import { Prisma, PrismaClient } from "@prisma/client";
 import { MultiTenantService } from "./multiTenantService";
+import { setCustomerNoSeries } from "@/utils/noSeriesManagement";
 
 class CustomerService extends MultiTenantService {
   constructor(db: PrismaClient) {
@@ -31,33 +32,57 @@ class CustomerService extends MultiTenantService {
       userId,
     } = customer;
 
-    const customerExists = await this.findUnique(
-      (args) => this.db.customer.findUnique(args),
-      { where: { phone } }
-    );
-    if (customerExists) {
-      throw new Error(
-        `Phone Number: ${phone} is already in use by another Customer`
-      );
-    }
-
-    if (email) {
-      const customerByEmail = await this.findUnique(
+    try {
+      const customerExists = await this.findUnique(
         (args) => this.db.customer.findUnique(args),
-        { where: { email } }
+        { where: { phone } }
       );
-      if (customerByEmail) {
+      if (customerExists) {
         throw new Error(
-          `Email: ${email} is already in use by another Customer`
+          `Phone Number: ${phone} is already in use by another Customer`
         );
       }
-    }
 
-    try {
+      if (email) {
+        const customerByEmail = await this.findUnique(
+          (args) => this.db.customer.findUnique(args),
+          { where: { email } }
+        );
+        if (customerByEmail) {
+          throw new Error(
+            `Email: ${email} is already in use by another Customer`
+          );
+        }
+      }
+
+      const customerNo = await setCustomerNoSeries(
+        this.getTenantId(),
+        this.getCompanyId()
+      );
+
+      const customerEx = await this.findUnique(
+        (args) => this.db.customer.findUnique(args),
+        {
+          where: {
+            tenantId_companyId_No: {
+              No: customerNo,
+              tenantId: this.getTenantId(),
+              companyId: this.getCompanyId(),
+            },
+          },
+        }
+      );
+      if (customerEx) {
+        throw new Error(
+          `No: ${customerNo} is already in use by another Customer`
+        );
+      }
+
       const newCustomer = await this.create(
         (args) => this.db.customer.create(args),
         {
           data: {
+            No: customerNo,
             customerType,
             name,
             phone,
@@ -98,7 +123,7 @@ class CustomerService extends MultiTenantService {
       };
     } catch (error: any) {
       console.error("Error creating Customer:", error);
-      throw new Error(`An unexpected error occurred. Please try again later.`);
+      throw new Error(error.message);
     }
   }
 

@@ -12,10 +12,10 @@ model Customer {
   No                     String                @unique
   name                   String
   phone                  String                @unique
-  email                  String?               @unique
+  email                  String                @unique
   image                  String?
-  country                String
-  address                String
+  country                String?
+  address                String?
   address_2              String?
   customerType           CustomerType
   website                String?
@@ -1730,7 +1730,7 @@ model NoSeriesSetup {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId, id])
 }
 
 model Tenant {
