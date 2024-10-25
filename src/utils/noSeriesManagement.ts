@@ -1,5 +1,7 @@
 import { db } from "@/db/db";
 import { Prisma } from "@prisma/client";
+
+type NoSeriesField = "customerNos" | "vendorNos" | "bankAccountNos";
 const incrementString = async (str: string): Promise<string> => {
   // Regex to match the non-digit prefix and the numeric part
   const match = str.match(/([^\d]*)(\d+)(.*)/);
@@ -127,28 +129,33 @@ const getNextNoSeriesLine = async (
   }
 };
 
-//get customer series
-const getCustomerSeriesNo = async (tenantId: string, companyId: string) => {
+//get series
+const getSeriesNo = async (
+  tenantId: string,
+  companyId: string,
+  field: NoSeriesField
+) => {
   try {
     const noSeriesSetup = await getNoSeriesSetup(tenantId, companyId);
-    return noSeriesSetup.customerNos;
+    return noSeriesSetup[field];
   } catch (error: any) {
-    console.error("Error getting customer series:", error);
+    console.error("Error getting No. series:", error);
     throw new Error(error.message);
   }
 };
 
-//setCustomer Series
-export const setCustomerNoSeries = async (
+//set noSeries
+export const setNoSeries = async (
   tenantId: string,
-  companyId: string
+  companyId: string,
+  field: NoSeriesField
 ) => {
   try {
-    const customerSeriesNo = await getCustomerSeriesNo(tenantId, companyId);
-    if (!customerSeriesNo) {
-      throw new Error("Customer noSeries No. not Setup");
+    const SeriesNo = await getSeriesNo(tenantId, companyId, field);
+    if (!SeriesNo) {
+      throw new Error(`${field} noSeries No. not Setup`);
     }
-    const noSeries = await getNoSeries(tenantId, companyId, customerSeriesNo);
+    const noSeries = await getNoSeries(tenantId, companyId, SeriesNo);
     if (!noSeries) {
       throw new Error("NoSeries not found");
     }
@@ -162,7 +169,67 @@ export const setCustomerNoSeries = async (
     }
     return nextNoSeriesLine;
   } catch (error: any) {
-    console.error("Error setting customer noSeries:", error);
+    console.error("Error setting noSeries:", error);
     throw new Error(error.message);
+  }
+};
+
+//set noSeries
+export const updateNoSeries = async (
+  tenantId: string,
+  companyId: string,
+  field: NoSeriesField
+) => {
+  try {
+    const SeriesNo = await getSeriesNo(tenantId, companyId, field);
+    if (!SeriesNo) {
+      throw new Error(`${field} noSeries No. not Setup`);
+    }
+    const noSeries = await getNoSeries(tenantId, companyId, SeriesNo);
+    if (!noSeries) {
+      throw new Error("NoSeries not found");
+    }
+    const noSeriesLine = await getNoSeriesLine(tenantId, companyId, noSeries);
+    if (!noSeriesLine) {
+      throw new Error("NoSeriesLine not found");
+    }
+    const nextNoSeriesLine = await getNextNoSeriesLine(noSeriesLine);
+    if (!nextNoSeriesLine) {
+      throw new Error("NextNoSeriesLine not found");
+    }
+
+    const updatedNoSeriesLine = await updateNoSeriesLine(
+      noSeriesLine,
+      nextNoSeriesLine
+    );
+    if (!updatedNoSeriesLine) {
+      throw new Error("UpdatedNoSeriesLine not found");
+    }
+  } catch (error: any) {
+    console.error("Error setting noSeries:", error);
+    throw new Error(error.message);
+  }
+};
+
+//update noSeriesLine
+const updateNoSeriesLine = async (
+  noSeriesLine: Prisma.NoSeriesLineUncheckedCreateInput,
+  nextNoSeriesLine: string
+) => {
+  try {
+    const lastNoUsed = await incrementString(nextNoSeriesLine);
+    const updatedNoSeriesLine = await db.noSeriesLine.update({
+      where: {
+        id: noSeriesLine.id,
+      },
+      data: {
+        lastNoUsed,
+        lastDateUsed: new Date().toISOString(),
+      },
+    });
+    return updatedNoSeriesLine;
+  } catch (error: any) {
+    console.error("Error updating noSeriesLine:", error);
+    throw new Error("Unexpected error occurred. Please try again later.");
   }
 };
