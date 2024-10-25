@@ -114,11 +114,8 @@ const getNextNoSeriesLine = async (
       const incrementedLastDateUsed = await incrementString(
         noSeriesLine.lastNoUsed
       );
-      //check if the incrementedLastDateUsed is less than the startingNo
-      if (incrementedLastDateUsed < noSeriesLine.startingNo) {
-        //return the incrementedLastDateUsed
-        return incrementedLastDateUsed;
-      }
+      //return the incrementedLastDateUsed
+      return incrementedLastDateUsed;
     } else {
       //return the startingNo
       return noSeriesLine.startingNo;
@@ -164,6 +161,7 @@ export const setNoSeries = async (
       throw new Error("NoSeriesLine not found");
     }
     const nextNoSeriesLine = await getNextNoSeriesLine(noSeriesLine);
+    console.log(nextNoSeriesLine);
     if (!nextNoSeriesLine) {
       throw new Error("NextNoSeriesLine not found");
     }
@@ -217,13 +215,12 @@ const updateNoSeriesLine = async (
   nextNoSeriesLine: string
 ) => {
   try {
-    const lastNoUsed = await incrementString(nextNoSeriesLine);
     const updatedNoSeriesLine = await db.noSeriesLine.update({
       where: {
         id: noSeriesLine.id,
       },
       data: {
-        lastNoUsed,
+        lastNoUsed: nextNoSeriesLine,
         lastDateUsed: new Date().toISOString(),
       },
     });

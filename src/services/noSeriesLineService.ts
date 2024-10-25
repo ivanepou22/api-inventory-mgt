@@ -258,8 +258,8 @@ export class NoSeriesLineService extends MultiTenantService {
         : noSeriesLineExists.startingNo;
 
       if (
-        (await slugify(startingNo)) &&
-        (await slugify(startingNo)) !== noSeriesLineExists.startingNo
+        startingNoUpper &&
+        startingNoUpper !== noSeriesLineExists.startingNo
       ) {
         const noSeriesLineByStartingNo = await this.findUnique(
           (args) => this.db.noSeriesLine.findUnique(args),

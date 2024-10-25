@@ -1,7 +1,7 @@
 import { db } from "@/db/db";
 import { Prisma, PrismaClient } from "@prisma/client";
 import { MultiTenantService } from "./multiTenantService";
-import { setCustomerNoSeries } from "@/utils/noSeriesManagement";
+import { setNoSeries, updateNoSeries } from "@/utils/noSeriesManagement";
 
 class CustomerService extends MultiTenantService {
   constructor(db: PrismaClient) {
@@ -35,7 +35,15 @@ class CustomerService extends MultiTenantService {
     try {
       const customerExists = await this.findUnique(
         (args) => this.db.customer.findUnique(args),
-        { where: { phone } }
+        {
+          where: {
+            tenantId_companyId_phone: {
+              phone,
+              tenantId: this.getTenantId(),
+              companyId: this.getCompanyId(),
+            },
+          },
+        }
       );
       if (customerExists) {
         throw new Error(
@@ -46,7 +54,15 @@ class CustomerService extends MultiTenantService {
       if (email) {
         const customerByEmail = await this.findUnique(
           (args) => this.db.customer.findUnique(args),
-          { where: { email } }
+          {
+            where: {
+              tenantId_companyId_email: {
+                email,
+                tenantId: this.getTenantId(),
+                companyId: this.getCompanyId(),
+              },
+            },
+          }
         );
         if (customerByEmail) {
           throw new Error(
@@ -55,9 +71,10 @@ class CustomerService extends MultiTenantService {
         }
       }
 
-      const customerNo = await setCustomerNoSeries(
+      const customerNo = await setNoSeries(
         this.getTenantId(),
-        this.getCompanyId()
+        this.getCompanyId(),
+        "customerNos"
       );
 
       const customerEx = await this.findUnique(
@@ -117,6 +134,13 @@ class CustomerService extends MultiTenantService {
           },
         }
       );
+
+      await updateNoSeries(
+        this.getTenantId(),
+        this.getCompanyId(),
+        "customerNos"
+      );
+
       return {
         data: newCustomer,
         message: "Customer created successfully",
