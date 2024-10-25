@@ -24,15 +24,10 @@ model Customer {
   salesAmount            Float?                @default(0)
   paidAmount             Float?                @default(0)
   balanceAmount          Float?                @default(0)
-  contactPerson          String?
-  contact_phone          String?
-  contact_email          String?
   taxPin                 String?
   regNumber              String?
   paymentTerms           String?
   NIN                    String?
-  OnlineOrderSetup       OnlineOrderSetup[]
-  salesHeaders           SalesHeader[]
   customerPostingGroupId String?               @db.ObjectId
   genBusPostingGroupId   String?               @db.ObjectId
   vatBusPostingGroupId   String?               @db.ObjectId
@@ -40,6 +35,9 @@ model Customer {
   companyId              String                @db.ObjectId
   tenantId               String                @db.ObjectId
   userId                 String                @db.ObjectId
+  salesHeaders           SalesHeader[]
+  OnlineOrderSetup       OnlineOrderSetup[]
+  CustomerContact        CustomerContact[]
   user                   User                  @relation(fields: [userId], references: [id])
   company                Company               @relation(fields: [companyId], references: [id])
   tenant                 Tenant                @relation(fields: [tenantId], references: [id])
@@ -50,16 +48,15 @@ model Customer {
   createdAt              DateTime              @default(now())
   updatedAt              DateTime              @updatedAt
 
-  @@unique([tenantId, companyId])
   @@unique([tenantId, companyId, No])
 }
 
 model SalesPerson {
   id          String        @id @default(auto()) @map("_id") @db.ObjectId
-  code        String        @unique
+  code        String
   name        String
-  phone       String        @unique
-  email       String?       @unique
+  phone       String
+  email       String?
   image       String?
   Customer    Customer[]
   SalesHeader SalesHeader[]
@@ -72,7 +69,47 @@ model SalesPerson {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
-  @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId, code])
+  @@unique([tenantId, companyId, phone])
+  @@unique([tenantId, companyId, email])
+}
+
+model Cotact {
+  id              String            @id @default(auto()) @map("_id") @db.ObjectId
+  code            String
+  name            String
+  phone           String?
+  email           String?
+  image           String?
+  companyId       String            @db.ObjectId
+  tenantId        String            @db.ObjectId
+  userId          String            @db.ObjectId
+  user            User              @relation(fields: [userId], references: [id])
+  company         Company           @relation(fields: [companyId], references: [id])
+  tenant          Tenant            @relation(fields: [tenantId], references: [id])
+  CustomerContact CustomerContact[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@unique([tenantId, companyId, code])
+}
+
+model CustomerContact {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  customerId String   @db.ObjectId
+  contactId  String   @db.ObjectId
+  companyId  String   @db.ObjectId
+  tenantId   String   @db.ObjectId
+  userId     String   @db.ObjectId
+  customer   Customer @relation(fields: [customerId], references: [id])
+  contact    Cotact   @relation(fields: [contactId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+  company    Company  @relation(fields: [companyId], references: [id])
+  tenant     Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([tenantId, companyId, customerId, contactId])
 }
 
 enum CustomerType {
@@ -159,6 +196,8 @@ model User {
   BankAccountLedgerEntry     BankAccountLedgerEntry[]
   GLAccount                  GLAccount[]
   UserCompany                UserCompany[]
+  Cotact                     Cotact[]
+  CustomerContact            CustomerContact[]
 
   @@unique([tenantId, email])
   @@unique([tenantId, username])
@@ -1758,6 +1797,8 @@ model Tenant {
   BankAccountLedgerEntry     BankAccountLedgerEntry[]
   GLAccount                  GLAccount[]
   UserCompany                UserCompany[]
+  Cotact                     Cotact[]
+  CustomerContact            CustomerContact[]
 }
 
 model Company {
@@ -1825,6 +1866,8 @@ model Company {
   BankAccountLedgerEntry     BankAccountLedgerEntry[]
   GLAccount                  GLAccount[]
   UserCompany                UserCompany[]
+  Cotact                     Cotact[]
+  CustomerContact            CustomerContact[]
 
   @@unique([tenantId, code])
 }
