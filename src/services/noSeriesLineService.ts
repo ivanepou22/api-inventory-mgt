@@ -105,30 +105,24 @@ export class NoSeriesLineService extends MultiTenantService {
           include: {
             noSeries: {
               select: {
-                id: true,
                 code: true,
                 description: true,
               },
             },
             company: {
               select: {
-                id: true,
                 code: true,
                 name: true,
               },
             },
             tenant: {
               select: {
-                id: true,
                 name: true,
               },
             },
             user: {
               select: {
-                id: true,
                 fullName: true,
-                email: true,
-                phone: true,
               },
             },
           },
@@ -153,22 +147,24 @@ export class NoSeriesLineService extends MultiTenantService {
           include: {
             noSeries: {
               select: {
-                id: true,
                 code: true,
                 description: true,
               },
             },
             company: {
               select: {
-                id: true,
                 code: true,
                 name: true,
               },
             },
             tenant: {
               select: {
-                id: true,
                 name: true,
+              },
+            },
+            user: {
+              select: {
+                fullName: true,
               },
             },
           },

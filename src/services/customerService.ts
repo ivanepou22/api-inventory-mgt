@@ -131,6 +131,23 @@ class CustomerService extends MultiTenantService {
             genBusPostingGroup: true,
             vatBusPostingGroup: true,
             salesHeaders: true,
+            company: {
+              select: {
+                code: true,
+                name: true,
+              },
+            },
+            tenant: {
+              select: {
+                name: true,
+              },
+            },
+            user: {
+              select: {
+                fullName: true,
+                email: true,
+              },
+            },
           },
         }
       );
@@ -183,6 +200,25 @@ class CustomerService extends MultiTenantService {
             genBusPostingGroup: true,
             vatBusPostingGroup: true,
             salesHeaders: true,
+            OnlineOrderSetup: true,
+            CustomerContact: true,
+            company: {
+              select: {
+                code: true,
+                name: true,
+              },
+            },
+            tenant: {
+              select: {
+                name: true,
+              },
+            },
+            user: {
+              select: {
+                fullName: true,
+                email: true,
+              },
+            },
           },
         }
       );
@@ -208,6 +244,25 @@ class CustomerService extends MultiTenantService {
             genBusPostingGroup: true,
             vatBusPostingGroup: true,
             salesHeaders: true,
+            OnlineOrderSetup: true,
+            CustomerContact: true,
+            company: {
+              select: {
+                code: true,
+                name: true,
+              },
+            },
+            tenant: {
+              select: {
+                name: true,
+              },
+            },
+            user: {
+              select: {
+                fullName: true,
+                email: true,
+              },
+            },
           },
         }
       );
@@ -275,6 +330,23 @@ class CustomerService extends MultiTenantService {
             genBusPostingGroup: true,
             vatBusPostingGroup: true,
             salesHeaders: true,
+            company: {
+              select: {
+                code: true,
+                name: true,
+              },
+            },
+            tenant: {
+              select: {
+                name: true,
+              },
+            },
+            user: {
+              select: {
+                fullName: true,
+                email: true,
+              },
+            },
           },
         }
       );
