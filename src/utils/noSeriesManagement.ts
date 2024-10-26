@@ -1,7 +1,7 @@
 import { db } from "@/db/db";
 import { Prisma } from "@prisma/client";
 
-type NoSeriesField = "customerNos" | "vendorNos" | "bankAccountNos";
+// type NoSeriesField = "customerNos" | "vendorNos" | "bankAccountNos";
 const incrementString = async (str: string): Promise<string> => {
   // Regex to match the non-digit prefix and the numeric part
   const match = str.match(/([^\d]*)(\d+)(.*)/);
@@ -130,11 +130,13 @@ const getNextNoSeriesLine = async (
 const getSeriesNo = async (
   tenantId: string,
   companyId: string,
-  field: NoSeriesField
+  field: string
 ) => {
   try {
     const noSeriesSetup = await getNoSeriesSetup(tenantId, companyId);
-    return noSeriesSetup[field];
+    return noSeriesSetup[
+      field as keyof Omit<typeof noSeriesSetup, "createdAt" | "updatedAt">
+    ];
   } catch (error: any) {
     console.error("Error getting No. series:", error);
     throw new Error(error.message);
@@ -145,7 +147,7 @@ const getSeriesNo = async (
 export const setNoSeries = async (
   tenantId: string,
   companyId: string,
-  field: NoSeriesField
+  field: string
 ) => {
   try {
     const SeriesNo = await getSeriesNo(tenantId, companyId, field);
@@ -175,7 +177,7 @@ export const setNoSeries = async (
 export const updateNoSeries = async (
   tenantId: string,
   companyId: string,
-  field: NoSeriesField
+  field: string
 ) => {
   try {
     const SeriesNo = await getSeriesNo(tenantId, companyId, field);
