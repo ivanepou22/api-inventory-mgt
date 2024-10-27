@@ -92,6 +92,7 @@ model Cotact {
   CustomerContact CustomerContact[]
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
+  SupplierContact SupplierContact[]
 
   @@unique([tenantId, companyId, code])
 }
@@ -200,6 +201,7 @@ model User {
   UserCompany                UserCompany[]
   Cotact                     Cotact[]
   CustomerContact            CustomerContact[]
+  SupplierContact            SupplierContact[]
 
   @@unique([tenantId, email])
   @@unique([tenantId, username])
@@ -252,14 +254,13 @@ model Supplier {
   supplierNo             String
   supplierType           SupplierType
   name                   String
-  contactPerson          String
-  phone                  String                  @unique
-  email                  String?                 @unique
+  phone                  String
+  email                  String?
   country                String
   location               String
   website                String?
   taxPin                 String?
-  regNumber              String?                 @unique
+  regNumber              String?
   bankAccountNumber      String?
   bankName               String?
   paymentTerms           String?
@@ -291,6 +292,7 @@ model Supplier {
   vatBusPostingGroup     VatBusPostingGroup?     @relation(fields: [vatBusPostingGroupId], references: [id])
   createdAt              DateTime                @default(now())
   updatedAt              DateTime                @updatedAt
+  SupplierContact        SupplierContact[]
 
   @@unique([tenantId, companyId, supplierNo])
   @@unique([tenantId, companyId, phone])
@@ -303,6 +305,24 @@ enum SupplierType {
   WHOLESALER
   RETAILER
   OTHER
+}
+
+model SupplierContact {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  supplierId String   @db.ObjectId
+  contactId  String   @db.ObjectId
+  companyId  String   @db.ObjectId
+  tenantId   String   @db.ObjectId
+  userId     String   @db.ObjectId
+  supplier   Supplier @relation(fields: [supplierId], references: [id])
+  contact    Cotact   @relation(fields: [contactId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+  company    Company  @relation(fields: [companyId], references: [id])
+  tenant     Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([tenantId, companyId, supplierId, contactId])
 }
 
 model Unit {
@@ -1806,6 +1826,7 @@ model Tenant {
   UserCompany                UserCompany[]
   Cotact                     Cotact[]
   CustomerContact            CustomerContact[]
+  SupplierContact            SupplierContact[]
 }
 
 model Company {
@@ -1875,6 +1896,7 @@ model Company {
   UserCompany                UserCompany[]
   Cotact                     Cotact[]
   CustomerContact            CustomerContact[]
+  SupplierContact            SupplierContact[]
 
   @@unique([tenantId, code])
 }
