@@ -290,9 +290,9 @@ model Supplier {
   vendorPostingGroup     VendorPostingGroup?     @relation(fields: [vendorPostingGroupId], references: [id])
   genBusPostingGroup     GenBusPostingGroup?     @relation(fields: [genBusPostingGroupId], references: [id])
   vatBusPostingGroup     VatBusPostingGroup?     @relation(fields: [vatBusPostingGroupId], references: [id])
+  SupplierContact        SupplierContact[]
   createdAt              DateTime                @default(now())
   updatedAt              DateTime                @updatedAt
-  SupplierContact        SupplierContact[]
 
   @@unique([tenantId, companyId, supplierNo])
   @@unique([tenantId, companyId, phone])
