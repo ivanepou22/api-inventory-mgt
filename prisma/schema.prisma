@@ -249,6 +249,7 @@ model Shop {
 
 model Supplier {
   id                     String                  @id @default(auto()) @map("_id") @db.ObjectId
+  supplierNo             String
   supplierType           SupplierType
   name                   String
   contactPerson          String
@@ -266,6 +267,8 @@ model Supplier {
   paidAmount             Float?                  @default(0)
   balanceAmount          Float?                  @default(0)
   logo                   String?                 @default("https://utfs.io/f/7d3eb071-433f-47e9-b962-7de707bdbeb2-uwz78d.png")
+  address                String?
+  address_2              String?
   rating                 Float?
   note                   String?
   products               Product[]
@@ -289,7 +292,9 @@ model Supplier {
   createdAt              DateTime                @default(now())
   updatedAt              DateTime                @updatedAt
 
-  @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId, supplierNo])
+  @@unique([tenantId, companyId, phone])
+  @@unique([tenantId, companyId, email])
 }
 
 enum SupplierType {
