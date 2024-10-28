@@ -33,44 +33,6 @@ class CustomerService extends MultiTenantService {
     } = customer;
 
     try {
-      const customerExists = await this.findUnique(
-        (args) => this.db.customer.findUnique(args),
-        {
-          where: {
-            tenantId_companyId_phone: {
-              phone,
-              tenantId: this.getTenantId(),
-              companyId: this.getCompanyId(),
-            },
-          },
-        }
-      );
-      if (customerExists) {
-        throw new Error(
-          `Phone Number: ${phone} is already in use by another Customer`
-        );
-      }
-
-      if (email) {
-        const customerByEmail = await this.findUnique(
-          (args) => this.db.customer.findUnique(args),
-          {
-            where: {
-              tenantId_companyId_email: {
-                email,
-                tenantId: this.getTenantId(),
-                companyId: this.getCompanyId(),
-              },
-            },
-          }
-        );
-        if (customerByEmail) {
-          throw new Error(
-            `Email: ${email} is already in use by another Customer`
-          );
-        }
-      }
-
       const customerNo = await setNoSeries(
         this.getTenantId(),
         this.getCompanyId(),
@@ -294,29 +256,6 @@ class CustomerService extends MultiTenantService {
       );
       if (!customerExists) {
         throw new Error("Customer not found.");
-      }
-      if (phone && phone !== customerExists.phone) {
-        const customerByPhone = await this.findUnique(
-          (args) => this.db.customer.findUnique(args),
-          { where: { phone } }
-        );
-        if (customerByPhone) {
-          throw new Error(
-            `Phone Number: ${phone} is already in use by another Customer`
-          );
-        }
-      }
-
-      if (email && email !== customerExists.email) {
-        const customerByEmail = await this.findUnique(
-          (args) => this.db.customer.findUnique(args),
-          { where: { email } }
-        );
-        if (customerByEmail) {
-          throw new Error(
-            `Email: ${email} is already in use by another Customer`
-          );
-        }
       }
 
       const updatedCustomer = await this.update(

@@ -49,8 +49,6 @@ model Customer {
   updatedAt              DateTime              @updatedAt
 
   @@unique([tenantId, companyId, No])
-  @@unique([tenantId, companyId, phone])
-  @@unique([tenantId, companyId, email])
 }
 
 model SalesPerson {
