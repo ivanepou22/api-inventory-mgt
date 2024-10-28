@@ -295,8 +295,6 @@ model Supplier {
   updatedAt              DateTime                @updatedAt
 
   @@unique([tenantId, companyId, supplierNo])
-  @@unique([tenantId, companyId, phone])
-  @@unique([tenantId, companyId, email])
 }
 
 enum SupplierType {
