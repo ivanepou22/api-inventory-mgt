@@ -74,7 +74,7 @@ model SalesPerson {
   @@unique([tenantId, companyId, email])
 }
 
-model Cotact {
+model Contact {
   id              String            @id @default(auto()) @map("_id") @db.ObjectId
   code            String
   name            String
@@ -103,7 +103,7 @@ model CustomerContact {
   tenantId   String   @db.ObjectId
   userId     String   @db.ObjectId
   customer   Customer @relation(fields: [customerId], references: [id])
-  contact    Cotact   @relation(fields: [contactId], references: [id])
+  contact    Contact  @relation(fields: [contactId], references: [id])
   user       User     @relation(fields: [userId], references: [id])
   company    Company  @relation(fields: [companyId], references: [id])
   tenant     Tenant   @relation(fields: [tenantId], references: [id])
@@ -197,7 +197,7 @@ model User {
   BankAccountLedgerEntry     BankAccountLedgerEntry[]
   GLAccount                  GLAccount[]
   UserCompany                UserCompany[]
-  Cotact                     Cotact[]
+  Contact                    Contact[]
   CustomerContact            CustomerContact[]
   SupplierContact            SupplierContact[]
 
@@ -311,7 +311,7 @@ model SupplierContact {
   tenantId   String   @db.ObjectId
   userId     String   @db.ObjectId
   supplier   Supplier @relation(fields: [supplierId], references: [id])
-  contact    Cotact   @relation(fields: [contactId], references: [id])
+  contact    Contact  @relation(fields: [contactId], references: [id])
   user       User     @relation(fields: [userId], references: [id])
   company    Company  @relation(fields: [companyId], references: [id])
   tenant     Tenant   @relation(fields: [tenantId], references: [id])
@@ -1823,7 +1823,7 @@ model Tenant {
   BankAccountLedgerEntry     BankAccountLedgerEntry[]
   GLAccount                  GLAccount[]
   UserCompany                UserCompany[]
-  Cotact                     Cotact[]
+  Contact                    Contact[]
   CustomerContact            CustomerContact[]
   SupplierContact            SupplierContact[]
 }
@@ -1893,7 +1893,7 @@ model Company {
   BankAccountLedgerEntry     BankAccountLedgerEntry[]
   GLAccount                  GLAccount[]
   UserCompany                UserCompany[]
-  Cotact                     Cotact[]
+  Contact                    Contact[]
   CustomerContact            CustomerContact[]
   SupplierContact            SupplierContact[]
 
