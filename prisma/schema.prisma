@@ -1708,6 +1708,7 @@ model NoSeries {
   bankAccount      NoSeriesSetup[]    @relation("NoSeriesSetupBankAccount")
   vendor           NoSeriesSetup[]    @relation("NoSeriesSetupVendor")
   customer         NoSeriesSetup[]    @relation("NoSeriesSetupCustomer")
+  contactNo        NoSeriesSetup[]    @relation("NoSeriesSetupContact")
 
   @@unique([tenantId, companyId, code])
 }
@@ -1741,9 +1742,11 @@ model NoSeriesSetup {
   customerNos    String?   @db.ObjectId
   vendorNos      String?   @db.ObjectId
   bankAccountNos String?   @db.ObjectId
+  contactNos     String?   @db.ObjectId
   companyId      String    @db.ObjectId
   tenantId       String    @db.ObjectId
   userId         String    @db.ObjectId
+  contactNo      NoSeries? @relation(name: "NoSeriesSetupContact", fields: [contactNos], references: [id])
   bankAccountNo  NoSeries? @relation(name: "NoSeriesSetupBankAccount", fields: [bankAccountNos], references: [id])
   vendorNo       NoSeries? @relation(name: "NoSeriesSetupVendor", fields: [vendorNos], references: [id])
   customerNo     NoSeries? @relation(name: "NoSeriesSetupCustomer", fields: [customerNos], references: [id])
