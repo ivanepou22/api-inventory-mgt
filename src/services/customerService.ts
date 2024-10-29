@@ -243,9 +243,31 @@ class CustomerService extends MultiTenantService {
     }
   }
 
-  async updateCustomer(id: string, customerData: Prisma.CustomerCreateInput) {
-    const { phone, email } = customerData;
-
+  async updateCustomer(
+    id: string,
+    customerData: Prisma.CustomerUncheckedCreateInput
+  ) {
+    const {
+      customerType,
+      name,
+      phone,
+      email,
+      image,
+      country,
+      address,
+      address_2,
+      website,
+      maxCreditLimit,
+      maxCreditDays,
+      taxPin,
+      regNumber,
+      paymentTerms,
+      NIN,
+      customerPostingGroupId,
+      genBusPostingGroupId,
+      vatBusPostingGroupId,
+      salesPersonId,
+    } = customerData;
     try {
       const customerExists = await this.findUnique(
         (args) => this.db.customer.findUnique(args),
@@ -262,7 +284,27 @@ class CustomerService extends MultiTenantService {
         (args) => this.db.customer.update(args),
         {
           where: { id },
-          data: customerData,
+          data: {
+            customerType,
+            name,
+            phone,
+            email,
+            image,
+            country,
+            address,
+            address_2,
+            website,
+            maxCreditLimit,
+            maxCreditDays,
+            taxPin,
+            regNumber,
+            paymentTerms,
+            NIN,
+            customerPostingGroupId,
+            genBusPostingGroupId,
+            vatBusPostingGroupId,
+            salesPersonId,
+          },
           include: {
             salesPerson: true,
             customerPostingGroup: true,
