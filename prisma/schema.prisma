@@ -70,8 +70,6 @@ model SalesPerson {
   updatedAt   DateTime      @updatedAt
 
   @@unique([tenantId, companyId, code])
-  @@unique([tenantId, companyId, phone])
-  @@unique([tenantId, companyId, email])
 }
 
 model Contact {
@@ -244,7 +242,7 @@ model Shop {
   updatedAt              DateTime                @updatedAt
   ItemJournalLine        ItemJournalLine[]
 
-  @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId, slug])
 }
 
 model Supplier {
