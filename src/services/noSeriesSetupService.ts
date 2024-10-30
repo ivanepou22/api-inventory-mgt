@@ -10,18 +10,14 @@ export class NoSeriesSetupService extends MultiTenantService {
   async createNoSeriesSetup(
     noSeriesSetup: Prisma.NoSeriesSetupUncheckedCreateInput
   ) {
-    const { customerNos, vendorNos, bankAccountNos, userId } = noSeriesSetup;
     try {
       const newNoSeriesSetup = await this.create(
         (args) => this.db.noSeriesSetup.create(args),
         {
           data: {
-            customerNos,
-            vendorNos,
-            bankAccountNos,
+            ...noSeriesSetup,
             companyId: this.getCompanyId(),
             tenantId: this.getTenantId(),
-            userId,
           },
           include: {
             bankAccountNo: true,
@@ -164,11 +160,7 @@ export class NoSeriesSetupService extends MultiTenantService {
         (args) => this.db.noSeriesSetup.update(args),
         {
           where: { id },
-          data: {
-            customerNos,
-            vendorNos,
-            bankAccountNos,
-          },
+          data: noSeriesSetupData,
           include: {
             bankAccountNo: true,
             vendorNo: true,
