@@ -144,8 +144,6 @@ export class NoSeriesSetupService extends MultiTenantService {
     id: string,
     noSeriesSetupData: Prisma.NoSeriesSetupUncheckedCreateInput
   ) {
-    const { customerNos, vendorNos, bankAccountNos } = noSeriesSetupData;
-
     try {
       const noSeriesSetupExists = await this.findUnique(
         (args) => this.db.noSeriesSetup.findUnique(args),
