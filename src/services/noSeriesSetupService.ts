@@ -20,9 +20,50 @@ export class NoSeriesSetupService extends MultiTenantService {
             tenantId: this.getTenantId(),
           },
           include: {
-            bankAccountNo: true,
-            vendorNo: true,
-            customerNo: true,
+            bankAccountNo: {
+              select: {
+                id: true,
+                code: true,
+                description: true,
+                defaultSeries: true,
+                manualSeries: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+            vendorNo: {
+              select: {
+                id: true,
+                code: true,
+                description: true,
+                defaultSeries: true,
+                manualSeries: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+            customerNo: {
+              select: {
+                id: true,
+                code: true,
+                description: true,
+                defaultSeries: true,
+                manualSeries: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+            contactNo: {
+              select: {
+                id: true,
+                code: true,
+                description: true,
+                defaultSeries: true,
+                manualSeries: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
             user: {
               select: {
                 fullName: true,
@@ -62,9 +103,50 @@ export class NoSeriesSetupService extends MultiTenantService {
             createdAt: "desc",
           },
           include: {
-            bankAccountNo: true,
-            vendorNo: true,
-            customerNo: true,
+            bankAccountNo: {
+              select: {
+                id: true,
+                code: true,
+                description: true,
+                defaultSeries: true,
+                manualSeries: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+            vendorNo: {
+              select: {
+                id: true,
+                code: true,
+                description: true,
+                defaultSeries: true,
+                manualSeries: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+            customerNo: {
+              select: {
+                id: true,
+                code: true,
+                description: true,
+                defaultSeries: true,
+                manualSeries: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+            contactNo: {
+              select: {
+                id: true,
+                code: true,
+                description: true,
+                defaultSeries: true,
+                manualSeries: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
             user: {
               select: {
                 fullName: true,
@@ -102,9 +184,50 @@ export class NoSeriesSetupService extends MultiTenantService {
         {
           where: { id },
           include: {
-            bankAccountNo: true,
-            vendorNo: true,
-            customerNo: true,
+            bankAccountNo: {
+              select: {
+                id: true,
+                code: true,
+                description: true,
+                defaultSeries: true,
+                manualSeries: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+            vendorNo: {
+              select: {
+                id: true,
+                code: true,
+                description: true,
+                defaultSeries: true,
+                manualSeries: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+            customerNo: {
+              select: {
+                id: true,
+                code: true,
+                description: true,
+                defaultSeries: true,
+                manualSeries: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+            contactNo: {
+              select: {
+                id: true,
+                code: true,
+                description: true,
+                defaultSeries: true,
+                manualSeries: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
             user: {
               select: {
                 fullName: true,
@@ -160,9 +283,50 @@ export class NoSeriesSetupService extends MultiTenantService {
           where: { id },
           data: noSeriesSetupData,
           include: {
-            bankAccountNo: true,
-            vendorNo: true,
-            customerNo: true,
+            bankAccountNo: {
+              select: {
+                id: true,
+                code: true,
+                description: true,
+                defaultSeries: true,
+                manualSeries: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+            vendorNo: {
+              select: {
+                id: true,
+                code: true,
+                description: true,
+                defaultSeries: true,
+                manualSeries: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+            customerNo: {
+              select: {
+                id: true,
+                code: true,
+                description: true,
+                defaultSeries: true,
+                manualSeries: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+            contactNo: {
+              select: {
+                id: true,
+                code: true,
+                description: true,
+                defaultSeries: true,
+                manualSeries: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
             user: {
               select: {
                 fullName: true,
