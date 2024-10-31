@@ -1,6 +1,7 @@
 import { db } from "@/db/db";
 import { Prisma, PrismaClient } from "@prisma/client";
 import { MultiTenantService } from "./multiTenantService";
+import { setNoSeries, updateNoSeries } from "@/utils/noSeriesManagement";
 
 class ContactService extends MultiTenantService {
   constructor(db: PrismaClient) {
@@ -8,10 +9,30 @@ class ContactService extends MultiTenantService {
   }
 
   async createContact(contact: Prisma.ContactUncheckedCreateInput) {
-    const { code, name, phone, email, image, companyId, tenantId, userId } =
-      contact;
+    const { name, phone, email, image, companyId, tenantId, userId } = contact;
 
     try {
+      const code = await setNoSeries(
+        this.getTenantId(),
+        this.getCompanyId(),
+        "contactNos"
+      );
+      // check if the code is already in use by another Contact
+      const existingContact = await this.findUnique(
+        (args) => this.db.contact.findUnique(args),
+        {
+          where: {
+            tenantId_companyId_Code: {
+              Code: code,
+              tenantId: this.getTenantId(),
+              companyId: this.getCompanyId(),
+            },
+          },
+        }
+      );
+      if (existingContact) {
+        throw new Error(`No: ${code} is already in use by another Contact`);
+      }
       const newContact = await this.create(
         (args) => this.db.contact.create(args),
         {
@@ -51,8 +72,26 @@ class ContactService extends MultiTenantService {
         message: "Contact created successfully",
       };
     } catch (error: any) {
-      console.error("Error creating Contact:", error);
-      throw new Error(`An unexpected error occurred. Please try again later.`);
+      console.error("Error creating Customer:", error);
+      if (error instanceof Error) {
+        const errorMessage = error.message;
+
+        // Check if the error message contains the word "Argument"
+        const argumentIndex = errorMessage.toLowerCase().indexOf("argument");
+        if (argumentIndex !== -1) {
+          // Extract the message after "Argument"
+          const relevantError = errorMessage.slice(argumentIndex);
+          throw new Error(relevantError);
+        } else {
+          // For other types of errors, you might want to log the full error
+          // and throw a generic message to the user
+          console.error("Full error:", error);
+          throw new Error(error.message);
+        }
+      } else {
+        // Handle case where error is not an Error object
+        throw new Error("An unexpected error occurred.");
+      }
     }
   }
 
@@ -84,6 +123,12 @@ class ContactService extends MultiTenantService {
             },
           },
         }
+      );
+      // Update the no series last used
+      await updateNoSeries(
+        this.getTenantId(),
+        this.getCompanyId(),
+        "contactNos"
       );
       return {
         data: contacts,
@@ -155,20 +200,24 @@ class ContactService extends MultiTenantService {
       }
 
       // Check if the code is already in use by another Contact
-      const existingContact = await this.findUnique(
-        (args) => this.db.contact.findUnique(args),
-        {
-          where: {
-            tenantId_companyId_Code: {
-              Code: code,
-              tenantId: this.getTenantId(),
-              companyId: this.getCompanyId(),
+      if (code && code !== contactExists.code) {
+        const existingContact = await this.findUnique(
+          (args) => this.db.contact.findUnique(args),
+          {
+            where: {
+              tenantId_companyId_Code: {
+                Code: code,
+                tenantId: this.getTenantId(),
+                companyId: this.getCompanyId(),
+              },
             },
-          },
+          }
+        );
+        if (existingContact) {
+          throw new Error(
+            `Code "${code}" is already in use by another Contact`
+          );
         }
-      );
-      if (existingContact) {
-        throw new Error(`Code "${code}" is already in use by another Contact`);
       }
       const updatedContact = await this.update(
         (args) => this.db.contact.update(args),

@@ -42,6 +42,7 @@ import companyInformationRouter from "./routes/companyInformationRoutes";
 import tagRouter from "./routes/tagRoutes";
 import onlineOrderSetupRouter from "./routes/onlineOrderSetupRoutes";
 import noSeriesSetupRouter from "./routes/noSeriesSetupRoutes";
+import contactRouter from "./routes/contactRoutes";
 
 require("dotenv").config();
 const app = express();
@@ -133,6 +134,7 @@ const apiRoutes = [
   { router: tagRouter, useTenantMiddleware: true },
   { router: onlineOrderSetupRouter, useTenantMiddleware: true },
   { router: noSeriesSetupRouter, useTenantMiddleware: true },
+  { router: contactRouter, useTenantMiddleware: true },
 ];
 
 apiRoutes.forEach(({ router, useRouteLimiter }) => {
