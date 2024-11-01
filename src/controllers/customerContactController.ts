@@ -1,19 +1,17 @@
 import { Request, Response } from "express";
 import { customerContactService } from "@/services/customerContactService";
 
-export const customerContactController = {
-  async createCustomerContact(req: Request, res: Response) {
-    try {
-      const newCustomerContact =
-        await customerContactService().createCustomerContact(req.body);
-      return res.status(201).json(newCustomerContact);
-    } catch (error: any) {
-      return res.status(500).json({ message: error.message });
-    }
-  },
+export const createCustomerContact = async (req: Request, res: Response) => {
+  try {
+    const newCustomerContact =
+      await customerContactService().createCustomerContact(req.body);
+    return res.status(201).json(newCustomerContact);
+  } catch (error: any) {
+    return res.status(500).json({ message: error.message });
+  }
 };
 
-export const getCustomerContacts = async (req: Request, res: Response) => {
+export const getCustomerContacts = async (_req: Request, res: Response) => {
   try {
     const customerContacts =
       await customerContactService().getCustomerContacts();
