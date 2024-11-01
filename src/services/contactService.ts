@@ -9,7 +9,7 @@ class ContactService extends MultiTenantService {
   }
 
   async createContact(contact: Prisma.ContactUncheckedCreateInput) {
-    const { name, phone, email, image, companyId, tenantId, userId } = contact;
+    const { name, phone, email, image, userId } = contact;
 
     try {
       const code = await setNoSeries(
@@ -22,8 +22,8 @@ class ContactService extends MultiTenantService {
         (args) => this.db.contact.findUnique(args),
         {
           where: {
-            tenantId_companyId_Code: {
-              Code: code,
+            tenantId_companyId_code: {
+              code: code,
               tenantId: this.getTenantId(),
               companyId: this.getCompanyId(),
             },
@@ -42,9 +42,9 @@ class ContactService extends MultiTenantService {
             phone,
             email,
             image,
-            companyId,
-            tenantId,
             userId,
+            companyId: this.getCompanyId(),
+            tenantId: this.getTenantId(),
           },
           include: {
             company: {
