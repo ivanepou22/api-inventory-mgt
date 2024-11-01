@@ -10,6 +10,24 @@ class CustomerContactService extends MultiTenantService {
   async createCustomerContact(
     customerContact: Prisma.CustomerContactUncheckedCreateInput
   ) {
+    const { customerId, contactId } = customerContact;
+    const customer = await this.findUnique(
+      (args) => this.db.customer.findUnique(args),
+      {
+        where: {
+          tenantId_companyId_customerId_contactId: {
+            customerId,
+            tenantId: this.getTenantId(),
+            companyId: this.getCompanyId(),
+            contactId,
+          },
+        },
+      }
+    );
+    if (customer) {
+      throw new Error("Customer Contact already exists.");
+    }
+
     try {
       const newCustomerContact = await this.create(
         (args) => this.db.customerContact.create(args),
