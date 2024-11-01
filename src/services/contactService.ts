@@ -67,6 +67,12 @@ class ContactService extends MultiTenantService {
           },
         }
       );
+      // Update the no series last used
+      await updateNoSeries(
+        this.getTenantId(),
+        this.getCompanyId(),
+        "contactNos"
+      );
       return {
         data: newContact,
         message: "Contact created successfully",
@@ -123,12 +129,6 @@ class ContactService extends MultiTenantService {
             },
           },
         }
-      );
-      // Update the no series last used
-      await updateNoSeries(
-        this.getTenantId(),
-        this.getCompanyId(),
-        "contactNos"
       );
       return {
         data: contacts,

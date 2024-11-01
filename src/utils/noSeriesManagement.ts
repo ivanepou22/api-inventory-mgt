@@ -111,11 +111,11 @@ const getNextNoSeriesLine = async (
     }
     if (noSeriesLine.lastNoUsed) {
       //increment the lastDateUsed
-      const incrementedLastDateUsed = await incrementString(
+      const incrementedLastNoUsed = await incrementString(
         noSeriesLine.lastNoUsed
       );
       //return the incrementedLastDateUsed
-      return incrementedLastDateUsed;
+      return incrementedLastNoUsed;
     } else {
       //return the startingNo
       return noSeriesLine.startingNo;
