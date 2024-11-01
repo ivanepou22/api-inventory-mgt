@@ -135,7 +135,25 @@ class CustomerContactService extends MultiTenantService {
       };
     } catch (error: any) {
       console.error("Error creating CustomerContact:", error);
-      throw new Error(`An unexpected error occurred. Please try again later.`);
+      if (error instanceof Error) {
+        const errorMessage = error.message;
+
+        // Check if the error message contains the word "Argument"
+        const argumentIndex = errorMessage.toLowerCase().indexOf("argument");
+        if (argumentIndex !== -1) {
+          // Extract the message after "Argument"
+          const relevantError = errorMessage.slice(argumentIndex);
+          throw new Error(relevantError);
+        } else {
+          // For other types of errors, you might want to log the full error
+          // and throw a generic message to the user
+          console.error("Full error:", error);
+          throw new Error(error.message);
+        }
+      } else {
+        // Handle case where error is not an Error object
+        throw new Error("An unexpected error occurred.");
+      }
     }
   }
 
@@ -366,6 +384,7 @@ class CustomerContactService extends MultiTenantService {
     id: string,
     customerContactData: Prisma.CustomerContactUncheckedCreateInput
   ) {
+    const { customerId, contactId } = customerContactData;
     try {
       const customerContactExists = await this.findUnique(
         (args) => this.db.customerContact.findUnique(args),
@@ -375,6 +394,67 @@ class CustomerContactService extends MultiTenantService {
       );
       if (!customerContactExists) {
         throw new Error("CustomerContact not found.");
+      }
+
+      if (
+        contactId &&
+        contactId !== customerContactData.contactId &&
+        customerId &&
+        customerId !== customerContactData.customerId
+      ) {
+        const customer = await this.findUnique(
+          (args) => this.db.customer.findUnique(args),
+          {
+            where: {
+              tenantId_companyId_customerId_contactId: {
+                customerId,
+                tenantId: this.getTenantId(),
+                companyId: this.getCompanyId(),
+                contactId,
+              },
+            },
+          }
+        );
+        if (customer) {
+          throw new Error("Customer Contact already exists.");
+        }
+      } else if (contactId && contactId !== customerContactExists.contactId) {
+        const customer = await this.findUnique(
+          (args) => this.db.customer.findUnique(args),
+          {
+            where: {
+              tenantId_companyId_customerId_contactId: {
+                customerId: customerContactExists.customerId,
+                tenantId: this.getTenantId(),
+                companyId: this.getCompanyId(),
+                contactId,
+              },
+            },
+          }
+        );
+        if (customer) {
+          throw new Error("Customer Contact already exists.");
+        }
+      } else if (
+        customerId &&
+        customerId !== customerContactExists.customerId
+      ) {
+        const customer = await this.findUnique(
+          (args) => this.db.customer.findUnique(args),
+          {
+            where: {
+              tenantId_companyId_customerId_contactId: {
+                customerId,
+                tenantId: this.getTenantId(),
+                companyId: this.getCompanyId(),
+                contactId: customerContactExists.contactId,
+              },
+            },
+          }
+        );
+        if (customer) {
+          throw new Error("Customer Contact already exists.");
+        }
       }
       const updatedCustomerContact = await this.update(
         (args) => this.db.customerContact.update(args),
