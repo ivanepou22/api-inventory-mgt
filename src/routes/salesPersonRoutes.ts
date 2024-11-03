@@ -4,10 +4,10 @@ import { salesPersonController } from "../controllers/salesPersonController";
 const salesPersonRouter = Router();
 
 salesPersonRouter.post(
-  "/salesPersons/",
+  "/salesPersons",
   salesPersonController.createSalesPerson
 );
-salesPersonRouter.get("/salesPersons/", salesPersonController.getSalesPersons);
+salesPersonRouter.get("/salesPersons", salesPersonController.getSalesPersons);
 salesPersonRouter.get(
   "/salesPersons/:id",
   salesPersonController.getSalesPerson
