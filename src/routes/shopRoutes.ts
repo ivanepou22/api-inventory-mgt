@@ -6,7 +6,7 @@ import {
   getShopAttendants,
   getShops,
   updateShop,
-} from "@/controllers/shopController";
+} from "@/controllers/locationController";
 
 const shopRouter = express.Router();
 
