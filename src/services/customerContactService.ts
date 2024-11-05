@@ -401,8 +401,8 @@ class CustomerContactService extends MultiTenantService {
         customerId &&
         customerId !== customerContactData.customerId
       ) {
-        const customer = await this.findUnique(
-          (args) => this.db.customer.findUnique(args),
+        const customerContact = await this.findUnique(
+          (args) => this.db.customerContact.findUnique(args),
           {
             where: {
               tenantId_companyId_customerId_contactId: {
@@ -414,12 +414,12 @@ class CustomerContactService extends MultiTenantService {
             },
           }
         );
-        if (customer) {
+        if (customerContact) {
           throw new Error("Customer Contact already exists.");
         }
       } else if (contactId && contactId !== customerContactExists.contactId) {
-        const customer = await this.findUnique(
-          (args) => this.db.customer.findUnique(args),
+        const customerContact = await this.findUnique(
+          (args) => this.db.customerContact.findUnique(args),
           {
             where: {
               tenantId_companyId_customerId_contactId: {
@@ -431,15 +431,15 @@ class CustomerContactService extends MultiTenantService {
             },
           }
         );
-        if (customer) {
+        if (customerContact) {
           throw new Error("Customer Contact already exists.");
         }
       } else if (
         customerId &&
         customerId !== customerContactExists.customerId
       ) {
-        const customer = await this.findUnique(
-          (args) => this.db.customer.findUnique(args),
+        const customerContact = await this.findUnique(
+          (args) => this.db.customerContact.findUnique(args),
           {
             where: {
               tenantId_companyId_customerId_contactId: {
@@ -451,7 +451,7 @@ class CustomerContactService extends MultiTenantService {
             },
           }
         );
-        if (customer) {
+        if (customerContact) {
           throw new Error("Customer Contact already exists.");
         }
       }
