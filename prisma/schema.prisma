@@ -219,7 +219,17 @@ model Location {
   id                     String                  @id @default(auto()) @map("_id") @db.ObjectId
   code                   String
   name                   String
-  address                String
+  address                String?
+  address2               String?
+  city                   String?
+  postalCode             String?
+  country                String?
+  phone                  String?
+  email                  String?
+  faxNo                  String?
+  contact                String?
+  homepage               String?
+  useAsInTransit         Boolean                 @default(false)
   Products               Product[]
   salesHeaders           SalesHeader[]
   expenses               Expense[]
@@ -238,9 +248,9 @@ model Location {
   attendants             User?                   @relation("ShopAttendants", fields: [attendantId], references: [id])
   company                Company?                @relation(fields: [companyId], references: [id])
   tenant                 Tenant?                 @relation(fields: [tenantId], references: [id])
+  ItemJournalLine        ItemJournalLine[]
   createdAt              DateTime                @default(now())
   updatedAt              DateTime                @updatedAt
-  ItemJournalLine        ItemJournalLine[]
 
   @@unique([tenantId, companyId, code])
 }
