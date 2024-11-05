@@ -5,7 +5,7 @@ import rateLimit from "express-rate-limit";
 import { tenantMiddleware } from "./middleware/tenantMiddleware";
 import customerRouter from "./routes/customerRoutes";
 import userRouter from "./routes/userRoutes";
-import shopRouter from "./routes/shopRoutes";
+import locationRouter from "./routes/locationRoutes";
 import supplierRouter from "./routes/supplierRoutes";
 import loginRouter from "./routes/loginRoutes";
 import productTagRouter from "./routes/productTagRoutes";
@@ -98,7 +98,7 @@ app.use(tenantMiddleware);
 // API routes
 const apiRoutes = [
   { router: userRouter },
-  { router: shopRouter, useTenantMiddleware: true },
+  { router: locationRouter, useTenantMiddleware: true },
   { router: supplierRouter, useTenantMiddleware: true },
   { router: customerRouter, useTenantMiddleware: true },
   { router: loginRouter, useRouteLimiter: true, useTenantMiddleware: false },
