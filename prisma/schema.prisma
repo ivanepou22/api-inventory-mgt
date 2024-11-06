@@ -331,9 +331,9 @@ model SupplierContact {
 
 model Unit {
   id                   String                @id @default(auto()) @map("_id") @db.ObjectId
+  code                 String
   name                 String
   abbreviation         String
-  slug                 String                @unique
   products             Product[]
   AdjustmentLine       AdjustmentLine[]
   StockHistory         StockHistory[]
@@ -349,7 +349,7 @@ model Unit {
   updatedAt            DateTime              @updatedAt
   ItemJournalLine      ItemJournalLine[]
 
-  @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId, code])
 }
 
 model Brand {
