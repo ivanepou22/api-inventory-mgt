@@ -1,162 +1,193 @@
 import { db } from "@/db/db";
+import { Prisma, PrismaClient } from "@prisma/client";
+import { MultiTenantService } from "./multiTenantService";
 import { slugify } from "@/utils/functions";
-import { Prisma } from "@prisma/client";
 
-const createUnit = async (unit: Prisma.UnitCreateInput) => {
-  const { name, abbreviation } = unit;
-  try {
-    const slug = await slugify(name);
-
-    const unitExists = await db.unit.findUnique({
-      where: {
-        slug,
-      },
-    });
-
-    if (unitExists) {
-      throw new Error(`Unit with slug: ${slug} already exists`);
-    }
-
-    const newUnit = await db.unit.create({
-      data: {
-        name,
-        abbreviation,
-        slug,
-      },
-    });
-
-    return {
-      data: newUnit,
-      message: "Unit created successfully",
-    };
-  } catch (error: any) {
-    console.error(error);
-    throw new Error(error.message);
+class UnitService extends MultiTenantService {
+  constructor(db: PrismaClient) {
+    super(db);
   }
-};
 
-const getUnits = async () => {
-  try {
-    const units = await db.unit.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+  createUnit = async (unit: Prisma.UnitCreateInput) => {
+    const { code } = unit;
+    try {
+      const codeSlug = await slugify(code);
 
-    return {
-      data: units,
-      message: "Units fetched successfully",
-    };
-  } catch (error) {
-    console.error(error);
-    throw new Error("Error getting units.");
-  }
-};
-
-const getUnit = async (id: string) => {
-  try {
-    const unit = await db.unit.findUnique({
-      where: {
-        id,
-      },
-    });
-    if (!unit) {
-      throw new Error("Unit not found.");
-    }
-    return {
-      data: unit,
-      message: "Unit fetched successfully",
-    };
-  } catch (error: any) {
-    console.error(error);
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      throw new Error(
-        `The provided ID "${id}" is invalid. It must be a 12-byte hexadecimal string, but it is 25 characters long.`
+      const unitExists = await this.findUnique(
+        (args) => this.db.unit.findUnique(args),
+        {
+          where: {
+            tenantId_companyId_code: {
+              tenantId: this.tenantId,
+              companyId: this.companyId,
+              code: codeSlug,
+            },
+          },
+        }
       );
-    } else {
-      throw new Error(error.message);
-    }
-  }
-};
 
-const updateUnit = async (id: string, unit: Prisma.UnitCreateInput) => {
-  const { name, abbreviation } = unit;
-  try {
-    // Find the unit first
-    const unitExists = await db.unit.findUnique({
-      where: { id },
-      select: { id: true, name: true, abbreviation: true, slug: true },
-    });
+      if (unitExists) {
+        throw new Error(`Unit with slug: ${codeSlug} already exists`);
+      }
 
-    if (!unitExists) {
-      throw new Error("Unit not found.");
-    }
-
-    const slug = name ? await slugify(name) : unitExists.slug;
-
-    if (slug && slug !== unitExists.slug) {
-      const unitBySlug = await db.unit.findUnique({
-        where: {
-          slug,
+      const newUnit = await this.create((args) => this.db.unit.create(args), {
+        data: {
+          ...unit,
+          code: codeSlug,
+          companyId: this.getCompanyId(),
+          tenantId: this.getTenantId(),
         },
       });
-      if (unitBySlug) {
-        throw new Error(`Unit with slug: ${slug} already exists`);
+
+      return {
+        data: newUnit,
+        message: "Unit created successfully",
+      };
+    } catch (error: any) {
+      console.error(error);
+      throw new Error(error.message);
+    }
+  };
+
+  getUnits = async () => {
+    try {
+      const units = await this.findMany((args) => this.db.unit.findMany(args), {
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+
+      return {
+        data: units,
+        message: "Units fetched successfully",
+      };
+    } catch (error) {
+      console.error(error);
+      throw new Error("Error getting units.");
+    }
+  };
+
+  getUnit = async (id: string) => {
+    try {
+      // const unit = await db.unit.findUnique({
+      //   where: {
+      //     id,
+      //   },
+      // });
+      const unit = await this.findUnique(
+        (args) => this.db.unit.findUnique(args),
+        {
+          where: { id },
+          select: { id: true, name: true, abbreviation: true, slug: true },
+        }
+      );
+      if (!unit) {
+        throw new Error("Unit not found.");
+      }
+
+      return {
+        data: unit,
+        message: "Unit fetched successfully",
+      };
+    } catch (error: any) {
+      console.error(error);
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new Error(
+          `The provided ID "${id}" is invalid. It must be a 12-byte hexadecimal string, but it is 25 characters long.`
+        );
+      } else {
+        throw new Error(error.message);
       }
     }
-    // Perform the update
-    const updatedUnit = await db.unit.update({
-      where: { id },
-      data: { name, abbreviation, slug },
-    });
+  };
 
-    return { data: updatedUnit, message: "Unit updated successfully" };
-  } catch (error: any) {
-    console.error(error);
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      throw new Error(
-        `The provided ID "${id}" is invalid. It must be a 12-byte hexadecimal string, but it is 25 characters long.`
+  updateUnit = async (id: string, unit: Prisma.UnitCreateInput) => {
+    const { code, name, abbreviation } = unit;
+    try {
+      // Find the unit first
+      const unitExists = await this.findUnique(
+        (args) => this.db.unit.findUnique(args),
+        { where: { id } }
       );
-    } else {
-      throw new Error(error.message);
-    }
-  }
-};
 
-const deleteUnit = async (id: string) => {
-  try {
-    // Check if the unit exists
-    const unit = await db.unit.findUnique({
-      where: { id },
-      select: { id: true },
-    });
-    if (!unit) {
-      throw new Error("Unit not found.");
-    }
-    // Delete the Unit
-    const deletedUnit = await db.unit.delete({
-      where: { id },
-    });
-    return {
-      data: deletedUnit,
-      message: `Unit deleted successfully`,
-    };
-  } catch (error: any) {
-    console.error(error);
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      throw new Error(
-        `The provided ID "${id}" is invalid. It must be a 12-byte hexadecimal string, but it is 25 characters long.`
+      if (!unitExists) {
+        throw new Error("Unit not found.");
+      }
+
+      const codeSlug = code ? await slugify(code) : null;
+
+      if (codeSlug && codeSlug !== unitExists.code) {
+        const unitBySlug = await this.findUnique(
+          (args) => this.db.unit.findUnique(args),
+          {
+            where: {
+              tenantId_companyId_code: {
+                tenantId: unitExists.tenantId,
+                companyId: unitExists.companyId,
+                code: codeSlug,
+              },
+            },
+          }
+        );
+        if (unitBySlug) {
+          throw new Error(`Unit with slug: ${codeSlug} already exists`);
+        }
+      }
+      // Perform the update
+      const updatedUnit = await this.update(
+        (args) => this.db.unit.update(args),
+        { where: { id }, data: { name, abbreviation, code: codeSlug } }
       );
-    } else {
-      throw new Error(error.message);
-    }
-  }
-};
 
-export const unitService = {
-  createUnit,
-  getUnits,
-  getUnit,
-  updateUnit,
-  deleteUnit,
+      return { data: updatedUnit, message: "Unit updated successfully" };
+    } catch (error: any) {
+      console.error(error);
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new Error(
+          `The provided ID "${id}" is invalid. It must be a 12-byte hexadecimal string, but it is 25 characters long.`
+        );
+      } else {
+        throw new Error(error.message);
+      }
+    }
+  };
+
+  deleteUnit = async (id: string) => {
+    try {
+      // Check if the unit exists
+      const unit = await this.findUnique(
+        (args) => this.db.unit.findUnique(args),
+        {
+          where: { id },
+          select: { id: true },
+        }
+      );
+      if (!unit) {
+        throw new Error("Unit not found.");
+      }
+      // Delete the Unit
+      const deletedUnit = await this.delete(
+        (args) => this.db.unit.delete(args),
+        {
+          where: { id },
+        }
+      );
+      return {
+        data: deletedUnit,
+        message: `Unit deleted successfully`,
+      };
+    } catch (error: any) {
+      console.error(error);
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new Error(
+          `The provided ID "${id}" is invalid. It must be a 12-byte hexadecimal string, but it is 25 characters long.`
+        );
+      } else {
+        throw new Error(error.message);
+      }
+    }
+  };
+}
+export const unitService = (): UnitService => {
+  return new UnitService(db);
 };
