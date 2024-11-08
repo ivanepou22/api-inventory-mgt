@@ -69,11 +69,6 @@ class UnitService extends MultiTenantService {
 
   getUnit = async (id: string) => {
     try {
-      // const unit = await db.unit.findUnique({
-      //   where: {
-      //     id,
-      //   },
-      // });
       const unit = await this.findUnique(
         (args) => this.db.unit.findUnique(args),
         {
