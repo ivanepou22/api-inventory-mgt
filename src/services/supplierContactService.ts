@@ -3,8 +3,8 @@ import { Prisma, PrismaClient } from "@prisma/client";
 import { MultiTenantService } from "./multiTenantService";
 
 export class SupplierContactService extends MultiTenantService {
-  constructor(prisma: PrismaClient) {
-    super(prisma);
+  constructor(db: PrismaClient) {
+    super(db);
   }
 
   async createSupplierContact(
@@ -553,3 +553,7 @@ export class SupplierContactService extends MultiTenantService {
     }
   }
 }
+
+export const supplierContactService = (): SupplierContactService => {
+  return new SupplierContactService(db);
+};
