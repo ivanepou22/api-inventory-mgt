@@ -4,7 +4,7 @@ import { brandService } from "@/services/brandService";
 export const createBrand = async (req: Request, res: Response) => {
   //call the createBrand service
   try {
-    const brand = await brandService.createBrand(req.body);
+    const brand = await brandService().createBrand(req.body);
     return res.status(201).json(brand);
   } catch (error: any) {
     return res
@@ -15,7 +15,7 @@ export const createBrand = async (req: Request, res: Response) => {
 
 export const getBrands = async (_req: Request, res: Response) => {
   try {
-    const brands = await brandService.getBrands();
+    const brands = await brandService().getBrands();
     return res.status(200).json(brands);
   } catch (error: any) {
     return res
@@ -27,7 +27,7 @@ export const getBrands = async (_req: Request, res: Response) => {
 export const getBrand = async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
-    const brand = await brandService.getBrand(id);
+    const brand = await brandService().getBrand(id);
     return res.status(200).json(brand);
   } catch (error: any) {
     return res
@@ -39,7 +39,7 @@ export const getBrand = async (req: Request, res: Response) => {
 export const updateBrand = async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
-    const brand = await brandService.updateBrand(id, req.body);
+    const brand = await brandService().updateBrand(id, req.body);
     return res.status(200).json(brand);
   } catch (error: any) {
     return res
@@ -52,7 +52,7 @@ export const updateBrand = async (req: Request, res: Response) => {
 export const deleteBrand = async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
-    const brand = await brandService.deleteBrand(id);
+    const brand = await brandService().deleteBrand(id);
     return res.status(200).json(brand);
   } catch (error: any) {
     return res
