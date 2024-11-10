@@ -388,7 +388,7 @@ model Brand {
 model Category {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
   name      String
-  slug      String    @unique
+  code      String
   image     String?
   products  Product[]
   companyId String    @db.ObjectId
@@ -400,7 +400,7 @@ model Category {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
-  @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId, code])
 }
 
 model Product {
