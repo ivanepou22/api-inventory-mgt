@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 
 export const createCategory = async (req: Request, res: Response) => {
   try {
-    const category = await categoryService.createCategory(req.body);
+    const category = await categoryService().createCategory(req.body);
     return res.status(201).json(category);
   } catch (error: any) {
     return res
@@ -14,7 +14,7 @@ export const createCategory = async (req: Request, res: Response) => {
 
 export const getCategories = async (_req: Request, res: Response) => {
   try {
-    const categories = await categoryService.getCategories();
+    const categories = await categoryService().getCategories();
     return res.status(200).json(categories);
   } catch (error: any) {
     return res
@@ -26,7 +26,7 @@ export const getCategories = async (_req: Request, res: Response) => {
 export const getCategory = async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
-    const category = await categoryService.getCategory(id);
+    const category = await categoryService().getCategory(id);
     return res.status(200).json(category);
   } catch (error: any) {
     return res
@@ -38,7 +38,7 @@ export const getCategory = async (req: Request, res: Response) => {
 export const updateCategory = async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
-    const category = await categoryService.updateCategory(id, req.body);
+    const category = await categoryService().updateCategory(id, req.body);
     return res.status(200).json(category);
   } catch (error: any) {
     return res
@@ -51,7 +51,7 @@ export const updateCategory = async (req: Request, res: Response) => {
 export const deleteCategory = async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
-    const category = await categoryService.deleteCategory(id);
+    const category = await categoryService().deleteCategory(id);
     return res.status(200).json(category);
   } catch (error: any) {
     return res
