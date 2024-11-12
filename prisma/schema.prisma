@@ -406,12 +406,12 @@ model Product {
   id                            String                      @id @default(auto()) @map("_id") @db.ObjectId
   productNo                     String
   description                   String
-  blocked                       Boolean?
-  type                          ProductType
+  blocked                       Boolean?                    @default(false)
+  type                          ProductType                 @default(INVENTORY)
   baseunitOfMeasure             String?                     @db.ObjectId
   itemCategoryId                String?                     @db.ObjectId
-  variantMandatoryIfExists      Boolean?
-  excludeFromServiceDeclaration Boolean?
+  variantMandatoryIfExists      Boolean?                    @default(false)
+  excludeFromServiceDeclaration Boolean?                    @default(false)
   shelfNo                       String?
   inventory                     Float?
   qtyOnPurchaseOrder            Float?
@@ -419,15 +419,24 @@ model Product {
   qtyOnComponentLines           Float?
   qtyOnSalesInvoice             Float?
   qtyOnSalesOrder               Float?
-  stockOutWarning               Boolean?                    @default(false)
-  unitPrice                     Float?
-  wholeSalePrice                Float?                      @default(0)
+  stockOutWarning               Boolean?                    @default(true)
+  unitVolume                    Float?
+  costingMethod                 CostingMethod?              @default(FIFO)
+  standardCost                  Float?
   unitCost                      Float?
+  netInvoicedQty                Float?
+  costIsAdjusted                Boolean?                    @default(false)
+  PurchasePricesAndDiscount     String?
+  generalProductPostingGroupId  String?                     @db.ObjectId
+  inventoryPostingGroupId       String?                     @db.ObjectId
+  vatProductPostingGroupId      String?                     @db.ObjectId
+  unitPrice                     Float?
+  profitPercentage              Float?
+  salesPricesAndDiscount        String?
+  salesBlocked                  Boolean?                    @default(false)
+  wholeSalePrice                Float?                      @default(0)
   featured                      Boolean?
   productContent                String?
-  inventoryPostingGroupId       String?                     @db.ObjectId
-  generalProductPostingGroupId  String?                     @db.ObjectId
-  vatProductPostingGroupId      String?                     @db.ObjectId
   brandId                       String?                     @db.ObjectId
   ItemUnit                      ItemUnit[]
   supplierId                    String?                     @db.ObjectId
@@ -467,6 +476,14 @@ enum ProductType {
   INVENTORY
   SERVICE
   NON_INVENTORY
+}
+
+enum CostingMethod {
+  FIFO
+  LIFO
+  SPECIFIC
+  AVERAGE
+  STANDARD
 }
 
 model SeoMeta {
