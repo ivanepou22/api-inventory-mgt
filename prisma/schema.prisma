@@ -353,17 +353,23 @@ model Unit {
 }
 
 model ItemUnit {
-  id                  String  @id @default(auto()) @map("_id") @db.ObjectId
-  productId           String  @db.ObjectId
-  unitId              String  @db.ObjectId
-  tenantId            String  @db.ObjectId
-  companyId           String  @db.ObjectId
-  userId              String  @db.ObjectId
+  id                  String       @id @default(auto()) @map("_id") @db.ObjectId
+  type                ItemUnitType
+  productId           String       @db.ObjectId
+  unitId              String       @db.ObjectId
+  tenantId            String       @db.ObjectId
+  companyId           String       @db.ObjectId
+  userId              String       @db.ObjectId
   qtyPerUnitOfMeasure Float?
-  product             Product @relation(fields: [productId], references: [id])
-  unit                Unit    @relation(fields: [unitId], references: [id])
+  product             Product      @relation(fields: [productId], references: [id])
+  unit                Unit         @relation(fields: [unitId], references: [id])
 
   @@unique([tenantId, companyId, productId, unitId])
+}
+
+enum ItemUnitType {
+  PURCHASE
+  SALES
 }
 
 model Brand {
