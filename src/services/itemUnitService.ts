@@ -7,7 +7,7 @@ class ItemUnitService extends MultiTenantService {
     super(db);
   }
   createItemUnit = async (itemUnit: Prisma.ItemUnitUncheckedCreateInput) => {
-    const { productId, unitId } = itemUnit;
+    const { productId, unitId, type } = itemUnit;
 
     try {
       if (!productId) {
@@ -20,11 +20,12 @@ class ItemUnitService extends MultiTenantService {
         (args) => this.db.itemUnit.findUnique(args),
         {
           where: {
-            tenantId_companyId_productId_unitId: {
+            tenantId_companyId_productId_unitId_type: {
               tenantId: this.getTenantId(),
               companyId: this.getCompanyId(),
               productId,
               unitId,
+              type,
             },
           },
         }
@@ -127,9 +128,10 @@ class ItemUnitService extends MultiTenantService {
           (args) => this.db.itemUnit.findUnique(args),
           {
             where: {
-              tenantId_companyId_productId_unitId: {
+              tenantId_companyId_productId_unitId_type: {
                 tenantId: itemUnitExists.tenantId,
                 companyId: itemUnitExists.companyId,
+                type: itemUnitExists.type,
                 productId,
                 unitId,
               },
@@ -144,9 +146,10 @@ class ItemUnitService extends MultiTenantService {
           (args) => this.db.itemUnit.findUnique(args),
           {
             where: {
-              tenantId_companyId_productId_unitId: {
+              tenantId_companyId_productId_unitId_type: {
                 tenantId: itemUnitExists.tenantId,
                 companyId: itemUnitExists.companyId,
+                type: itemUnitExists.type,
                 productId,
                 unitId: itemUnitExists.unitId,
               },
@@ -161,10 +164,11 @@ class ItemUnitService extends MultiTenantService {
           (args) => this.db.itemUnit.findUnique(args),
           {
             where: {
-              tenantId_companyId_productId_unitId: {
+              tenantId_companyId_productId_unitId_type: {
                 tenantId: itemUnitExists.tenantId,
                 companyId: itemUnitExists.companyId,
                 productId: itemUnitExists.productId,
+                type: itemUnitExists.type,
                 unitId,
               },
             },
