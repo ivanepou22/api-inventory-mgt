@@ -430,8 +430,10 @@ model Product {
   costingMethod                 CostingMethod?              @default(FIFO)
   standardCost                  Float?
   unitCost                      Float?
+  lastDirectCost                Float?
   netInvoicedQty                Float?
   costIsAdjusted                Boolean?                    @default(false)
+  costIsPostedToGL              Boolean?                    @default(false)
   PurchasePricesAndDiscount     String?
   generalProductPostingGroupId  String?                     @db.ObjectId
   inventoryPostingGroupId       String?                     @db.ObjectId
