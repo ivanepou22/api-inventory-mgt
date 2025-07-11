@@ -153,7 +153,6 @@ model User {
   Discount                   Discount[]
   ProductTag                 ProductTag[]
   Tag                        Tag[]
-  ProductVersion             ProductVersion[]
   SalesLine                  SalesLine[]
   OrderPayment               OrderPayment[]
   Expense                    Expense[]
@@ -453,7 +452,6 @@ model Product {
   productRelations              ProductRelation[]
   discounts                     Discount[]
   tags                          ProductTag[]
-  versions                      ProductVersion[]
   salesLines                    SalesLine[]
   AdjustmentLines               AdjustmentLine[]
   PurchaseReceiptLines          PurchaseReceiptLine[]
@@ -655,24 +653,6 @@ model Tag {
   tenant      Tenant       @relation(fields: [tenantId], references: [id])
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
-
-  @@unique([tenantId, companyId])
-}
-
-model ProductVersion {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  productId String   @db.ObjectId
-  version   Int
-  changes   Json
-  companyId String   @db.ObjectId
-  tenantId  String   @db.ObjectId
-  userId    String   @db.ObjectId
-  user      User     @relation(fields: [userId], references: [id])
-  company   Company  @relation(fields: [companyId], references: [id])
-  tenant    Tenant   @relation(fields: [tenantId], references: [id])
-  product   Product  @relation(fields: [productId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   @@unique([tenantId, companyId])
 }
@@ -1818,7 +1798,6 @@ model Tenant {
   OrderPayment               OrderPayment[]
   SalesLine                  SalesLine[]
   SalesHeader                SalesHeader[]
-  ProductVersion             ProductVersion[]
   Tag                        Tag[]
   ProductTag                 ProductTag[]
   Discount                   Discount[]
@@ -1887,7 +1866,6 @@ model Company {
   OrderPayment               OrderPayment[]
   SalesLine                  SalesLine[]
   SalesHeader                SalesHeader[]
-  ProductVersion             ProductVersion[]
   Tag                        Tag[]
   ProductTag                 ProductTag[]
   Discount                   Discount[]
