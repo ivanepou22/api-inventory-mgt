@@ -130,7 +130,7 @@ model User {
   gender                     Gender
   image                      String?
   role                       Role                         @default(ATTENDANT)
-  isVerfied                  Boolean                      @default(false)
+  isVerified                  Boolean                      @default(false)
   resetToken                 String?
   resetTokenExpiry           DateTime?
   salesHeaders               SalesHeader[]
@@ -147,7 +147,6 @@ model User {
   Brand                      Brand[]
   Category                   Category[]
   Product                    Product[]
-  SeoMeta                    SeoMeta[]
   ProductVariant             ProductVariant[]
   StockHistory               StockHistory[]
   ProductRelation            ProductRelation[]
@@ -212,7 +211,7 @@ enum Gender {
 enum Role {
   ADMIN
   ATTENDANT
-  ONLINE_SALESS
+  ONLINE_SALES
 }
 
 model Location {
@@ -304,7 +303,7 @@ model Supplier {
 
 enum SupplierType {
   MANUFACTURER
-  DISTRIBUTIOR
+  DISTRIBUTOR
   WHOLESALER
   RETAILER
   OTHER
@@ -414,7 +413,7 @@ model Product {
   description                   String
   blocked                       Boolean?                    @default(false)
   type                          ProductType                 @default(INVENTORY)
-  baseunitOfMeasure             String?                     @db.ObjectId
+  baseUnitOfMeasure             String?                     @db.ObjectId
   itemCategoryId                String?                     @db.ObjectId
   variantMandatoryIfExists      Boolean?                    @default(false)
   excludeFromServiceDeclaration Boolean?                    @default(false)
@@ -449,7 +448,6 @@ model Product {
   ItemUnit                      ItemUnit[]
   supplierId                    String?                     @db.ObjectId
   images                        String[]
-  seoMeta                       SeoMeta[]
   productVariants               ProductVariant[]
   stockHistories                StockHistory[]
   productRelations              ProductRelation[]
@@ -469,7 +467,7 @@ model Product {
   Brand                         Brand?                      @relation(fields: [brandId], references: [id])
   Category                      Category?                   @relation(fields: [itemCategoryId], references: [id])
   Supplier                      Supplier?                   @relation(fields: [supplierId], references: [id])
-  unit                          Unit?                       @relation(fields: [baseunitOfMeasure], references: [id])
+  unit                          Unit?                       @relation(fields: [baseUnitOfMeasure], references: [id])
   user                          User                        @relation(fields: [userId], references: [id])
   company                       Company?                    @relation(fields: [companyId], references: [id])
   tenant                        Tenant?                     @relation(fields: [tenantId], references: [id])
@@ -492,25 +490,6 @@ enum CostingMethod {
   SPECIFIC
   AVERAGE
   STANDARD
-}
-
-model SeoMeta {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  productId       String   @db.ObjectId
-  metaTitle       String?
-  metaDescription String?
-  metaKeywords    String?
-  companyId       String   @db.ObjectId
-  tenantId        String   @db.ObjectId
-  userId          String   @db.ObjectId
-  user            User     @relation(fields: [userId], references: [id])
-  company         Company  @relation(fields: [companyId], references: [id])
-  tenant          Tenant   @relation(fields: [tenantId], references: [id])
-  product         Product  @relation(fields: [productId], references: [id])
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  @@unique([tenantId, companyId])
 }
 
 model ProductVariant {
@@ -610,7 +589,7 @@ model ProductRelation {
   id               String   @id @default(auto()) @map("_id") @db.ObjectId
   productId        String   @db.ObjectId
   relatedProductId String   @db.ObjectId
-  relationType     String // Upsell, Cross-sell, etc.
+  relationType     String // Up-sell, Cross-sell, etc.
   companyId        String   @db.ObjectId
   tenantId         String   @db.ObjectId
   userId           String   @db.ObjectId
@@ -1386,7 +1365,7 @@ enum AccountType {
   FIXED_ASSET
   EMPLOYEE
   ALLOCATION_ACCOUNT
-  IC_PATNER
+  IC_PARTNER
 }
 
 enum journalTemplateType {
@@ -1466,7 +1445,7 @@ model PurchaseReceiptLine {
   quantity                   Int
   directUnitCost             Float?
   totalUnitCost              Float?
-  totalUnitCostlocal         Float?
+  totalUnitCostLocal         Float?
   lineDiscountPercent        Float?
   lineDiscountAmount         Float?
   lineTaxPercent             Float?
@@ -1846,7 +1825,6 @@ model Tenant {
   ProductRelation            ProductRelation[]
   StockHistory               StockHistory[]
   ProductVariant             ProductVariant[]
-  SeoMeta                    SeoMeta[]
   Product                    Product[]
   Category                   Category[]
   Brand                      Brand[]
@@ -1916,7 +1894,6 @@ model Company {
   ProductRelation            ProductRelation[]
   StockHistory               StockHistory[]
   ProductVariant             ProductVariant[]
-  SeoMeta                    SeoMeta[]
   Product                    Product[]
   Category                   Category[]
   Brand                      Brand[]
@@ -2192,7 +2169,7 @@ model BankAccount {
   bic                       String?
   swiftCode                 String?
   accountNumber             String?
-  bankBrankNo               String?
+  bankBranchNo               String?
   blocked                   Boolean?
   bankAddress               String?
   bankAddress2              String?
