@@ -353,9 +353,14 @@ model Unit {
 
 model ItemUnit {
   id                  String       @id @default(auto()) @map("_id") @db.ObjectId
-  type                ItemUnitType
   productId           String       @db.ObjectId
   unitId              String       @db.ObjectId
+  QtyPerUnitOfMeasure Float?
+  length              Float?
+  width               Float?
+  height              Float?
+  weight              Float?
+  cubage             Float?
   tenantId            String       @db.ObjectId
   companyId           String       @db.ObjectId
   userId              String       @db.ObjectId
@@ -363,12 +368,7 @@ model ItemUnit {
   product             Product      @relation(fields: [productId], references: [id])
   unit                Unit         @relation(fields: [unitId], references: [id])
 
-  @@unique([tenantId, companyId, productId, unitId, type])
-}
-
-enum ItemUnitType {
-  PURCHASE
-  SALES
+  @@unique([tenantId, companyId, productId, unitId])
 }
 
 model Brand {
