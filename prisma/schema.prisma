@@ -147,13 +147,10 @@ model User {
   Product                    Product[]
   ProductVariant             ProductVariant[]
   StockHistory               StockHistory[]
-  ProductRelation            ProductRelation[]
   ProductTag                 ProductTag[]
   Tag                        Tag[]
   SalesLine                  SalesLine[]
   OrderPayment               OrderPayment[]
-  Expense                    Expense[]
-  ExpenseCategory            ExpenseCategory[]
   Payee                      Payee[]
   Notification               Notification[]
   Adjustment                 Adjustment[]
@@ -226,7 +223,6 @@ model Location {
   homepage               String?
   useAsInTransit         Boolean                 @default(false)
   salesHeaders           SalesHeader[]
-  expenses               Expense[]
   adjustmentLines        AdjustmentLine[]
   purchaseHeaders        PurchaseHeader[]
   purchaseLines          PurchaseLine[]
@@ -442,7 +438,6 @@ model Product {
   images                        String[]
   productVariants               ProductVariant[]
   stockHistories                StockHistory[]
-  productRelations              ProductRelation[]
   tags                          ProductTag[]
   salesLines                    SalesLine[]
   AdjustmentLines               AdjustmentLine[]
@@ -583,25 +578,6 @@ enum OrderTypeItemLedger {
   SERVICE
   ASSEMBLY
 }
-
-model ProductRelation {
-  id               String   @id @default(auto()) @map("_id") @db.ObjectId
-  productId        String   @db.ObjectId
-  relatedProductId String   @db.ObjectId
-  relationType     String // Up-sell, Cross-sell, etc.
-  companyId        String   @db.ObjectId
-  tenantId         String   @db.ObjectId
-  userId           String   @db.ObjectId
-  user             User     @relation(fields: [userId], references: [id])
-  company          Company  @relation(fields: [companyId], references: [id])
-  tenant           Tenant   @relation(fields: [tenantId], references: [id])
-  product          Product  @relation(fields: [productId], references: [id])
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-
-  @@unique([tenantId, companyId])
-}
-
 model ProductTag {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   productId String   @db.ObjectId
@@ -746,54 +722,11 @@ enum OrderType {
   BOTH
 }
 
-model Expense {
-  id                String           @id @default(auto()) @map("_id") @db.ObjectId
-  title             String
-  amount            Float
-  date              DateTime         @default(now())
-  description       String?
-  attachments       String[]
-  locationId        String           @db.ObjectId
-  expenseCategoryId String?          @db.ObjectId
-  payeeId           String?          @db.ObjectId
-  companyId         String?          @db.ObjectId
-  tenantId          String?          @db.ObjectId
-  userId            String           @db.ObjectId
-  user              User             @relation(fields: [userId], references: [id])
-  company           Company?         @relation(fields: [companyId], references: [id])
-  tenant            Tenant?          @relation(fields: [tenantId], references: [id])
-  location          Location         @relation(fields: [locationId], references: [id])
-  ExpenseCategory   ExpenseCategory? @relation(fields: [expenseCategoryId], references: [id])
-  Payee             Payee?           @relation(fields: [payeeId], references: [id])
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
-
-  @@unique([tenantId, companyId])
-}
-
-model ExpenseCategory {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  slug      String    @unique
-  expenses  Expense[]
-  companyId String    @db.ObjectId
-  tenantId  String    @db.ObjectId
-  userId    String    @db.ObjectId
-  user      User      @relation(fields: [userId], references: [id])
-  company   Company   @relation(fields: [companyId], references: [id])
-  tenant    Tenant    @relation(fields: [tenantId], references: [id])
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-
-  @@unique([tenantId, companyId])
-}
-
 model Payee {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
   name      String
   phone     String    @unique
   email     String?
-  expenses  Expense[]
   companyId String    @db.ObjectId
   tenantId  String    @db.ObjectId
   userId    String    @db.ObjectId
@@ -1774,14 +1707,11 @@ model Tenant {
   Adjustment                 Adjustment[]
   Notification               Notification[]
   Payee                      Payee[]
-  ExpenseCategory            ExpenseCategory[]
-  Expense                    Expense[]
   OrderPayment               OrderPayment[]
   SalesLine                  SalesLine[]
   SalesHeader                SalesHeader[]
   Tag                        Tag[]
   ProductTag                 ProductTag[]
-  ProductRelation            ProductRelation[]
   StockHistory               StockHistory[]
   ProductVariant             ProductVariant[]
   Product                    Product[]
@@ -1841,14 +1771,11 @@ model Company {
   Adjustment                 Adjustment[]
   Notification               Notification[]
   Payee                      Payee[]
-  ExpenseCategory            ExpenseCategory[]
-  Expense                    Expense[]
   OrderPayment               OrderPayment[]
   SalesLine                  SalesLine[]
   SalesHeader                SalesHeader[]
   Tag                        Tag[]
   ProductTag                 ProductTag[]
-  ProductRelation            ProductRelation[]
   StockHistory               StockHistory[]
   ProductVariant             ProductVariant[]
   Product                    Product[]
