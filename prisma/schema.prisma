@@ -8,47 +8,145 @@ datasource db {
 }
 
 model Customer {
-  id                     String                @id @default(auto()) @map("_id") @db.ObjectId
-  No                     String
-  name                   String
-  phone                  String
-  email                  String
-  image                  String?
-  country                String?
-  address                String?
-  address_2              String?
-  customerType           CustomerType
-  website                String?
-  maxCreditLimit         Float?
-  maxCreditDays          Int?
-  salesAmount            Float?                @default(0)
-  paidAmount             Float?                @default(0)
-  balanceAmount          Float?                @default(0)
-  taxPin                 String?
-  regNumber              String?
-  paymentTerms           String?
-  NIN                    String?
-  customerPostingGroupId String?               @db.ObjectId
-  genBusPostingGroupId   String?               @db.ObjectId
-  vatBusPostingGroupId   String?               @db.ObjectId
-  salesPersonId          String?               @db.ObjectId
-  companyId              String                @db.ObjectId
-  tenantId               String                @db.ObjectId
-  userId                 String                @db.ObjectId
-  salesHeaders           SalesHeader[]
-  OnlineOrderSetup       OnlineOrderSetup[]
-  CustomerContact        CustomerContact[]
-  user                   User                  @relation(fields: [userId], references: [id])
-  company                Company               @relation(fields: [companyId], references: [id])
-  tenant                 Tenant                @relation(fields: [tenantId], references: [id])
-  salesPerson            SalesPerson?          @relation(fields: [salesPersonId], references: [id])
-  customerPostingGroup   CustomerPostingGroup? @relation(fields: [customerPostingGroupId], references: [id])
-  genBusPostingGroup     GenBusPostingGroup?   @relation(fields: [genBusPostingGroupId], references: [id])
-  vatBusPostingGroup     VatBusPostingGroup?   @relation(fields: [vatBusPostingGroupId], references: [id])
-  createdAt              DateTime              @default(now())
-  updatedAt              DateTime              @updatedAt
+  id                      String                @id @default(auto()) @map("_id") @db.ObjectId
+  No                      String
+  name                    String
+  balanceAmount           Float?                @default(0)
+  balanceAmountLCY        Float?                @default(0)
+  creditLimitLCY          Float?                @default(0)
+  blocked                 blockedStatus         @default(BLANK)
+  salesAmount             Float?                @default(0)
+  paidAmount              Float?                @default(0)
+  image                   String?
+  address                 String?
+  address_2               String?
+  country                 String?
+  city                    String?
+  postalCode              String?
+  phone                   String?
+  mobile                  String?
+  email                   String?
+  website                 String?
+  customerType            CustomerType
+  taxPin                  String?
+  regNumber               String?
+  paymentTerms            String?
+  NIN                     String?
+  genBusPostingGroupId    String?               @db.ObjectId
+  vatBusPostingGroupId    String?               @db.ObjectId
+  customerPostingGroupId  String?               @db.ObjectId
+  currencyCodeId          String?               @db.ObjectId
+  customerPriceGroupId    String?               @db.ObjectId //TODO: create customer price group model
+  customerDiscountGroupId String?               @db.ObjectId //TODO: create customer discount group model
+  allowLineDiscount       Boolean?              @default(false)
+  pricesIncludingTax      Boolean?              @default(false)
+  customerEFRISType       customerEFRISType?    @default(B2C)
+  URARegistrationName     String?
+  TINVerified             Boolean?              @default(false)
+  salesPersonId           String?               @db.ObjectId
+  companyId               String                @db.ObjectId
+  tenantId                String                @db.ObjectId
+  userId                  String                @db.ObjectId
+  salesHeaders            SalesHeader[]
+  OnlineOrderSetup        OnlineOrderSetup[]
+  CustomerContact         CustomerContact[]
+  user                    User                  @relation(fields: [userId], references: [id])
+  company                 Company               @relation(fields: [companyId], references: [id])
+  tenant                  Tenant                @relation(fields: [tenantId], references: [id])
+  salesPerson             SalesPerson?          @relation(fields: [salesPersonId], references: [id])
+  customerPostingGroup    CustomerPostingGroup? @relation(fields: [customerPostingGroupId], references: [id])
+  genBusPostingGroup      GenBusPostingGroup?   @relation(fields: [genBusPostingGroupId], references: [id])
+  vatBusPostingGroup      VatBusPostingGroup?   @relation(fields: [vatBusPostingGroupId], references: [id])
+  currencyCode            Currency?             @relation(fields: [currencyCodeId], references: [id])
+  createdAt               DateTime              @default(now())
+  updatedAt               DateTime              @updatedAt
 
   @@unique([tenantId, companyId, No])
+}
+
+enum blockedStatus {
+  BLANK
+  SHIP
+  INVOICE
+  ALL
+}
+
+enum customerEFRISType {
+  B2C
+  B2B
+  B2G
+  FOREIGN
+}
+
+model Currency {
+  id                           String                 @id @default(auto()) @map("_id") @db.ObjectId
+  code                         String
+  name                         String
+  symbol                       String?
+  exchangeRateDate             DateTime?
+  exchangeRate                 Float?
+  realizedGainsAccountId       String?                @db.ObjectId
+  realizedLossesAccountId      String?                @db.ObjectId
+  unrealizedGainsAccountId     String?                @db.ObjectId
+  unrealizedLossesAccountId    String?                @db.ObjectId
+  amountRoundingPrecision      Float?                 @default(0.01)
+  amountDecimalPlaces          Int?                   @default(2)
+  invoiceRoundingPrecision     Float?                 @default(0.01)
+  invoiceRoundingType          invoiceRoundingType    @default(NEAREST)
+  unitAmountRoundingPrecision  Float?                 @default(0.01)
+  unitAmountDecimalPlaces      Int?                   @default(2)
+  applicationRoundingPrecision Float?                 @default(0.01)
+  convRoundingDebitAccountId   String?                @db.ObjectId
+  convRoundingCreditAccountId  String?                @db.ObjectId
+  paymentTolerancePer          Float?                 @default(0.0)
+  maxPaymentToleranceAmount    Float?                 @default(0.0)
+  currencyFactor               Float?                 @default(1.0)
+  userId                       String                 @db.ObjectId
+  companyId                    String?                @db.ObjectId
+  tenantId                     String?                @db.ObjectId
+  CurrencyExchangeRate         CurrencyExchangeRate[]
+  relationalCurrencyRates      CurrencyExchangeRate[] @relation("relationalCurrency")
+  createdAt                    DateTime               @default(now())
+  updatedAt                    DateTime               @updatedAt
+
+  @@unique([tenantId, companyId, code])
+  Customer Customer[]
+}
+
+model CurrencyExchangeRate {
+  id                                   String          @id @default(auto()) @map("_id") @db.ObjectId
+  startingDate                         DateTime        @default(now())
+  currencyCode                         String          @db.ObjectId
+  relationalCurrencyCode               String?         @db.ObjectId
+  exchangeRateAmount                   Float?          @default(1.0)
+  relationalExchangeRateAmount         Float?          @default(1.0)
+  adjustedExchangeRateAmount           Float?          @default(1.0)
+  relationalAdjustedExchangeRateAmount Float?          @default(1.0)
+  fixExRateAmount                      fixExRateAmount @default(CURRENCY)
+  userId                               String          @db.ObjectId
+  companyId                            String?         @db.ObjectId
+  tenantId                             String?         @db.ObjectId
+  user                                 User            @relation(fields: [userId], references: [id])
+  company                              Company?        @relation(fields: [companyId], references: [id])
+  tenant                               Tenant?         @relation(fields: [tenantId], references: [id])
+  currency                             Currency        @relation(fields: [currencyCode], references: [id])
+  relationalCurrency                   Currency?       @relation(name: "relationalCurrency", fields: [relationalCurrencyCode], references: [id])
+  createdAt                            DateTime        @default(now())
+  updatedAt                            DateTime        @updatedAt
+
+  @@unique([tenantId, companyId, currencyCode, startingDate])
+}
+
+enum invoiceRoundingType {
+  NEAREST
+  UP
+  DOWN
+}
+
+enum fixExRateAmount {
+  CURRENCY
+  RELATIONAL_CURRENCY
+  BOTH
 }
 
 model SalesPerson {
@@ -130,7 +228,7 @@ model User {
   gender                     Gender
   image                      String?
   role                       Role                         @default(ATTENDANT)
-  isVerified                  Boolean                      @default(false)
+  isVerified                 Boolean                      @default(false)
   resetToken                 String?
   resetTokenExpiry           DateTime?
   salesHeaders               SalesHeader[]
@@ -190,6 +288,7 @@ model User {
   Contact                    Contact[]
   CustomerContact            CustomerContact[]
   SupplierContact            SupplierContact[]
+  CurrencyExchangeRate       CurrencyExchangeRate[]
 
   @@unique([tenantId, email])
   @@unique([tenantId, username])
@@ -340,21 +439,21 @@ model Unit {
 }
 
 model ItemUnit {
-  id                  String       @id @default(auto()) @map("_id") @db.ObjectId
-  productId           String       @db.ObjectId
-  unitId              String       @db.ObjectId
+  id                  String  @id @default(auto()) @map("_id") @db.ObjectId
+  productId           String  @db.ObjectId
+  unitId              String  @db.ObjectId
   QtyPerUnitOfMeasure Float?
   length              Float?
   width               Float?
   height              Float?
   weight              Float?
-  cubage             Float?
-  tenantId            String       @db.ObjectId
-  companyId           String       @db.ObjectId
-  userId              String       @db.ObjectId
+  cubage              Float?
+  tenantId            String  @db.ObjectId
+  companyId           String  @db.ObjectId
+  userId              String  @db.ObjectId
   qtyPerUnitOfMeasure Float?
-  product             Product      @relation(fields: [productId], references: [id])
-  unit                Unit         @relation(fields: [unitId], references: [id])
+  product             Product @relation(fields: [productId], references: [id])
+  unit                Unit    @relation(fields: [unitId], references: [id])
 
   @@unique([tenantId, companyId, productId, unitId])
 }
@@ -578,6 +677,7 @@ enum OrderTypeItemLedger {
   SERVICE
   ASSEMBLY
 }
+
 model ProductTag {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   productId String   @db.ObjectId
@@ -638,14 +738,14 @@ model SalesHeader {
   orderPayments   OrderPayment[]
   salesPersonId   String?        @db.ObjectId
   locationId      String?        @db.ObjectId
-  userId     String?        @db.ObjectId
+  userId          String?        @db.ObjectId
   companyId       String?        @db.ObjectId
   tenantId        String?        @db.ObjectId
   company         Company?       @relation(fields: [companyId], references: [id])
   tenant          Tenant?        @relation(fields: [tenantId], references: [id])
   salesPerson     SalesPerson?   @relation(fields: [salesPersonId], references: [id])
   location        Location?      @relation(fields: [locationId], references: [id])
-  user       User?          @relation(fields: [userId], references: [id])
+  user            User?          @relation(fields: [userId], references: [id])
   customer        Customer?      @relation(fields: [customerId], references: [id])
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
@@ -723,18 +823,18 @@ enum OrderType {
 }
 
 model Payee {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String
-  phone     String    @unique
+  phone     String   @unique
   email     String?
-  companyId String    @db.ObjectId
-  tenantId  String    @db.ObjectId
-  userId    String    @db.ObjectId
-  user      User      @relation(fields: [userId], references: [id])
-  company   Company   @relation(fields: [companyId], references: [id])
-  tenant    Tenant    @relation(fields: [tenantId], references: [id])
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  companyId String   @db.ObjectId
+  tenantId  String   @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  company   Company  @relation(fields: [companyId], references: [id])
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([tenantId, companyId])
 }
@@ -1738,6 +1838,8 @@ model Tenant {
   Contact                    Contact[]
   CustomerContact            CustomerContact[]
   SupplierContact            SupplierContact[]
+
+  CurrencyExchangeRate CurrencyExchangeRate[]
 }
 
 model Company {
@@ -1802,6 +1904,7 @@ model Company {
   Contact                    Contact[]
   CustomerContact            CustomerContact[]
   SupplierContact            SupplierContact[]
+  CurrencyExchangeRate       CurrencyExchangeRate[]
 
   @@unique([tenantId, code])
 }
@@ -2053,7 +2156,7 @@ model BankAccount {
   bic                       String?
   swiftCode                 String?
   accountNumber             String?
-  bankBranchNo               String?
+  bankBranchNo              String?
   blocked                   Boolean?
   bankAddress               String?
   bankAddress2              String?
