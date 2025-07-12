@@ -36,7 +36,7 @@ model Customer {
   vatBusPostingGroupId    String?               @db.ObjectId
   customerPostingGroupId  String?               @db.ObjectId
   currencyCodeId          String?               @db.ObjectId
-  customerPriceGroupId    String?               @db.ObjectId //TODO: create customer price group model
+  customerPriceGroupId    String?               @db.ObjectId
   customerDiscountGroupId String?               @db.ObjectId //TODO: create customer discount group model
   allowLineDiscount       Boolean?              @default(false)
   pricesIncludingTax      Boolean?              @default(false)
@@ -58,6 +58,7 @@ model Customer {
   genBusPostingGroup      GenBusPostingGroup?   @relation(fields: [genBusPostingGroupId], references: [id])
   vatBusPostingGroup      VatBusPostingGroup?   @relation(fields: [vatBusPostingGroupId], references: [id])
   currencyCode            Currency?             @relation(fields: [currencyCodeId], references: [id])
+  customerPriceGroup      CustomerPriceGroup?   @relation(fields: [customerPriceGroupId], references: [id])
   createdAt               DateTime              @default(now())
   updatedAt               DateTime              @updatedAt
 
@@ -76,6 +77,25 @@ enum customerEFRISType {
   B2B
   B2G
   FOREIGN
+}
+
+model CustomerPriceGroup {
+  id                   String   @id @default(auto()) @map("_id") @db.ObjectId
+  code                 String
+  description          String?
+  allowLineDiscount    Boolean? @default(false)
+  allowInvoiceDiscount Boolean? @default(false)
+  priceIncludesTax     Boolean? @default(false)
+  companyId            String   @db.ObjectId
+  tenantId             String   @db.ObjectId
+  userId               String   @db.ObjectId
+  user                 User     @relation(fields: [userId], references: [id])
+  company              Company  @relation(fields: [companyId], references: [id])
+  tenant               Tenant   @relation(fields: [tenantId], references: [id])
+  Customer Customer[]
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  @@unique([tenantId, companyId, code])
 }
 
 model Currency {
@@ -108,9 +128,9 @@ model Currency {
   relationalCurrencyRates      CurrencyExchangeRate[] @relation("relationalCurrency")
   createdAt                    DateTime               @default(now())
   updatedAt                    DateTime               @updatedAt
+  Customer                     Customer[]
 
   @@unique([tenantId, companyId, code])
-  Customer Customer[]
 }
 
 model CurrencyExchangeRate {
@@ -289,6 +309,7 @@ model User {
   CustomerContact            CustomerContact[]
   SupplierContact            SupplierContact[]
   CurrencyExchangeRate       CurrencyExchangeRate[]
+  CustomerPriceGroup         CustomerPriceGroup[]
 
   @@unique([tenantId, email])
   @@unique([tenantId, username])
@@ -1840,6 +1861,8 @@ model Tenant {
   SupplierContact            SupplierContact[]
 
   CurrencyExchangeRate CurrencyExchangeRate[]
+
+  CustomerPriceGroup CustomerPriceGroup[]
 }
 
 model Company {
@@ -1905,6 +1928,7 @@ model Company {
   CustomerContact            CustomerContact[]
   SupplierContact            SupplierContact[]
   CurrencyExchangeRate       CurrencyExchangeRate[]
+  CustomerPriceGroup         CustomerPriceGroup[]
 
   @@unique([tenantId, code])
 }
