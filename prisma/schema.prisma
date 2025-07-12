@@ -150,7 +150,6 @@ model User {
   ProductVariant             ProductVariant[]
   StockHistory               StockHistory[]
   ProductRelation            ProductRelation[]
-  Discount                   Discount[]
   ProductTag                 ProductTag[]
   Tag                        Tag[]
   SalesLine                  SalesLine[]
@@ -450,7 +449,6 @@ model Product {
   productVariants               ProductVariant[]
   stockHistories                StockHistory[]
   productRelations              ProductRelation[]
-  discounts                     Discount[]
   tags                          ProductTag[]
   salesLines                    SalesLine[]
   AdjustmentLines               AdjustmentLine[]
@@ -597,26 +595,6 @@ model ProductRelation {
   product          Product  @relation(fields: [productId], references: [id])
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
-
-  @@unique([tenantId, companyId])
-}
-
-model Discount {
-  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
-  productId          String   @db.ObjectId
-  discountPercentage Float
-  startDate          DateTime
-  endDate            DateTime
-  active             Boolean  @default(true)
-  companyId          String   @db.ObjectId
-  tenantId           String   @db.ObjectId
-  userId             String   @db.ObjectId
-  user               User     @relation(fields: [userId], references: [id])
-  company            Company  @relation(fields: [companyId], references: [id])
-  tenant             Tenant   @relation(fields: [tenantId], references: [id])
-  product            Product  @relation(fields: [productId], references: [id])
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
 
   @@unique([tenantId, companyId])
 }
@@ -1800,7 +1778,6 @@ model Tenant {
   SalesHeader                SalesHeader[]
   Tag                        Tag[]
   ProductTag                 ProductTag[]
-  Discount                   Discount[]
   ProductRelation            ProductRelation[]
   StockHistory               StockHistory[]
   ProductVariant             ProductVariant[]
@@ -1868,7 +1845,6 @@ model Company {
   SalesHeader                SalesHeader[]
   Tag                        Tag[]
   ProductTag                 ProductTag[]
-  Discount                   Discount[]
   ProductRelation            ProductRelation[]
   StockHistory               StockHistory[]
   ProductVariant             ProductVariant[]
