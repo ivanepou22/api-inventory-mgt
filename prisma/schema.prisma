@@ -524,6 +524,7 @@ model StockHistory {
   salesAmount  Float?                    @default(0)
   costAmount   Float?                    @default(0)
   open         Boolean                   @default(true)
+  orderType    OrderTypeItemLedger?      @default(BLANK)
   entryNo      Int                       @default(0)
   referenceNo  String?
   companyId    String?                   @db.ObjectId
@@ -573,6 +574,14 @@ enum StockHistoryDocumentType {
   INVENTORY_SHIPMENT
   DIRECT_TRANSFER
   ADJUSTMENT
+}
+
+enum OrderTypeItemLedger {
+  BLANK
+  PRODUCTION
+  TRANSFER
+  SERVICE
+  ASSEMBLY
 }
 
 model ProductRelation {
