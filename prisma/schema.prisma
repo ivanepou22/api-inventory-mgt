@@ -134,8 +134,6 @@ model User {
   resetToken                 String?
   resetTokenExpiry           DateTime?
   salesHeaders               SalesHeader[]
-  ShopAdmins                 Location[]                   @relation("ShopAdmins")
-  ShopAttendants             Location[]                   @relation("ShopAttendants")
   tenantId                   String?                      @db.ObjectId
   tenant                     Tenant?                      @relation(fields: [tenantId], references: [id])
   createdAt                  DateTime                     @default(now())
@@ -236,12 +234,8 @@ model Location {
   purchaseReceiptLines   PurchaseReceiptLine[]
   inventoryPostingSetups InventoryPostingSetup[]
   StockHistory           StockHistory[]
-  attendantId            String[]                @db.ObjectId
-  adminId                String                  @db.ObjectId
   companyId              String?                 @db.ObjectId
   tenantId               String?                 @db.ObjectId
-  admin                  User?                   @relation("ShopAdmins", fields: [adminId], references: [id])
-  attendants             User?                   @relation("ShopAttendants", fields: [attendantId], references: [id])
   company                Company?                @relation(fields: [companyId], references: [id])
   tenant                 Tenant?                 @relation(fields: [tenantId], references: [id])
   ItemJournalLine        ItemJournalLine[]
@@ -659,14 +653,14 @@ model SalesHeader {
   orderPayments   OrderPayment[]
   salesPersonId   String?        @db.ObjectId
   locationId      String?        @db.ObjectId
-  attendantId     String?        @db.ObjectId
+  userId     String?        @db.ObjectId
   companyId       String?        @db.ObjectId
   tenantId        String?        @db.ObjectId
   company         Company?       @relation(fields: [companyId], references: [id])
   tenant          Tenant?        @relation(fields: [tenantId], references: [id])
   salesPerson     SalesPerson?   @relation(fields: [salesPersonId], references: [id])
   location        Location?      @relation(fields: [locationId], references: [id])
-  attendant       User?          @relation(fields: [attendantId], references: [id])
+  user       User?          @relation(fields: [userId], references: [id])
   customer        Customer?      @relation(fields: [customerId], references: [id])
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
