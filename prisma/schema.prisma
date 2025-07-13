@@ -176,7 +176,7 @@ model salesPrice {
   createdAt            DateTime            @default(now())
   updatedAt            DateTime            @updatedAt
 
-  @@unique([currencyCode, code])
+  @@unique([tenantId,companyId,salesType,salesCode,Type, code,startingDate])
 }
 
 enum SalesPriceSalesType {
@@ -366,8 +366,6 @@ model User {
   OrderPayment               OrderPayment[]
   Payee                      Payee[]
   Notification               Notification[]
-  Adjustment                 Adjustment[]
-  AdjustmentLine             AdjustmentLine[]
   PurchaseHeader             PurchaseHeader[]
   PurchaseLine               PurchaseLine[]
   SupplierLedgerEntry        SupplierLedgerEntry[]
@@ -441,7 +439,6 @@ model Location {
   homepage               String?
   useAsInTransit         Boolean                 @default(false)
   salesHeaders           SalesHeader[]
-  adjustmentLines        AdjustmentLine[]
   purchaseHeaders        PurchaseHeader[]
   purchaseLines          PurchaseLine[]
   purchaseReceiptHeaders PurchaseReceiptHeader[]
@@ -538,7 +535,6 @@ model Unit {
   code                 String
   name                 String
   abbreviation         String
-  AdjustmentLine       AdjustmentLine[]
   StockHistory         StockHistory[]
   PurchaseLine         PurchaseLine[]
   PurchaseReceiptLines PurchaseReceiptLine[]
@@ -659,7 +655,6 @@ model Product {
   stockHistories                StockHistory[]
   tags                          ProductTag[]
   salesLines                    SalesLine[]
-  AdjustmentLines               AdjustmentLine[]
   PurchaseReceiptLines          PurchaseReceiptLine[]
   PurchaseLines                 PurchaseLine[]
   companyId                     String?                     @db.ObjectId
@@ -987,86 +982,6 @@ model Notification {
 
   @@unique([tenantId, companyId])
 }
-
-model Adjustment {
-  id              String             @id @default(auto()) @map("_id") @db.ObjectId
-  referenceNo     String             @unique
-  date            DateTime           @default(now())
-  description     String?
-  activity        AdjustmentActivity
-  adjustmentLines AdjustmentLine[]
-  companyId       String?            @db.ObjectId
-  tenantId        String?            @db.ObjectId
-  userId          String             @db.ObjectId
-  user            User               @relation(fields: [userId], references: [id])
-  company         Company?           @relation(fields: [companyId], references: [id])
-  tenant          Tenant?            @relation(fields: [tenantId], references: [id])
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
-
-  @@unique([tenantId, companyId])
-}
-
-model AdjustmentLine {
-  id           String                  @id @default(auto()) @map("_id") @db.ObjectId
-  postingDate  DateTime                @default(now())
-  entryType    AdjustmentItemEntryType
-  documentNo   String
-  adjustmentId String                  @db.ObjectId
-  productId    String                  @db.ObjectId
-  productName  String
-  productCode  String
-  productSku   String
-  locationId   String                  @db.ObjectId
-  quantity     Int
-  unitId       String                  @db.ObjectId
-  reason       AdjustmentItemReason
-  unitAmount   Float?
-  totalAmount  Float?
-  unitCost     Float?
-  totalCost    Float?
-  entryNo      Int                     @default(0)
-  companyId    String                  @db.ObjectId
-  tenantId     String                  @db.ObjectId
-  userId       String                  @db.ObjectId
-  user         User                    @relation(fields: [userId], references: [id])
-  company      Company                 @relation(fields: [companyId], references: [id])
-  tenant       Tenant                  @relation(fields: [tenantId], references: [id])
-  adjustment   Adjustment              @relation(fields: [adjustmentId], references: [id])
-  product      Product                 @relation(fields: [productId], references: [id])
-  location     Location?               @relation(fields: [locationId], references: [id])
-  unit         Unit                    @relation(fields: [unitId], references: [id])
-  createdAt    DateTime                @default(now())
-  updatedAt    DateTime                @updatedAt
-
-  @@unique([tenantId, companyId])
-}
-
-enum AdjustmentItemEntryType {
-  PURCHASE
-  SALE
-  POSITIVE_ADJUST
-  NEGATIVE_ADJUST
-}
-
-enum AdjustmentItemReason {
-  EXPIRED_ITEM
-  STOLEN_ITEM
-  RETURNED_ITEM
-  DAMAGED_ITEM
-  OTHER
-}
-
-enum AdjustmentActivity {
-  INVENTORY_COUNT
-  INVENTORY_ADJUSTMENT
-  INVENTORY_TRANSFER
-  INVENTORY_CONSUMPTION
-  INVENTORY_OUTPUT
-  INVENTORY_ASSEMBLY_CONSUMPTION
-  INVENTORY_ASSEMBLY_OUTPUT
-}
-
 model PurchaseHeader {
   id                  String                 @id @default(auto()) @map("_id") @db.ObjectId
   supplierId          String                 @db.ObjectId
@@ -1923,8 +1838,6 @@ model Tenant {
   SupplierLedgerEntry        SupplierLedgerEntry[]
   PurchaseLine               PurchaseLine[]
   PurchaseHeader             PurchaseHeader[]
-  AdjustmentLine             AdjustmentLine[]
-  Adjustment                 Adjustment[]
   Notification               Notification[]
   Payee                      Payee[]
   OrderPayment               OrderPayment[]
@@ -1997,8 +1910,6 @@ model Company {
   SupplierLedgerEntry        SupplierLedgerEntry[]
   PurchaseLine               PurchaseLine[]
   PurchaseHeader             PurchaseHeader[]
-  AdjustmentLine             AdjustmentLine[]
-  Adjustment                 Adjustment[]
   Notification               Notification[]
   Payee                      Payee[]
   OrderPayment               OrderPayment[]
