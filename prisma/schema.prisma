@@ -31,7 +31,7 @@ model dimensionValue {
   id                 String             @id @default(auto()) @map("_id") @db.ObjectId
   dimensionId        String             @db.ObjectId
   code               String
-  description        String?
+  name               String?
   dimensionValueType dimensionValueType @default(STANDARD)
   totaling           String?
   blocked            Boolean?           @default(false)
@@ -148,6 +148,50 @@ model CustomerPriceGroup {
   @@unique([tenantId, companyId, code])
 }
 
+model salesPrice {
+  id                   String              @id @default(auto()) @map("_id") @db.ObjectId
+  salesType            SalesPriceSalesType @default(CUSTOMER_GROUP)
+  salesCode            String
+  Type                 salesPriceType      @default(ITEM)
+  code                 String
+  description          String?
+  minimumQuantity      Float?              @default(0)
+  unitPrice            Float
+  currencyCode         String              @db.ObjectId
+  startingDate         DateTime?
+  endingDate           DateTime?
+  variantCode          String?
+  priceIncludesTax     Boolean?            @default(false)
+  allowInvoiceDiscount Boolean?            @default(false)
+  allowLineDiscount    Boolean?            @default(false)
+  unitOfMeasureId      String?             @db.ObjectId
+  userId               String              @db.ObjectId
+  companyId            String?             @db.ObjectId
+  tenantId             String?             @db.ObjectId
+  user                 User                @relation(fields: [userId], references: [id])
+  company              Company?            @relation(fields: [companyId], references: [id])
+  tenant               Tenant?             @relation(fields: [tenantId], references: [id])
+  currency             Currency            @relation(fields: [currencyCode], references: [id])
+  unitOfMeasure        Unit?               @relation(fields: [unitOfMeasureId], references: [id])
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+
+  @@unique([currencyCode, code])
+}
+
+enum SalesPriceSalesType {
+  CUSTOMER_GROUP
+  CUSTOMER
+  ALL_CUSTOMERS
+  CAMPAIGN
+  NONE
+}
+
+enum salesPriceType {
+  ITEM
+  RESOURCE
+}
+
 model Currency {
   id                           String                 @id @default(auto()) @map("_id") @db.ObjectId
   code                         String
@@ -179,6 +223,7 @@ model Currency {
   createdAt                    DateTime               @default(now())
   updatedAt                    DateTime               @updatedAt
   Customer                     Customer[]
+  salesPrice                   salesPrice[]
 
   @@unique([tenantId, companyId, code])
 }
@@ -362,6 +407,7 @@ model User {
   CustomerPriceGroup         CustomerPriceGroup[]
   Dimension                  Dimension[]
   dimensionValue             dimensionValue[]
+  salesPrice                 salesPrice[]
 
   @@unique([tenantId, email])
   @@unique([tenantId, username])
@@ -507,6 +553,7 @@ model Unit {
   ItemJournalLine      ItemJournalLine[]
   ItemUnit             ItemUnit[]
   Product              Product[]
+  salesPrice           salesPrice[]
 
   @@unique([tenantId, companyId, code])
 }
@@ -1919,6 +1966,8 @@ model Tenant {
   Dimension Dimension[]
 
   dimensionValue dimensionValue[]
+
+  salesPrice salesPrice[]
 }
 
 model Company {
@@ -1987,6 +2036,7 @@ model Company {
   CustomerPriceGroup         CustomerPriceGroup[]
   Dimension                  Dimension[]
   dimensionValue             dimensionValue[]
+  salesPrice                 salesPrice[]
 
   @@unique([tenantId, code])
 }
