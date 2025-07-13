@@ -8,22 +8,52 @@ datasource db {
 }
 
 model Dimension {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  code          String
-  description   String?
-  blocked       Boolean? @default(false)
-  codeCaption   String?
-  filterCaption String?
-  companyId     String?  @db.ObjectId
-  tenantId      String?  @db.ObjectId
-  userId        String   @db.ObjectId
-  user          User     @relation(fields: [userId], references: [id])
-  company       Company? @relation(fields: [companyId], references: [id])
-  tenant        Tenant?  @relation(fields: [tenantId], references: [id])
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id             String           @id @default(auto()) @map("_id") @db.ObjectId
+  code           String
+  description    String?
+  blocked        Boolean?         @default(false)
+  codeCaption    String?
+  filterCaption  String?
+  companyId      String?          @db.ObjectId
+  tenantId       String?          @db.ObjectId
+  userId         String           @db.ObjectId
+  user           User             @relation(fields: [userId], references: [id])
+  company        Company?         @relation(fields: [companyId], references: [id])
+  tenant         Tenant?          @relation(fields: [tenantId], references: [id])
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  dimensionValue dimensionValue[]
 
   @@unique([tenantId, companyId, code])
+}
+
+model dimensionValue {
+  id                 String             @id @default(auto()) @map("_id") @db.ObjectId
+  dimensionId        String             @db.ObjectId
+  code               String
+  description        String?
+  dimensionValueType dimensionValueType @default(STANDARD)
+  totaling           String?
+  blocked            Boolean?           @default(false)
+  companyId          String?            @db.ObjectId
+  tenantId           String?            @db.ObjectId
+  userId             String             @db.ObjectId
+  user               User               @relation(fields: [userId], references: [id])
+  company            Company?           @relation(fields: [companyId], references: [id])
+  tenant             Tenant?            @relation(fields: [tenantId], references: [id])
+  dimension          Dimension          @relation(fields: [dimensionId], references: [id])
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  @@unique([tenantId, companyId, dimensionId, code])
+}
+
+enum dimensionValueType {
+  STANDARD
+  HEADING
+  TOTAL
+  BEGIN_TOTAL
+  END_TOTAL
 }
 
 model Customer {
@@ -331,6 +361,7 @@ model User {
   CurrencyExchangeRate       CurrencyExchangeRate[]
   CustomerPriceGroup         CustomerPriceGroup[]
   Dimension                  Dimension[]
+  dimensionValue             dimensionValue[]
 
   @@unique([tenantId, email])
   @@unique([tenantId, username])
@@ -1886,6 +1917,8 @@ model Tenant {
   CustomerPriceGroup CustomerPriceGroup[]
 
   Dimension Dimension[]
+
+  dimensionValue dimensionValue[]
 }
 
 model Company {
@@ -1953,6 +1986,7 @@ model Company {
   CurrencyExchangeRate       CurrencyExchangeRate[]
   CustomerPriceGroup         CustomerPriceGroup[]
   Dimension                  Dimension[]
+  dimensionValue             dimensionValue[]
 
   @@unique([tenantId, code])
 }
