@@ -7,6 +7,25 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Dimension {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  code          String
+  description   String?
+  blocked       Boolean? @default(false)
+  codeCaption   String?
+  filterCaption String?
+  companyId     String?  @db.ObjectId
+  tenantId      String?  @db.ObjectId
+  userId        String   @db.ObjectId
+  user          User     @relation(fields: [userId], references: [id])
+  company       Company? @relation(fields: [companyId], references: [id])
+  tenant        Tenant?  @relation(fields: [tenantId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([tenantId, companyId, code])
+}
+
 model Customer {
   id                      String                @id @default(auto()) @map("_id") @db.ObjectId
   No                      String
@@ -18,8 +37,8 @@ model Customer {
   salesAmount             Float?                @default(0)
   paidAmount              Float?                @default(0)
   image                   String?
-  address                 String?
-  address_2               String?
+  address_id              String? //points to the address model
+  // address_2               String?
   country                 String?
   city                    String?
   postalCode              String?
@@ -30,7 +49,7 @@ model Customer {
   customerType            CustomerType
   taxPin                  String?
   regNumber               String?
-  paymentTerms            String?
+  paymentTerms            String? //todo create payment terms model
   NIN                     String?
   genBusPostingGroupId    String?               @db.ObjectId
   vatBusPostingGroupId    String?               @db.ObjectId
@@ -40,8 +59,8 @@ model Customer {
   customerDiscountGroupId String?               @db.ObjectId //TODO: create customer discount group model
   allowLineDiscount       Boolean?              @default(false)
   pricesIncludingTax      Boolean?              @default(false)
-  customerEFRISType       customerEFRISType?    @default(B2C)
-  URARegistrationName     String?
+  customerEFRISType       customerEFRISType?    @default(B2C) //find a more general name that applies to different tax regulatory contexts
+  URARegistrationName     String? //find a more general name that applies to different tax regulatory contexts
   TINVerified             Boolean?              @default(false)
   salesPersonId           String?               @db.ObjectId
   companyId               String                @db.ObjectId
@@ -80,21 +99,22 @@ enum customerEFRISType {
 }
 
 model CustomerPriceGroup {
-  id                   String   @id @default(auto()) @map("_id") @db.ObjectId
+  id                   String     @id @default(auto()) @map("_id") @db.ObjectId
   code                 String
   description          String?
-  allowLineDiscount    Boolean? @default(false)
-  allowInvoiceDiscount Boolean? @default(false)
-  priceIncludesTax     Boolean? @default(false)
-  companyId            String   @db.ObjectId
-  tenantId             String   @db.ObjectId
-  userId               String   @db.ObjectId
-  user                 User     @relation(fields: [userId], references: [id])
-  company              Company  @relation(fields: [companyId], references: [id])
-  tenant               Tenant   @relation(fields: [tenantId], references: [id])
-  Customer Customer[]
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+  allowLineDiscount    Boolean?   @default(false)
+  allowInvoiceDiscount Boolean?   @default(false)
+  priceIncludesTax     Boolean?   @default(false)
+  companyId            String     @db.ObjectId
+  tenantId             String     @db.ObjectId
+  userId               String     @db.ObjectId
+  user                 User       @relation(fields: [userId], references: [id])
+  company              Company    @relation(fields: [companyId], references: [id])
+  tenant               Tenant     @relation(fields: [tenantId], references: [id])
+  Customer             Customer[]
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+
   @@unique([tenantId, companyId, code])
 }
 
@@ -310,6 +330,7 @@ model User {
   SupplierContact            SupplierContact[]
   CurrencyExchangeRate       CurrencyExchangeRate[]
   CustomerPriceGroup         CustomerPriceGroup[]
+  Dimension                  Dimension[]
 
   @@unique([tenantId, email])
   @@unique([tenantId, username])
@@ -1863,6 +1884,8 @@ model Tenant {
   CurrencyExchangeRate CurrencyExchangeRate[]
 
   CustomerPriceGroup CustomerPriceGroup[]
+
+  Dimension Dimension[]
 }
 
 model Company {
@@ -1929,6 +1952,7 @@ model Company {
   SupplierContact            SupplierContact[]
   CurrencyExchangeRate       CurrencyExchangeRate[]
   CustomerPriceGroup         CustomerPriceGroup[]
+  Dimension                  Dimension[]
 
   @@unique([tenantId, code])
 }
