@@ -6,5 +6,6 @@
         "conv",
         "EFRIS",
         "iban"
-    ]
+    ],
+    "postman.settings.dotenv-detection-notification-visibility": false
 }
