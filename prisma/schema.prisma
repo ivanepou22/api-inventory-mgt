@@ -46,6 +46,8 @@ model dimensionValue {
   updatedAt          DateTime           @updatedAt
 
   @@unique([tenantId, companyId, dimensionId, code])
+  SalesPerson_Dim1 SalesPerson[] @relation(name: "dimension_1")
+  SalesPerson_Dim2 SalesPerson[] @relation(name: "dimension_2")
 }
 
 enum dimensionValueType {
@@ -176,7 +178,7 @@ model salesPrice {
   createdAt            DateTime            @default(now())
   updatedAt            DateTime            @updatedAt
 
-  @@unique([tenantId,companyId,salesType,salesCode,Type, code,startingDate])
+  @@unique([tenantId, companyId, salesType, salesCode, Type, code, startingDate])
 }
 
 enum SalesPriceSalesType {
@@ -265,24 +267,37 @@ enum fixExRateAmount {
 }
 
 model SalesPerson {
-  id          String        @id @default(auto()) @map("_id") @db.ObjectId
-  code        String
-  name        String
-  phone       String
-  email       String?
-  image       String?
-  Customer    Customer[]
-  SalesHeader SalesHeader[]
-  companyId   String?       @db.ObjectId
-  tenantId    String?       @db.ObjectId
-  userId      String        @db.ObjectId
-  user        User          @relation(fields: [userId], references: [id])
-  company     Company?      @relation(fields: [companyId], references: [id])
-  tenant      Tenant?       @relation(fields: [tenantId], references: [id])
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id             String        @id @default(auto()) @map("_id") @db.ObjectId
+  code           String
+  name           String
+  phone          String?
+  email          String?
+  image          String?
+  blocked        Boolean?      @default(false)
+  jobTitle       String?
+  commissionRate Float?        @default(0)
+  commissionType commissionType @default(PERCENTAGE)
+  commissionAmount Float?      @default(0)
+  dimension1  String?       @db.ObjectId
+  dimension2  String?       @db.ObjectId
+  Customer       Customer[]
+  SalesHeader    SalesHeader[]
+  companyId      String?       @db.ObjectId
+  tenantId       String?       @db.ObjectId
+  userId         String        @db.ObjectId
+  user           User          @relation(fields: [userId], references: [id])
+  company        Company?      @relation(fields: [companyId], references: [id])
+  tenant         Tenant?       @relation(fields: [tenantId], references: [id])
+  dimensionValue1 dimensionValue? @relation(name: "dimension_1",fields: [dimension1], references: [id])
+  dimensionValue2 dimensionValue? @relation(name: "dimension_2",fields: [dimension2], references: [id])
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
   @@unique([tenantId, companyId, code])
+}
+enum commissionType {
+  PERCENTAGE
+  FIXED_AMOUNT
 }
 
 model Contact {
@@ -983,6 +998,7 @@ model Notification {
 
   @@unique([tenantId, companyId])
 }
+
 model PurchaseHeader {
   id                  String                 @id @default(auto()) @map("_id") @db.ObjectId
   supplierId          String                 @db.ObjectId
