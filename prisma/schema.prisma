@@ -476,7 +476,6 @@ enum Role {
   ATTENDANT
   ONLINE_SALES
 }
-
 model Location {
   id                     String                  @id @default(auto()) @map("_id") @db.ObjectId
   code                   String
