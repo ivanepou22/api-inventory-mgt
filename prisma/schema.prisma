@@ -464,6 +464,7 @@ model User {
   @@unique([tenantId, email])
   @@unique([tenantId, username])
   @@unique([tenantId, phone])
+  AccountingPeriod AccountingPeriod[]
 }
 
 enum Gender {
@@ -1936,6 +1937,8 @@ model Tenant {
   dimensionValue dimensionValue[]
 
   salesPrice salesPrice[]
+
+  AccountingPeriod AccountingPeriod[]
 }
 
 model Company {
@@ -2005,6 +2008,7 @@ model Company {
   salesPrice                 salesPrice[]
 
   @@unique([tenantId, code])
+  AccountingPeriod AccountingPeriod[]
 }
 
 model companyInformation {
@@ -2243,12 +2247,12 @@ model GeneralLedgerEntry {
   createdAt                DateTime                    @default(now())
   updatedAt                DateTime                    @updatedAt
 
-  @@unique([tenantId, companyId])
+  @@unique([tenantId, companyId, entryNo])
 }
 
 model BankAccount {
   id                        String                   @id @default(auto()) @map("_id") @db.ObjectId
-  bankCode                  String
+  bankNo                  String
   name                      String
   iban                      String?
   bic                       String?
@@ -2276,6 +2280,7 @@ model BankAccount {
   tenantId                  String                   @db.ObjectId
   companyId                 String                   @db.ObjectId
   userId                    String                   @db.ObjectId
+  BankAccountLedgerEntry BankAccountLedgerEntry[]
   user                      User                     @relation(fields: [userId], references: [id])
   company                   Company                  @relation(fields: [companyId], references: [id])
   tenant                    Tenant                   @relation(fields: [tenantId], references: [id])
@@ -2283,8 +2288,7 @@ model BankAccount {
   createdAt                 DateTime                 @default(now())
   updatedAt                 DateTime                 @updatedAt
 
-  @@unique([tenantId, companyId])
-  @@unique([tenantId, companyId, bankCode])
+  @@unique([tenantId, companyId, bankNo])
 }
 
 model BankAccountPostingGroup {
@@ -2302,7 +2306,6 @@ model BankAccountPostingGroup {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
-  @@unique([tenantId, companyId])
   @@unique([tenantId, companyId, code])
 }
 
@@ -2344,6 +2347,7 @@ model BankAccountLedgerEntry {
   user               User                    @relation(fields: [userId], references: [id])
   company            Company                 @relation(fields: [companyId], references: [id])
   tenant             Tenant                  @relation(fields: [tenantId], references: [id])
+  bankAccount        BankAccount             @relation(fields: [bankAccountId], references: [id])
   createdAt          DateTime                @default(now())
   updatedAt          DateTime                @updatedAt
 
@@ -2422,4 +2426,24 @@ enum DebitCreditType {
   DEBIT
   CREDIT
   BOTH
+}
+
+model AccountingPeriod {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String   
+  startDate   DateTime
+  newFiscalYear Boolean? @default(false)
+  closed      Boolean? @default(false)
+  dateLocked Boolean? @default(false)
+  InventoryPeriodClosed Boolean? @default(false)
+  companyId   String   @db.ObjectId
+  tenantId    String   @db.ObjectId
+  userId      String   @db.ObjectId
+  user        User     @relation(fields: [userId], references: [id])
+  company     Company  @relation(fields: [companyId], references: [id])
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([tenantId, companyId, startDate])
 }
