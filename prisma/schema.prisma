@@ -226,6 +226,7 @@ model Currency {
   salesPrice                   salesPrice[]
   createdAt                    DateTime               @default(now())
   updatedAt                    DateTime               @updatedAt
+  Contact                      Contact[]
 
   @@unique([tenantId, companyId, code])
 }
@@ -292,6 +293,7 @@ model SalesPerson {
   dimensionValue2  dimensionValue? @relation(name: "dimension_2", fields: [dimension2], references: [id])
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
+  Contact          Contact[]
 
   @@unique([tenantId, companyId, code])
 }
@@ -302,24 +304,49 @@ enum commissionType {
 }
 
 model Contact {
-  id              String            @id @default(auto()) @map("_id") @db.ObjectId
-  code            String
-  name            String
-  phone           String?
-  email           String?
-  image           String?
-  companyId       String            @db.ObjectId
-  tenantId        String            @db.ObjectId
-  userId          String            @db.ObjectId
-  user            User              @relation(fields: [userId], references: [id])
-  company         Company           @relation(fields: [companyId], references: [id])
-  tenant          Tenant            @relation(fields: [tenantId], references: [id])
-  CustomerContact CustomerContact[]
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  SupplierContact SupplierContact[]
+  id                String            @id @default(auto()) @map("_id") @db.ObjectId
+  code              String
+  name              String
+  phone             String?
+  email             String?
+  image             String?
+  blocked           Boolean?          @default(false)
+  contactType       ContactType       @default(COMPANY)
+  companyNo         String?
+  companyName       String?
+  companyAddressId  String?
+  companyPhone      String?
+  companyEmail      String?
+  contactAddress    Json?
+  Country           String?
+  city              String?
+  postalCode        String?
+  currencyId        String?           @db.ObjectId
+  VatRegistrationNo String?
+  contactPhone      String?
+  contactEmail      String?
+  contactMobile     String?
+  contactHomepage   String?
+  salesPersonId     String?           @db.ObjectId
+  companyId         String            @db.ObjectId
+  tenantId          String            @db.ObjectId
+  userId            String            @db.ObjectId
+  user              User              @relation(fields: [userId], references: [id])
+  company           Company           @relation(fields: [companyId], references: [id])
+  tenant            Tenant            @relation(fields: [tenantId], references: [id])
+  salesPerson       SalesPerson?      @relation(fields: [salesPersonId], references: [id])
+  currency          Currency?         @relation(fields: [currencyId], references: [id])
+  CustomerContact   CustomerContact[]
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  SupplierContact   SupplierContact[]
 
   @@unique([tenantId, companyId, code])
+}
+
+enum ContactType {
+  COMPANY
+  PERSON
 }
 
 model CustomerContact {
