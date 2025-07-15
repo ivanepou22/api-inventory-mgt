@@ -327,6 +327,7 @@ model Contact {
   contactEmail      String?
   contactMobile     String?
   contactHomepage   String?
+  businessRelation  BusinessRelation  @default(CUSTOMER)
   salesPersonId     String?           @db.ObjectId
   companyId         String            @db.ObjectId
   tenantId          String            @db.ObjectId
@@ -347,6 +348,16 @@ model Contact {
 enum ContactType {
   COMPANY
   PERSON
+}
+
+enum BusinessRelation {
+  CUSTOMER
+  SUPPLIER
+  BANK_ACCOUNT
+  EMPLOYEE
+  OTHER
+  NONE
+  MULTIPLE
 }
 
 model CustomerContact {
