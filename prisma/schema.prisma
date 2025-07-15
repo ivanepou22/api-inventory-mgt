@@ -327,7 +327,7 @@ model Contact {
   contactEmail      String?
   contactMobile     String?
   contactHomepage   String?
-  businessRelation  BusinessRelation  @default(CUSTOMER)
+  businessRelation  BusinessRelation  @default(NONE)
   salesPersonId     String?           @db.ObjectId
   companyId         String            @db.ObjectId
   tenantId          String            @db.ObjectId
