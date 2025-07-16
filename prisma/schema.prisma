@@ -1329,6 +1329,7 @@ model JournalBatch {
 
   @@unique([tenantId, companyId])
   @@unique([name, journalTemplateId])
+  BankAccountLedgerEntry BankAccountLedgerEntry[]
 }
 
 model JournalTemplate {
@@ -2312,30 +2313,27 @@ model BankAccountPostingGroup {
   updatedAt   DateTime      @updatedAt
 
   @@unique([tenantId, companyId, code])
+  BankAccountLedgerEntry BankAccountLedgerEntry[]
 }
 
 model BankAccountLedgerEntry {
   id                 String                  @id @default(auto()) @map("_id") @db.ObjectId
+  entryNo            Int                     @default(0)
+  bankAccountId      String                  @db.ObjectId
   postingDate        DateTime
   documentType       LedgerEntryDocumentType
   documentNo         String?
-  bankAccountId      String                  @db.ObjectId
   description        String?
   currencyCode       String?
   currencyRate       Float?
   currencyFactor     Float?
   amount             Float
-  amountLocal        Float?
+  amountLCY        Float?
   runningAmount      Float?
-  runningAmountLocal Float?
-  entryNo            Int                     @default(0)
+  runningAmountLCY Float?
+  bankAccountPostingGroupId String? @db.ObjectId
   open               Boolean                 @default(true)
-  externalDocumentNo String?
-  sourceCode         String?
-  sourceNo           String?
-  sourceType         String?
-  reasonCode         String?
-  comment            String?
+  positive           Boolean                 @default(false)
   dimension1         String?
   dimension2         String?
   dimension3         String?
@@ -2346,6 +2344,32 @@ model BankAccountLedgerEntry {
   dimension8         String?
   dimension9         String?
   dimension10        String?
+    externalDocumentNo String?
+  sourceCode         String?
+  sourceNo           String?
+  sourceType         String?
+  reasonCode         String?
+  comment            String?
+  closedByEntryNo  Int?
+  closedAtDate DateTime?
+  journalBatchId     String?                 @db.ObjectId
+  balAccountType     AccountType?
+  balAccountNo       String?
+  transactionNo        Int?
+  statementStatus  StatementStatus?
+  statementNo     String?
+  statementDate   DateTime?
+  statementLineNo Int?
+  debitAmount     Float?
+  creditAmount    Float?
+  debitAmountLCY Float?
+  creditAmountLCY Float?
+  documentDate    DateTime?
+  reversed         Boolean?                @default(false)
+  reversedByEntryNo Int?
+  reversedEntryNo   Int?
+  checkLedgerEntries Int?
+  dimensionSetID String?
   companyId          String                  @db.ObjectId
   tenantId           String                  @db.ObjectId
   userId             String                  @db.ObjectId
@@ -2353,10 +2377,19 @@ model BankAccountLedgerEntry {
   company            Company                 @relation(fields: [companyId], references: [id])
   tenant             Tenant                  @relation(fields: [tenantId], references: [id])
   bankAccount        BankAccount             @relation(fields: [bankAccountId], references: [id])
+  bankAccountPostingGroup BankAccountPostingGroup? @relation(fields: [bankAccountPostingGroupId], references: [id])
+  journalBatch       JournalBatch?           @relation(fields: [journalBatchId], references: [id])
   createdAt          DateTime                @default(now())
   updatedAt          DateTime                @updatedAt
 
   @@unique([tenantId, companyId])
+}
+
+enum StatementStatus {
+  OPEN
+  BANK_ACCOUNT_ENTRY_APPLIED
+  CHECK_ENTRY_APPLIED
+  CLOSED
 }
 
 model GLAccount {
