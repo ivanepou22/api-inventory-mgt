@@ -2396,12 +2396,11 @@ model GLAccount {
   id                       String            @id @default(auto()) @map("_id") @db.ObjectId
   no                       String            @unique
   name                     String?
-  searchName               String?
-  accountType              GLAccountType
   accountCategory          GLAccountCategory
   incomeBalance            IncomeBalanceType
+  AccountSubCategory       String?
   debit_credit             DebitCreditType
-  no_2                     String?
+  accountType              GLAccountType
   blocked                  Boolean?
   directPosting            Boolean?
   reconciliationAccount    Boolean?
@@ -2417,7 +2416,8 @@ model GLAccount {
   balanceAtDate            Float?            @default(0)
   newPage                  Boolean?
   balance                  Float?
-  balanceLocal             Float?
+  budgetAmount             Float?
+  netChangeAmount         Float?
   dimension1               String?
   dimension2               String?
   dimension3               String?
