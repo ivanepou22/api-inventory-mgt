@@ -227,6 +227,7 @@ model Currency {
   createdAt                    DateTime               @default(now())
   updatedAt                    DateTime               @updatedAt
   Contact                      Contact[]
+  BankAccount                  BankAccount[]
 
   @@unique([tenantId, companyId, code])
 }
@@ -2269,11 +2270,13 @@ model BankAccount {
   bankCity                  String?
   email                     String?
   phone                     String?
+  mobile                    String?
+  fax                       String?
   contactPerson             String?
   contactEmail              String?
   contactPhone              String?
   homePage                  String?
-  currencyCode              String?
+  currencyCode              String?                  @db.ObjectId
   lastStatementNumber       String?
   lastStatementDate         DateTime?
   lastStatementBalance      Float?
@@ -2286,6 +2289,7 @@ model BankAccount {
   company                   Company                  @relation(fields: [companyId], references: [id])
   tenant                    Tenant                   @relation(fields: [tenantId], references: [id])
   banKAccountPostingGroup   BankAccountPostingGroup? @relation(fields: [banKAccountPostingGroupId], references: [id])
+  currency                  Currency?                @relation(fields: [currencyCode], references: [id])
   createdAt                 DateTime                 @default(now())
   updatedAt                 DateTime                 @updatedAt
 
