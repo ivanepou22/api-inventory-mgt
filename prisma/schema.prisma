@@ -460,11 +460,11 @@ model User {
   Dimension                  Dimension[]
   dimensionValue             dimensionValue[]
   salesPrice                 salesPrice[]
+  AccountingPeriod           AccountingPeriod[]
 
   @@unique([tenantId, email])
   @@unique([tenantId, username])
   @@unique([tenantId, phone])
-  AccountingPeriod AccountingPeriod[]
 }
 
 enum Gender {
@@ -477,6 +477,7 @@ enum Role {
   ATTENDANT
   ONLINE_SALES
 }
+
 model Location {
   id                     String                  @id @default(auto()) @map("_id") @db.ObjectId
   code                   String
@@ -2006,9 +2007,9 @@ model Company {
   Dimension                  Dimension[]
   dimensionValue             dimensionValue[]
   salesPrice                 salesPrice[]
+  AccountingPeriod           AccountingPeriod[]
 
   @@unique([tenantId, code])
-  AccountingPeriod AccountingPeriod[]
 }
 
 model companyInformation {
@@ -2252,7 +2253,7 @@ model GeneralLedgerEntry {
 
 model BankAccount {
   id                        String                   @id @default(auto()) @map("_id") @db.ObjectId
-  bankNo                  String
+  bankNo                    String
   name                      String
   iban                      String?
   bic                       String?
@@ -2280,7 +2281,7 @@ model BankAccount {
   tenantId                  String                   @db.ObjectId
   companyId                 String                   @db.ObjectId
   userId                    String                   @db.ObjectId
-  BankAccountLedgerEntry BankAccountLedgerEntry[]
+  BankAccountLedgerEntry    BankAccountLedgerEntry[]
   user                      User                     @relation(fields: [userId], references: [id])
   company                   Company                  @relation(fields: [companyId], references: [id])
   tenant                    Tenant                   @relation(fields: [tenantId], references: [id])
@@ -2429,21 +2430,21 @@ enum DebitCreditType {
 }
 
 model AccountingPeriod {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  name        String   
-  startDate   DateTime
-  newFiscalYear Boolean? @default(false)
-  closed      Boolean? @default(false)
-  dateLocked Boolean? @default(false)
+  id                    String   @id @default(auto()) @map("_id") @db.ObjectId
+  name                  String
+  startDate             DateTime
+  newFiscalYear         Boolean? @default(false)
+  closed                Boolean? @default(false)
+  dateLocked            Boolean? @default(false)
   InventoryPeriodClosed Boolean? @default(false)
-  companyId   String   @db.ObjectId
-  tenantId    String   @db.ObjectId
-  userId      String   @db.ObjectId
-  user        User     @relation(fields: [userId], references: [id])
-  company     Company  @relation(fields: [companyId], references: [id])
-  tenant      Tenant   @relation(fields: [tenantId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  companyId             String   @db.ObjectId
+  tenantId              String   @db.ObjectId
+  userId                String   @db.ObjectId
+  user                  User     @relation(fields: [userId], references: [id])
+  company               Company  @relation(fields: [companyId], references: [id])
+  tenant                Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 
   @@unique([tenantId, companyId, startDate])
 }
